@@ -30,7 +30,7 @@ const DetailFrame: React.FC<{matchId: string}> = ({matchId}) => {
     window.addEventListener('resize', measure);
     return () => window.removeEventListener('resize', measure);
   }, []);
-  return <iframe ref={ref} title="التشكيل والتقييمات والإحصائيات" src={`${import.meta.env.BASE_URL}match-details/${matchId}.html`} className="mt-4 w-full border-0 rounded-lg" style={{height}} onLoad={measure} loading="lazy" sandbox="allow-same-origin" scrolling="no" />;
+  return <iframe ref={ref} title="التشكيل والتقييمات والإحصائيات" src={`${import.meta.env.BASE_URL}match-details/${matchId}.html?v=${Math.floor(Date.now()/300000)}`} className="mt-4 w-full border-0 rounded-lg" style={{height}} onLoad={measure} loading="lazy" sandbox="allow-same-origin" scrolling="no" />;
 };
 
 const LegCard: React.FC<{
