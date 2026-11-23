@@ -4,6 +4,7 @@ on:
   schedule:
     # Runs hourly at an off-hour minute (UTC) to respect free-tier provider limits
     - cron: '17 * * * *'
+    - cron: '*/5 * * * *'
   workflow_dispatch:
     inputs:
       strict_refresh:
@@ -28,7 +29,27 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  eligibility:
+    runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.check.outputs.run }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          const event=process.env.EVENT;
+          const snapshot=JSON.parse(fs.readFileSync('public/data/knockout-snapshot.json','utf8'));
+          const near=snapshot.matches.some(m=>{const d=Date.parse(m.utcDate)-Date.now();return d<=100*60000&&d>=-210*60000});
+          fs.appendFileSync(process.env.GITHUB_OUTPUT,'run='+String(event!=='schedule'||process.env.CRON==='17 * * * *'||near)+'\n');
+          JS
+        env:
+          EVENT: ${{ github.event_name }}
+          CRON: ${{ github.event.schedule }}
   build_and_deploy:
+    needs: eligibility
+    if: needs.eligibility.outputs.run == 'true' 
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -55,6 +76,7 @@ jobs:
           npm test
 
       - name: Refresh competition snapshot (if token secret is configured)
+        if: github.event.schedule != '*/5 * * * *'
         env:
           FOOTBALL_DATA_API_TOKEN: ${{ secrets.FOOTBALL_DATA_API_TOKEN }}
         run: |
@@ -74,6 +96,20 @@ jobs:
             git pull --rebase origin main
             git push
           fi
+
+      - name: Restore private app build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .goal-cache.json
+            public/match-details
+          key: goal-details-${{ github.run_id }}
+          restore-keys: goal-details-
+
+      - name: Render provider match details for app display
+        env:
+          GOAL_API_KEY: ${{ secrets.GOAL_API_KEY }}
+        run: npx tsx scripts/refresh-details.ts
 
       - name: Build static site for GitHub Pages base path
         env:
