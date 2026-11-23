@@ -160,6 +160,14 @@ const LegCard: React.FC<{
           {match.resolutionNote}
         </p>
       )}
+
+      <p
+        data-testid="lineup-unavailable-notice"
+        className="mt-3 rounded border border-[#c4d2e8]/12 bg-[#0d172b] px-3 py-2 text-xs leading-relaxed text-[#9fb1ca]"
+      >
+        مصدر البيانات الحالي لا يوفر التشكيلات الرسمية أو إحصائيات أو تقييمات اللاعبين لهذه
+        المباراة.
+      </p>
     </div>
   );
 };
