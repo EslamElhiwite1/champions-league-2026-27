@@ -334,9 +334,7 @@ describe('Champions League Matches & Knockout App UI (Arabic / RTL)', () => {
     expect(within(dialog).getByText(/الشوط الأول/i)).toBeInTheDocument();
     expect(within(dialog).getByText(/الأربعاء، 16 سبتمبر 2026/i)).toBeInTheDocument();
     expect(within(dialog).getByText(/11:15 صباحًا/i)).toBeInTheDocument();
-    expect(within(dialog).getByTestId('lineup-unavailable-notice')).toHaveTextContent(
-      /لا يوفر التشكيلات الرسمية أو إحصائيات أو تقييمات اللاعبين/,
-    );
+    expect(within(dialog).getByTitle('التشكيل والتقييمات والإحصائيات')).toHaveAttribute('sandbox', '');
     expect(within(dialog).queryByTestId('lineup-pitch-view')).not.toBeInTheDocument();
 
     fireEvent.keyDown(window, {key: 'Escape'});
@@ -356,7 +354,7 @@ describe('Champions League Matches & Knockout App UI (Arabic / RTL)', () => {
     expect(within(dialog).getByText(/مباراة الإياب \(تبديل الأرض والضيافة\)/i)).toBeInTheDocument();
     expect(within(dialog).getByText('ركلات الترجيح')).toBeInTheDocument();
     expect(within(dialog).getByText(/متأهل مؤكد \(Club Delta\)/i)).toBeInTheDocument();
-    expect(within(dialog).getAllByTestId('lineup-unavailable-notice').length).toBe(2);
+    expect(within(dialog).getAllByTitle('التشكيل والتقييمات والإحصائيات').length).toBe(2);
     expect(within(dialog).queryByTestId('lineup-pitch-view')).not.toBeInTheDocument();
   });
 
