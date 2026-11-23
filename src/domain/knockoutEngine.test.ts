@@ -19,6 +19,7 @@ import {
   SYNTHETIC_TEAMS,
 } from '../testing/syntheticFixtures';
 import type {RawFootballDataCompetitionMatchesResponse} from '../types/knockout';
+import {resolveDefaultDateKey} from '../components/FixturesTable';
 import {getArabicClubDisplayName, getTeamSearchHaystack} from './arabicClubs';
 import {formatKickoffTime, resolveNormalizedScore} from './knockoutEngine';
 
@@ -270,7 +271,10 @@ describe('knockoutEngine & footballDataAdapter', () => {
       const resolved = getVerifiedMatchBroadcaster(match);
       expect(resolved).not.toBeNull();
       expect(resolved!.channelName).toBe(expectedChannelsByMatchId[match.matchId]);
-      expect(resolved!.channelLogoUrl).toMatch(/^https:\/\/prod-media\.beinsports\.com\/image\//);
+      expect(resolved!.channelLogoUrl).toMatch(
+        /^https:\/\/prod-media\.beinsports\.com\/image\/[a-f0-9]+\.png\?ver=03-06-2025$/,
+      );
+      expect(resolved!.channelLogoUrl).not.toContain('.3840.');
       expect(resolved!.checkedAt).toBe('2026-11-23');
       expect(resolved!.sourceUrl).toBe('https://www.beinsports.com/en-mena/tv-guide');
     }
@@ -714,5 +718,45 @@ describe('knockoutEngine & footballDataAdapter', () => {
     const morningCairo = formatKickoffTime('2026-09-16T08:15:00Z', 'cairo');
     expect(morningCairo.timeLabel).toBe('11:15 صباحًا');
     expect(morningCairo.dateLabel).toContain('الأربعاء');
+  });
+
+  it('resolves default single match day strictly as today -> nearest future -> most recent past', () => {
+    const groups = [
+      {dateKey: '2026-09-15'},
+      {dateKey: '2026-09-16'},
+      {dateKey: '2026-11-24'},
+      {dateKey: '2026-11-25'},
+      {dateKey: '2027-03-09'},
+    ];
+
+    // 1. Today has games -> select today
+    expect(resolveDefaultDateKey(groups, '2026-11-24')).toBe('2026-11-24');
+
+    // 2. Today has no games -> select nearest future date
+    expect(resolveDefaultDateKey(groups, '2026-11-23')).toBe('2026-11-24');
+    expect(resolveDefaultDateKey(groups, '2026-11-26')).toBe('2027-03-09');
+
+    // 3. Only past dates exist -> select most recent past date
+    expect(resolveDefaultDateKey(groups, '2027-06-01')).toBe('2027-03-09');
+    expect(resolveDefaultDateKey([{dateKey: '2026-09-15'}, {dateKey: '2026-09-16'}], '2026-11-23')).toBe(
+      '2026-09-16',
+    );
+
+    // 4. Only TBD or empty
+    expect(resolveDefaultDateKey([{dateKey: 'TBD'}], '2026-11-23')).toBe('TBD');
+    expect(resolveDefaultDateKey([], '2026-11-23')).toBeNull();
+  });
+
+  it('never invents lineups, players, or ratings when adapting football-data.org provider matches', () => {
+    const realSnapshot = adaptFootballDataMatches(buildRealNov2425ProviderPayload());
+    expect(realSnapshot.matches.length).toBeGreaterThan(0);
+    for (const match of realSnapshot.matches) {
+      expect(match.lineups).toBeNull();
+    }
+    for (const tie of realSnapshot.ties) {
+      for (const leg of tie.legs) {
+        expect(leg.lineups).toBeNull();
+      }
+    }
   });
 });
