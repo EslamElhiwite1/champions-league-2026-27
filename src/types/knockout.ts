@@ -113,6 +113,37 @@ export interface NormalizedScore {
   ambiguityNote?: string;
 }
 
+export interface OfficialLineupPlayer {
+  id: number | null;
+  name: string;
+  shirtNumber: number | null;
+  position: string | null;
+  /** Optional formation grid coordinates supplied by a verified official lineup feed */
+  gridRow?: number | null;
+  gridCol?: number | null;
+  /** Optional provider-sourced HTTPS photo URL; missing or broken renders neutral silhouette */
+  photoUrl?: string | null;
+  /** Optional provider-sourced player rating; rendered strictly when numeric and verified */
+  rating?: number | null;
+}
+
+export interface OfficialTeamLineup {
+  teamId: number | null;
+  teamName: string;
+  formation: string | null;
+  coachName?: string | null;
+  starters: OfficialLineupPlayer[];
+  substitutes?: OfficialLineupPlayer[];
+}
+
+export interface VerifiedMatchLineups {
+  /** Must be strictly true and backed by an official lineup feed — never set for squad lists */
+  isOfficialLineup: boolean;
+  sourceName: string;
+  home: OfficialTeamLineup | null;
+  away: OfficialTeamLineup | null;
+}
+
 export interface KnockoutMatch {
   matchId: string;
   providerMatchId: number | null;
@@ -130,6 +161,8 @@ export interface KnockoutMatch {
   venue: string | null;
   score: NormalizedScore;
   resolutionNote: string | null;
+  /** Verified official match lineups only; explicitly null when current provider lacks lineup data */
+  lineups?: VerifiedMatchLineups | null;
 }
 
 export interface AggregateSummary {
