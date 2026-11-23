@@ -109,7 +109,7 @@ function sanitizeCrestUrl(rawUrl: string | null | undefined): string | null {
 
 function normalizeTeam(rawTeam: RawFootballDataTeam | null | undefined): TeamRef {
   if (!rawTeam || rawTeam.id == null || !rawTeam.name || rawTeam.name.trim().toUpperCase() === 'TBD') {
-    return createTbdTeam('Participant awaiting draw or preceding knockout result.');
+    return createTbdTeam('طرف المواجهة بانتظار القرعة أو حسم الدور السابق.');
   }
   const cleanName = rawTeam.name.trim();
   const cleanShort = (rawTeam.shortName ?? cleanName).trim() || cleanName;
@@ -142,16 +142,16 @@ function buildResolutionNote(
   ambiguityNote?: string,
 ): string | null {
   if (status === 'POSTPONED') {
-    return 'Fixture postponed by competition organizers; awaiting rescheduled date.';
+    return 'تأجلت المباراة بقرار من الجهة المنظمة وبانتظار تحديد الموعد الجديد.';
   }
   if (status === 'SUSPENDED') {
-    return 'Fixture suspended; outcome remains unresolved until completion.';
+    return 'المباراة معلّقة وتبقى نتيجتها غير محسومة لحين استكمالها.';
   }
   if (status === 'CANCELLED') {
-    return 'Fixture cancelled.';
+    return 'تم إلغاء هذه المباراة.';
   }
   if (isScoreAmbiguous) {
-    return ambiguityNote ?? 'Score breakdown requires manual verification.';
+    return ambiguityNote ?? 'تفصيل النتيجة يتطلب مراجعة يدوية.';
   }
   return null;
 }
@@ -252,12 +252,12 @@ export function adaptFootballDataMatches(
       seasonStartYear: expectedSeasonStartYear,
       seasonLabel,
       ingestionStatus: 'awaiting_draw',
-      statusMessage: `Connected to ${COMPETITION_CONFIG.providerName} for ${seasonLabel}, but no Champions League fixtures are published yet.`,
+      statusMessage: `تم الاتصال بمصدر ${COMPETITION_CONFIG.providerName} لموسم ${seasonLabel}، ولا توجد مباريات منشورة حتى الآن.`,
       sourceName: COMPETITION_CONFIG.providerName,
       sourceLastUpdatedUtc: latestSourceTs > 0 ? new Date(latestSourceTs).toISOString() : null,
       ingestedAtUtc,
       ties: createEmptyBracketSkeleton(
-        'Knockout fixtures are not yet published in the competition feed.',
+        'مواجهات الأدوار الإقصائية غير منشورة في خلاصة البطولة بعد.',
       ),
       matches: [],
     };
@@ -322,8 +322,8 @@ export function adaptFootballDataMatches(
         slotIndex: blueprint.slotIndex,
         label: blueprint.label,
         isTwoLegged: blueprint.isTwoLegged,
-        teamA: createTbdTeam('Participant not yet confirmed for this slot.'),
-        teamB: createTbdTeam('Participant not yet confirmed for this slot.'),
+        teamA: createTbdTeam('لم يتحدد الطرف الأول بعد.'),
+        teamB: createTbdTeam('لم يتحدد الطرف الثاني بعد.'),
         legs: [],
         feedsIntoTieId: blueprint.feedsIntoTieId,
       };
@@ -423,8 +423,8 @@ export function adaptFootballDataMatches(
   const knockoutCount = knockoutRaw.length;
   const statusMessage =
     knockoutCount === 0
-      ? `Normalized ${allMatches.length} ${seasonLabel} Champions League fixture(s). Round of 16 through Final knockout ties remain TBD pending draw.`
-      : `Normalized ${allMatches.length} ${seasonLabel} Champions League fixture(s), including ${knockoutCount} knockout-bracket match(es).`;
+      ? `تمت مزامنة ${allMatches.length} مباراة في دوري أبطال أوروبا ${seasonLabel}. مواجهات دور الـ16 حتى النهائي لا تزال بانتظار القرعة والتأهل.`
+      : `تمت مزامنة ${allMatches.length} مباراة في دوري أبطال أوروبا ${seasonLabel}، من بينها ${knockoutCount} مباراة في الأدوار الإقصائية.`;
 
   return {
     schemaVersion: 1,

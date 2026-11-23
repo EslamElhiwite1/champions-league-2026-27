@@ -10,32 +10,36 @@ import {
   buildSyntheticSnapshot,
 } from './testing/syntheticFixtures';
 
-describe('Champions League Matches & Knockout App UI', () => {
+const NOV_23_2026_MS = Date.parse('2026-11-23T18:00:00Z');
+
+describe('Champions League Matches & Knockout App UI (Arabic / RTL)', () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  it('renders normal Matches as the default landing view and keeps Knockout bracket hidden until opened via bottom nav', () => {
+  it('renders Arabic RTL layout with Matches as default view and opens Knockout trophy screen via bottom nav', () => {
     const initial = createInitialTruthfulSnapshot();
-    render(<App initialSnapshot={initial} />);
+    const {container} = render(<App initialSnapshot={initial} nowMs={NOV_23_2026_MS} />);
 
-    // Matches landing view is active by default
+    expect(container.firstElementChild).toHaveAttribute('dir', 'rtl');
+
+    // Matches landing view is active by default in Arabic
     expect(
-      screen.getByRole('heading', {name: /2026\/27 Champions League Fixtures & Results/i}),
+      screen.getByRole('heading', {name: /مباريات ونتائج دوري أبطال أوروبا 2026\/27/i}),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', {name: /Matches by Calendar Date/i}),
+      screen.getByRole('heading', {name: /المباريات حسب التاريخ/i}),
     ).toBeInTheDocument();
 
     // Knockout bracket is NOT mounted on initial load
     expect(
-      screen.queryByRole('heading', {name: /2026\/27 Tournament Bracket/i}),
+      screen.queryByRole('heading', {name: /شجرة بطولة 2026\/27/i}),
     ).not.toBeInTheDocument();
 
-    // Fixed bottom navigation has Matches and trophy-labelled Knockout
-    const bottomNav = screen.getByRole('navigation', {name: /Primary view navigation/i});
-    const matchesNavBtn = within(bottomNav).getByRole('button', {name: /^Matches$/i});
-    const knockoutNavBtn = within(bottomNav).getByRole('button', {name: /Knockout/i});
+    // Fixed bottom navigation has Matches and trophy-labelled Knockout in Arabic
+    const bottomNav = screen.getByRole('navigation', {name: /التنقل الرئيسي بين الأقسام/i});
+    const matchesNavBtn = within(bottomNav).getByRole('button', {name: /^المباريات$/i});
+    const knockoutNavBtn = within(bottomNav).getByRole('button', {name: /الأدوار الإقصائية/i});
 
     expect(matchesNavBtn).toHaveAttribute('aria-current', 'page');
     expect(knockoutNavBtn).not.toHaveAttribute('aria-current', 'page');
@@ -43,108 +47,185 @@ describe('Champions League Matches & Knockout App UI', () => {
     // Open Knockout bracket on demand via bottom nav
     fireEvent.click(knockoutNavBtn);
     expect(
-      screen.getByRole('heading', {name: /2026\/27 Tournament Bracket/i}),
+      screen.getByRole('heading', {name: /شجرة بطولة 2026\/27/i}),
     ).toBeInTheDocument();
     expect(knockoutNavBtn).toHaveAttribute('aria-current', 'page');
+
+    // Desktop bracket tree retains explicit dir="ltr" spatial isolation for inward connector geometry
+    const bracketSection = screen.getByRole('heading', {name: /شجرة بطولة 2026\/27/i}).closest('section')!;
+    expect(bracketSection.querySelector('[dir="ltr"]')).not.toBeNull();
 
     // Return to Matches via bottom nav
     fireEvent.click(matchesNavBtn);
     expect(
-      screen.getByRole('heading', {name: /Matches by Calendar Date/i}),
+      screen.getByRole('heading', {name: /المباريات حسب التاريخ/i}),
     ).toBeInTheDocument();
   });
 
-  it('renders 144 LEAGUE_STAGE fixtures grouped by calendar date in Egypt time without rendering unpermitted crests', () => {
-    const leagueSnapshot = adaptFootballDataMatches(buildLeagueStageOnlyProviderPayload(144));
-    render(<App initialSnapshot={leagueSnapshot} />);
+  it('defaults to upcoming/current match dates first and provides quick navigation to historic September results', () => {
+    const synthetic = buildSyntheticSnapshot();
+    render(<App initialSnapshot={synthetic} nowMs={NOV_23_2026_MS} />);
 
-    expect(screen.getByText(/Showing 144 of 144 verified fixture\(s\)/i)).toBeInTheDocument();
-    expect(screen.getByText(/144 League Stage · 0 Knockout/i)).toBeInTheDocument();
-    expect(screen.getByText('0 / 15')).toBeInTheDocument();
+    // Default landing selects upcoming/current matches (9 upcoming out of 11 total) rather than September historic results
+    expect(screen.getByText(/عرض 9 من أصل 11 مباراة موثقة/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', {name: /الثلاثاء، 24 نوفمبر 2026/i})).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', {name: /الثلاثاء، 15 سبتمبر 2026/i}),
+    ).not.toBeInTheDocument();
 
-    // Egypt time default is clearly labeled and DST-aware (19:00 UTC -> 22:00 Egypt time in September)
-    expect(screen.getByRole('button', {name: /Egypt time \(Africa\/Cairo\)/i})).toHaveAttribute(
-      'aria-pressed',
-      'true',
+    // 12-hour Egypt time labels (مساءً) are used instead of 24-hour default
+    expect(screen.getAllByText(/10:00 مساءً/).length).toBeGreaterThan(0);
+
+    // Quick date navigation exposes past results & all dates
+    const pastBtn = screen.getByRole('button', {name: /النتائج السابقة \(2\)/i});
+    fireEvent.click(pastBtn);
+
+    expect(screen.getByText(/عرض 2 من أصل 11 مباراة موثقة/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', {name: /الثلاثاء، 15 سبتمبر 2026/i})).toBeInTheDocument();
+    expect(screen.getByRole('heading', {name: /الأربعاء، 16 سبتمبر 2026/i})).toBeInTheDocument();
+    // Morning kickoff shows explicit صباحًا
+    expect(screen.getAllByText(/11:15 صباحًا/).length).toBeGreaterThan(0);
+
+    // Switch to all dates
+    const allDatesBtn = screen.getByRole('button', {name: /جميع التواريخ \(11\)/i});
+    fireEvent.click(allDatesBtn);
+    expect(screen.getByText(/عرض 11 من أصل 11 مباراة موثقة/i)).toBeInTheDocument();
+  });
+
+  it('renders strictly the 4 cleared Wikimedia Commons SVG icons (Bayern, Dortmund, Inter, Napoli) with fallback on error, monograms for other clubs, and partial coverage count in attribution', () => {
+    const synthetic = buildSyntheticSnapshot();
+    render(<App initialSnapshot={synthetic} nowMs={NOV_23_2026_MS} />);
+
+    // Upcoming view displays Bayern München (5), Borussia Dortmund (4), Inter (108), and Napoli (113)
+    const imgs = Array.from(document.querySelectorAll('img'));
+    expect(imgs.length).toBeGreaterThan(0);
+    const uniqueSrcs = Array.from(new Set(imgs.map((img) => img.getAttribute('src'))));
+    expect(uniqueSrcs.sort()).toEqual([
+      'https://upload.wikimedia.org/wikipedia/commons/0/00/SSC_Napoli_2024_%28deep_blue_navy%29.svg',
+      'https://upload.wikimedia.org/wikipedia/commons/0/05/FC_Internazionale_Milano_2021.svg',
+      'https://upload.wikimedia.org/wikipedia/commons/6/67/Borussia_Dortmund_logo.svg',
+      'https://upload.wikimedia.org/wikipedia/commons/8/8d/FC_Bayern_M%C3%BCnchen_logo_%282024%29.svg',
+    ]);
+
+    // Footer includes accessible attribution section, partial count/coverage note, and all 4 source links
+    expect(
+      screen.getByRole('heading', {name: /مصادر وإسناد أيقونات الشعارات المتاحة/i}),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/تغطية جزئية للشعارات: 4 أندية مصرح بها فقط/i),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText(/يختلف توفر شعارات الأندية/i).length).toBeGreaterThan(0);
+    expect(
+      screen.getByRole('link', {name: /File:FC_Bayern_München_logo_\(2024\)\.svg/i}),
+    ).toHaveAttribute(
+      'href',
+      'https://commons.wikimedia.org/wiki/File:FC_Bayern_M%C3%BCnchen_logo_(2024).svg',
     );
-    expect(screen.getAllByText(/22:00/).length).toBeGreaterThan(0);
+    expect(
+      screen.getByRole('link', {name: /File:Borussia_Dortmund_logo\.svg/i}),
+    ).toHaveAttribute(
+      'href',
+      'https://commons.wikimedia.org/wiki/File:Borussia_Dortmund_logo.svg',
+    );
+    expect(
+      screen.getByRole('link', {name: /File:FC_Internazionale_Milano_2021\.svg/i}),
+    ).toHaveAttribute(
+      'href',
+      'https://commons.wikimedia.org/wiki/File:FC_Internazionale_Milano_2021.svg',
+    );
+    expect(
+      screen.getByRole('link', {name: /File:SSC_Napoli_2024_\(deep_blue_navy\)\.svg/i}),
+    ).toHaveAttribute(
+      'href',
+      'https://commons.wikimedia.org/wiki/File:SSC_Napoli_2024_(deep_blue_navy).svg',
+    );
 
-    // Calendar date groups appear
-    expect(screen.getByRole('heading', {name: /Tue, 15 Sep(?:t)? 2026/i})).toBeInTheDocument();
-
-    // Unpermitted third-party club crest images must NOT render
+    // Simulating image load failure falls back cleanly to monogram text without crashing
+    for (const img of imgs) {
+      fireEvent.error(img);
+    }
     expect(document.querySelectorAll('img')).toHaveLength(0);
+    expect(screen.getAllByText('FCB').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('BVB').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('INT').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('NAP').length).toBeGreaterThan(0);
+
+    // Non-whitelisted clubs with external crest URLs render 0 <img> elements
+    const leagueSnapshot = adaptFootballDataMatches(buildLeagueStageOnlyProviderPayload(144));
+    const {unmount} = render(<App initialSnapshot={leagueSnapshot} nowMs={NOV_23_2026_MS} />);
+    expect(document.querySelectorAll('img')).toHaveLength(0);
+    unmount();
   });
 
-  it('filters fixtures by stage, matchday, status, and team search together and resets cleanly', () => {
+  it('filters fixtures in Arabic & English team search alongside stage, matchday, and status filters and resets cleanly', () => {
     const synthetic = buildSyntheticSnapshot();
-    render(<App initialSnapshot={synthetic} />);
+    render(<App initialSnapshot={synthetic} nowMs={NOV_23_2026_MS} />);
 
-    // 2 LEAGUE_STAGE + 7 ROUND_OF_16 = 9 total fixtures
-    expect(screen.getByText(/Showing 9 of 9 verified fixture\(s\)/i)).toBeInTheDocument();
+    // Search by curated Arabic club name ("ريال مدريد") even though match is historic
+    const searchInput = screen.getByLabelText(/البحث باسم النادي/i);
+    fireEvent.change(searchInput, {target: {value: 'ريال مدريد'}});
+    expect(screen.getByText(/عرض 1 من أصل 11 مباراة موثقة/i)).toBeInTheDocument();
+    expect(screen.getAllByText('ريال مدريد').length).toBeGreaterThan(0);
 
-    // Filter by Matchday 1
-    const matchdaySelect = screen.getByLabelText(/^Matchday$/i);
-    fireEvent.change(matchdaySelect, {target: {value: '1'}});
-    expect(screen.getByText(/Showing 1 of 9 verified fixture\(s\)/i)).toBeInTheDocument();
-
-    // Reset and test Team Search + Status + Stage conjunction
-    fireEvent.click(screen.getByRole('button', {name: /Reset Filters/i}));
-    expect(screen.getByText(/Showing 9 of 9 verified fixture\(s\)/i)).toBeInTheDocument();
-
-    const searchInput = screen.getByLabelText(/Team Search/i);
+    // Search by English fallback name ("Epsilon")
     fireEvent.change(searchInput, {target: {value: 'Epsilon'}});
-    expect(screen.getByText(/Showing 2 of 9 verified fixture\(s\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/عرض 2 من أصل 11 مباراة موثقة/i)).toBeInTheDocument();
 
-    const statusSelect = screen.getByLabelText(/Match Status/i);
+    const statusSelect = screen.getByLabelText(/حالة المباراة/i);
     fireEvent.change(statusSelect, {target: {value: 'POSTPONED'}});
-    expect(screen.getByText(/Showing 1 of 9 verified fixture\(s\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/عرض 1 من أصل 11 مباراة موثقة/i)).toBeInTheDocument();
 
-    const stageSelect = screen.getByLabelText(/^Stage$/i);
+    const stageSelect = screen.getByLabelText(/^المرحلة$/i);
     fireEvent.change(stageSelect, {target: {value: 'FINAL'}});
-    expect(screen.getByText(/No Fixtures Match Your Filters/i)).toBeInTheDocument();
+    expect(screen.getByText(/لا توجد مباريات مطابقة للبحث أو التصفية الحالية/i)).toBeInTheDocument();
 
-    const resetButtons = screen.getAllByRole('button', {name: /Reset All Filters|Reset Filters/i});
-    fireEvent.click(resetButtons[0]);
-    expect(screen.getByText(/Showing 9 of 9 verified fixture\(s\)/i)).toBeInTheDocument();
+    const resetBtns = screen.getAllByRole('button', {
+      name: /إعادة تعيين جميع الفلاتر|إعادة تعيين الفلاتر/i,
+    });
+    fireEvent.click(resetBtns[0]);
+    expect(screen.getByText(/عرض 9 من أصل 11 مباراة موثقة/i)).toBeInTheDocument();
   });
 
-  it('opens match detail panel for both League Stage matches and Knockout ties and closes with Escape', () => {
+  it('opens match detail panel in Arabic for League Stage matches and Knockout ties and closes with Escape', () => {
     const synthetic = buildSyntheticSnapshot();
-    render(<App initialSnapshot={synthetic} />);
+    render(<App initialSnapshot={synthetic} nowMs={NOV_23_2026_MS} />);
 
-    // Inspect a LEAGUE_STAGE match
-    const matchInfoBtns = screen.getAllByRole('button', {name: /Match Info/i});
+    // Switch to Past results to inspect a finished LEAGUE_STAGE match with Half-Time score
+    fireEvent.click(screen.getByRole('button', {name: /النتائج السابقة \(2\)/i}));
+    const matchInfoBtns = screen.getAllByRole('button', {name: /تفاصيل المباراة/i});
     fireEvent.click(matchInfoBtns[0]);
+
     let dialog = screen.getByRole('dialog');
-    expect(within(dialog).getAllByText(/League Stage · Matchday 1/i).length).toBeGreaterThan(0);
-    expect(within(dialog).getByText(/Half-time/i)).toBeInTheDocument();
+    expect(within(dialog).getAllByText(/مرحلة الدوري · الجولة 1/i).length).toBeGreaterThan(0);
+    expect(within(dialog).getByText(/الشوط الأول/i)).toBeInTheDocument();
+    expect(within(dialog).getByText(/الأربعاء، 16 سبتمبر 2026/i)).toBeInTheDocument();
+    expect(within(dialog).getByText(/11:15 صباحًا/i)).toBeInTheDocument();
 
     fireEvent.keyDown(window, {key: 'Escape'});
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 
     // Switch to Knockout Bracket tab and inspect Tie 2 (Penalties)
-    const bottomNav = screen.getByRole('navigation', {name: /Primary view navigation/i});
-    fireEvent.click(within(bottomNav).getByRole('button', {name: /Knockout/i}));
+    const bottomNav = screen.getByRole('navigation', {name: /التنقل الرئيسي بين الأقسام/i});
+    fireEvent.click(within(bottomNav).getByRole('button', {name: /الأدوار الإقصائية/i}));
 
     const inspectTie2Btns = screen.getAllByRole('button', {
-      name: /Inspect Round of 16 · Tie 2: Club Gamma vs Club Delta/i,
+      name: /استعراض دور الـ16 · المواجهة 2: Club Gamma ضد Club Delta/i,
     });
     fireEvent.click(inspectTie2Btns[0]);
 
     dialog = screen.getByRole('dialog');
-    expect(within(dialog).getByText(/First Leg/i)).toBeInTheDocument();
-    expect(within(dialog).getByText(/Second Leg \(Reversed Home \/ Away\)/i)).toBeInTheDocument();
-    expect(within(dialog).getByText(/Penalty Shootout/i)).toBeInTheDocument();
-    expect(within(dialog).getByText(/Confirmed \(Club Delta\)/i)).toBeInTheDocument();
+    expect(within(dialog).getByText('مباراة الذهاب')).toBeInTheDocument();
+    expect(within(dialog).getByText(/مباراة الإياب \(تبديل الأرض والضيافة\)/i)).toBeInTheDocument();
+    expect(within(dialog).getByText('ركلات الترجيح')).toBeInTheDocument();
+    expect(within(dialog).getByText(/متأهل مؤكد \(Club Delta\)/i)).toBeInTheDocument();
   });
 
   it('switches kickoff timezone between Egypt time (Africa/Cairo) and Viewer Local', () => {
     const synthetic = buildSyntheticSnapshot();
-    render(<App initialSnapshot={synthetic} />);
+    render(<App initialSnapshot={synthetic} nowMs={NOV_23_2026_MS} />);
 
-    const egyptBtn = screen.getByRole('button', {name: /Egypt time \(Africa\/Cairo\)/i});
-    const localBtn = screen.getByRole('button', {name: /^Local \(/i});
+    const egyptBtn = screen.getByRole('button', {name: /توقيت مصر \(Africa\/Cairo\)/i});
+    const localBtn = screen.getByRole('button', {name: /^التوقيت المحلي \(/i});
 
     expect(egyptBtn).toHaveAttribute('aria-pressed', 'true');
     expect(localBtn).toHaveAttribute('aria-pressed', 'false');
@@ -168,39 +249,41 @@ describe('Champions League Matches & Knockout App UI', () => {
 
     vi.stubGlobal('fetch', fetchMock);
 
-    render(<App />);
+    render(<App nowMs={NOV_23_2026_MS} />);
 
     await waitFor(() => {
-      expect(screen.getByText(/Showing 9 of 9 verified fixture\(s\)/i)).toBeInTheDocument();
+      expect(screen.getByText(/عرض 9 من أصل 11 مباراة موثقة/i)).toBeInTheDocument();
     });
 
-    const recheckBtn = screen.getByRole('button', {name: /Recheck published snapshot/i});
+    const recheckBtn = screen.getByRole('button', {name: /التحقق من آخر لقطة منشورة/i});
     fireEvent.click(recheckBtn);
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/Snapshot recheck failed — retaining last validated snapshot/i),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/تعذر التحقق من التحديث/i)).toBeInTheDocument();
     });
 
-    expect(screen.getByText(/Showing 9 of 9 verified fixture\(s\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/عرض 9 من أصل 11 مباراة موثقة/i)).toBeInTheDocument();
   });
 
-  it('supports mobile bracket stage tabs when Knockout view is opened', () => {
+  it('supports mobile bracket stage tabs in Arabic when Knockout view is opened', () => {
     const initial = createInitialTruthfulSnapshot();
-    render(<App initialSnapshot={initial} />);
+    render(<App initialSnapshot={initial} nowMs={NOV_23_2026_MS} />);
 
-    const bottomNav = screen.getByRole('navigation', {name: /Primary view navigation/i});
-    fireEvent.click(within(bottomNav).getByRole('button', {name: /Knockout/i}));
+    const bottomNav = screen.getByRole('navigation', {name: /التنقل الرئيسي بين الأقسام/i});
+    fireEvent.click(within(bottomNav).getByRole('button', {name: /الأدوار الإقصائية/i}));
 
-    const qfTab = screen.getByRole('tab', {name: 'Quarter-finals'});
+    const qfTab = screen.getByRole('tab', {name: 'ربع النهائي'});
     fireEvent.click(qfTab);
     expect(qfTab).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByRole('tabpanel', {name: 'Quarter-finals'})).toBeInTheDocument();
+    expect(screen.getByRole('tabpanel', {name: 'ربع النهائي'})).toBeInTheDocument();
   });
 
-  it('includes prefers-reduced-motion accessibility rules in global CSS', () => {
+  it('includes prefers-reduced-motion accessibility rules and Arabic RTL root attributes', () => {
     const css = fs.readFileSync(path.resolve(process.cwd(), 'src/index.css'), 'utf8');
     expect(css).toContain('prefers-reduced-motion: reduce');
+
+    const html = fs.readFileSync(path.resolve(process.cwd(), 'index.html'), 'utf8');
+    expect(html).toContain('lang="ar"');
+    expect(html).toContain('dir="rtl"');
   });
 });

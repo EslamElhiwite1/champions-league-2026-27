@@ -1,19 +1,22 @@
 import React from 'react';
+import {getArabicClubDisplayName} from '../domain/arabicClubs';
+import type {TeamRef} from '../types/knockout';
 
 interface TrophyIllustrationProps {
-  championName?: string | null;
+  champion?: TeamRef | null;
   className?: string;
 }
 
 /**
  * Original vector illustration of the iconic twin-handled European Champion Clubs' Cup
  * silhouette, created specifically for this independent editorial project.
- * Provenance: Original authored SVG paths (no external scraping, no UEFA wordmark/emblem).
  */
 export const TrophyIllustration: React.FC<TrophyIllustrationProps> = ({
-  championName,
+  champion,
   className = '',
 }) => {
+  const championDisplay = champion ? getArabicClubDisplayName(champion) : null;
+
   return (
     <figure className={`relative flex flex-col items-center select-none ${className}`}>
       <div
@@ -29,12 +32,9 @@ export const TrophyIllustration: React.FC<TrophyIllustrationProps> = ({
           role="img"
           aria-labelledby="ucl-trophy-title ucl-trophy-desc"
         >
-          <title id="ucl-trophy-title">
-            European Champion Clubs&apos; Cup Silhouette Illustration
-          </title>
+          <title id="ucl-trophy-title">رسم متجهي لكأس أبطال أوروبا</title>
           <desc id="ucl-trophy-desc">
-            Original vector illustration of the twin-handled European championship trophy with a
-            flared silver chalice, curling handles, waisted stem, and stepped cylindrical base.
+            رسم متجهي أصلي يوضح كأس البطولة الأوروبية ذي المقبضين المقوسين والقاعدة المتدرجة.
           </desc>
 
           <defs>
@@ -81,7 +81,6 @@ export const TrophyIllustration: React.FC<TrophyIllustrationProps> = ({
             </linearGradient>
           </defs>
 
-          {/* Left iconic curling twin handle ("Big Ears") */}
           <path
             d="M 73 72
                C 44 62, 23 48, 25 32
@@ -99,7 +98,6 @@ export const TrophyIllustration: React.FC<TrophyIllustrationProps> = ({
             strokeWidth="0.9"
           />
 
-          {/* Right iconic curling twin handle ("Big Ears") */}
           <path
             d="M 167 72
                C 196 62, 217 48, 215 32
@@ -117,10 +115,8 @@ export const TrophyIllustration: React.FC<TrophyIllustrationProps> = ({
             strokeWidth="0.9"
           />
 
-          {/* Cup interior shadow ellipse */}
           <ellipse cx="120" cy="48" rx="52" ry="9.5" fill="url(#bowlInterior)" />
 
-          {/* Main flared bell-shaped bowl */}
           <path
             d="M 67 48
                C 69 78, 76 112, 88 142
@@ -133,14 +129,12 @@ export const TrophyIllustration: React.FC<TrophyIllustrationProps> = ({
             fill="url(#silverBody)"
           />
 
-          {/* Specular vertical sheen stripe on bowl */}
           <path
             d="M 101 56 C 103 95, 107 140, 111 182 L 122 182 C 119 140, 117 95, 116 56 Z"
             fill="#ffffff"
             fillOpacity="0.22"
           />
 
-          {/* Flared upper rim */}
           <ellipse
             cx="120"
             cy="48"
@@ -158,7 +152,6 @@ export const TrophyIllustration: React.FC<TrophyIllustrationProps> = ({
             strokeWidth="1.2"
           />
 
-          {/* Subtle horizontal engraving lines on upper/mid bowl */}
           <path
             d="M 79 102 C 94 106, 107 107, 120 107 C 133 107, 146 106, 161 102"
             fill="none"
@@ -174,7 +167,6 @@ export const TrophyIllustration: React.FC<TrophyIllustrationProps> = ({
             strokeWidth="1"
           />
 
-          {/* Waisted stem collar */}
           <rect x="102" y="183" width="36" height="7" rx="3.5" fill="url(#silverRim)" />
           <path
             d="M 105 190 C 106 198, 103 207, 98 214 L 142 214 C 137 207, 134 198, 135 190 Z"
@@ -182,7 +174,6 @@ export const TrophyIllustration: React.FC<TrophyIllustrationProps> = ({
           />
           <rect x="95" y="213" width="50" height="6" rx="2.5" fill="url(#silverRim)" />
 
-          {/* Stepped cylindrical pedestal plinth */}
           <path
             d="M 92 219 L 148 219 L 154 242 C 132 246, 108 246, 86 242 Z"
             fill="url(#plinthBase)"
@@ -202,20 +193,14 @@ export const TrophyIllustration: React.FC<TrophyIllustrationProps> = ({
         </svg>
       </div>
 
-      <figcaption className="mt-2 text-center">
-        {championName ? (
+      <figcaption className="mt-2 text-center" dir="rtl">
+        {championDisplay ? (
           <div className="space-y-0.5">
-            <p className="text-xs font-medium tracking-wider uppercase text-[#7f91ad]">
-              2026/27 Title Confirmed
-            </p>
-            <p className="font-display text-xl font-bold tracking-wide text-[#f4f7fb]">
-              {championName}
-            </p>
+            <p className="text-xs font-medium text-[#7f91ad]">بطل موسم 2026/27 المؤكد</p>
+            <p className="font-display text-xl font-bold text-[#f4f7fb]">{championDisplay}</p>
           </div>
         ) : (
-          <p className="text-xs tracking-wide text-[#7f91ad]">
-            European Cup · Winner TBD
-          </p>
+          <p className="text-xs text-[#7f91ad]">كأس البطولة · البطل يُحدد لاحقًا</p>
         )}
       </figcaption>
     </figure>

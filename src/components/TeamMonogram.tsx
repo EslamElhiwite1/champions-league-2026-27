@@ -1,5 +1,6 @@
-import React, {useState} from 'react';
-import {isCrestUrlPermitted} from '../config/competition';
+import React, {useEffect, useState} from 'react';
+import {getClearedClubCrest, isCrestUrlPermitted} from '../config/competition';
+import {getArabicClubDisplayName} from '../domain/arabicClubs';
 import type {TeamRef} from '../types/knockout';
 
 interface TeamMonogramProps {
@@ -16,17 +17,27 @@ export const TeamMonogram: React.FC<TeamMonogramProps> = ({
   const [imageFailed, setImageFailed] = useState(false);
   const dimensions = size === 'sm' ? 'h-6 w-6 text-[10px]' : 'h-8 w-8 text-xs';
 
-  const canRenderCrest =
-    !team.isTbd && !imageFailed && isCrestUrlPermitted(team.crestUrl);
+  const clearedCrest = !team.isTbd ? getClearedClubCrest(team.id) : null;
+  const resolvedCrestSrc = clearedCrest
+    ? clearedCrest.imageUrl
+    : !team.isTbd && isCrestUrlPermitted(team.crestUrl)
+      ? team.crestUrl
+      : null;
 
-  if (canRenderCrest && team.crestUrl) {
+  useEffect(() => {
+    setImageFailed(false);
+  }, [team.id, resolvedCrestSrc]);
+
+  if (resolvedCrestSrc && !imageFailed) {
+    const arabicName = getArabicClubDisplayName(team);
     return (
       <img
-        src={team.crestUrl}
-        alt={`${team.name} crest`}
+        src={resolvedCrestSrc}
+        alt={`شعار ${arabicName}`}
         referrerPolicy="no-referrer"
+        loading="lazy"
         onError={() => setImageFailed(true)}
-        className={`shrink-0 rounded object-contain bg-[#0d172b] p-0.5 ${dimensions}`}
+        className={`shrink-0 object-contain ${dimensions}`}
       />
     );
   }

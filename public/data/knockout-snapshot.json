@@ -1,21 +1,21 @@
 {
   "schemaVersion": 1,
   "competitionCode": "CL",
-  "competitionName": "UEFA Champions League",
+  "competitionName": "دوري أبطال أوروبا",
   "seasonStartYear": 2026,
   "seasonLabel": "2026/27",
   "ingestionStatus": "ok",
-  "statusMessage": "Normalized 144 2026/27 Champions League fixture(s). Round of 16 through Final knockout ties remain TBD pending draw.",
+  "statusMessage": "تمت مزامنة 144 مباراة في دوري أبطال أوروبا 2026/27. مواجهات دور الـ16 حتى النهائي لا تزال بانتظار القرعة والتأهل.",
   "sourceName": "football-data.org",
   "sourceLastUpdatedUtc": "2026-11-23T00:20:25.000Z",
-  "ingestedAtUtc": "2026-11-23T18:26:17.159Z",
+  "ingestedAtUtc": "2026-11-23T18:35:29.471Z",
   "ties": [
     {
       "tieId": "R16-1",
       "stage": "ROUND_OF_16",
       "bracketSide": "LEFT",
       "slotIndex": 0,
-      "label": "Round of 16 · Tie 1",
+      "label": "دور الـ16 · المواجهة 1",
       "isTwoLegged": true,
       "teamA": {
         "id": null,
@@ -25,7 +25,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الأول بعد."
       },
       "teamB": {
         "id": null,
@@ -35,7 +35,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الثاني بعد."
       },
       "legs": [],
       "feedsIntoTieId": "QF-1",
@@ -52,7 +52,7 @@
         "winnerTeamId": null,
         "winnerName": null,
         "method": null,
-        "explanation": "Participants are not yet confirmed for this tie."
+        "explanation": "لم يتم تأكيد طرفي هذه المواجهة بعد."
       }
     },
     {
@@ -60,7 +60,7 @@
       "stage": "ROUND_OF_16",
       "bracketSide": "LEFT",
       "slotIndex": 1,
-      "label": "Round of 16 · Tie 2",
+      "label": "دور الـ16 · المواجهة 2",
       "isTwoLegged": true,
       "teamA": {
         "id": null,
@@ -70,7 +70,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الأول بعد."
       },
       "teamB": {
         "id": null,
@@ -80,7 +80,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الثاني بعد."
       },
       "legs": [],
       "feedsIntoTieId": "QF-1",
@@ -97,7 +97,7 @@
         "winnerTeamId": null,
         "winnerName": null,
         "method": null,
-        "explanation": "Participants are not yet confirmed for this tie."
+        "explanation": "لم يتم تأكيد طرفي هذه المواجهة بعد."
       }
     },
     {
@@ -105,7 +105,7 @@
       "stage": "ROUND_OF_16",
       "bracketSide": "LEFT",
       "slotIndex": 2,
-      "label": "Round of 16 · Tie 3",
+      "label": "دور الـ16 · المواجهة 3",
       "isTwoLegged": true,
       "teamA": {
         "id": null,
@@ -115,7 +115,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الأول بعد."
       },
       "teamB": {
         "id": null,
@@ -125,7 +125,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الثاني بعد."
       },
       "legs": [],
       "feedsIntoTieId": "QF-2",
@@ -142,7 +142,7 @@
         "winnerTeamId": null,
         "winnerName": null,
         "method": null,
-        "explanation": "Participants are not yet confirmed for this tie."
+        "explanation": "لم يتم تأكيد طرفي هذه المواجهة بعد."
       }
     },
     {
@@ -150,7 +150,7 @@
       "stage": "ROUND_OF_16",
       "bracketSide": "LEFT",
       "slotIndex": 3,
-      "label": "Round of 16 · Tie 4",
+      "label": "دور الـ16 · المواجهة 4",
       "isTwoLegged": true,
       "teamA": {
         "id": null,
@@ -160,7 +160,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الأول بعد."
       },
       "teamB": {
         "id": null,
@@ -170,7 +170,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الثاني بعد."
       },
       "legs": [],
       "feedsIntoTieId": "QF-2",
@@ -187,7 +187,7 @@
         "winnerTeamId": null,
         "winnerName": null,
         "method": null,
-        "explanation": "Participants are not yet confirmed for this tie."
+        "explanation": "لم يتم تأكيد طرفي هذه المواجهة بعد."
       }
     },
     {
@@ -195,7 +195,7 @@
       "stage": "ROUND_OF_16",
       "bracketSide": "RIGHT",
       "slotIndex": 4,
-      "label": "Round of 16 · Tie 5",
+      "label": "دور الـ16 · المواجهة 5",
       "isTwoLegged": true,
       "teamA": {
         "id": null,
@@ -205,7 +205,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الأول بعد."
       },
       "teamB": {
         "id": null,
@@ -215,7 +215,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الثاني بعد."
       },
       "legs": [],
       "feedsIntoTieId": "QF-3",
@@ -232,7 +232,7 @@
         "winnerTeamId": null,
         "winnerName": null,
         "method": null,
-        "explanation": "Participants are not yet confirmed for this tie."
+        "explanation": "لم يتم تأكيد طرفي هذه المواجهة بعد."
       }
     },
     {
@@ -240,7 +240,7 @@
       "stage": "ROUND_OF_16",
       "bracketSide": "RIGHT",
       "slotIndex": 5,
-      "label": "Round of 16 · Tie 6",
+      "label": "دور الـ16 · المواجهة 6",
       "isTwoLegged": true,
       "teamA": {
         "id": null,
@@ -250,7 +250,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الأول بعد."
       },
       "teamB": {
         "id": null,
@@ -260,7 +260,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الثاني بعد."
       },
       "legs": [],
       "feedsIntoTieId": "QF-3",
@@ -277,7 +277,7 @@
         "winnerTeamId": null,
         "winnerName": null,
         "method": null,
-        "explanation": "Participants are not yet confirmed for this tie."
+        "explanation": "لم يتم تأكيد طرفي هذه المواجهة بعد."
       }
     },
     {
@@ -285,7 +285,7 @@
       "stage": "ROUND_OF_16",
       "bracketSide": "RIGHT",
       "slotIndex": 6,
-      "label": "Round of 16 · Tie 7",
+      "label": "دور الـ16 · المواجهة 7",
       "isTwoLegged": true,
       "teamA": {
         "id": null,
@@ -295,7 +295,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الأول بعد."
       },
       "teamB": {
         "id": null,
@@ -305,7 +305,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الثاني بعد."
       },
       "legs": [],
       "feedsIntoTieId": "QF-4",
@@ -322,7 +322,7 @@
         "winnerTeamId": null,
         "winnerName": null,
         "method": null,
-        "explanation": "Participants are not yet confirmed for this tie."
+        "explanation": "لم يتم تأكيد طرفي هذه المواجهة بعد."
       }
     },
     {
@@ -330,7 +330,7 @@
       "stage": "ROUND_OF_16",
       "bracketSide": "RIGHT",
       "slotIndex": 7,
-      "label": "Round of 16 · Tie 8",
+      "label": "دور الـ16 · المواجهة 8",
       "isTwoLegged": true,
       "teamA": {
         "id": null,
@@ -340,7 +340,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الأول بعد."
       },
       "teamB": {
         "id": null,
@@ -350,7 +350,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الثاني بعد."
       },
       "legs": [],
       "feedsIntoTieId": "QF-4",
@@ -367,7 +367,7 @@
         "winnerTeamId": null,
         "winnerName": null,
         "method": null,
-        "explanation": "Participants are not yet confirmed for this tie."
+        "explanation": "لم يتم تأكيد طرفي هذه المواجهة بعد."
       }
     },
     {
@@ -375,7 +375,7 @@
       "stage": "QUARTER_FINALS",
       "bracketSide": "LEFT",
       "slotIndex": 0,
-      "label": "Quarter-final 1",
+      "label": "ربع النهائي · المواجهة 1",
       "isTwoLegged": true,
       "teamA": {
         "id": null,
@@ -385,7 +385,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الأول بعد."
       },
       "teamB": {
         "id": null,
@@ -395,7 +395,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الثاني بعد."
       },
       "legs": [],
       "feedsIntoTieId": "SF-1",
@@ -412,7 +412,7 @@
         "winnerTeamId": null,
         "winnerName": null,
         "method": null,
-        "explanation": "Participants are not yet confirmed for this tie."
+        "explanation": "لم يتم تأكيد طرفي هذه المواجهة بعد."
       }
     },
     {
@@ -420,7 +420,7 @@
       "stage": "QUARTER_FINALS",
       "bracketSide": "LEFT",
       "slotIndex": 1,
-      "label": "Quarter-final 2",
+      "label": "ربع النهائي · المواجهة 2",
       "isTwoLegged": true,
       "teamA": {
         "id": null,
@@ -430,7 +430,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الأول بعد."
       },
       "teamB": {
         "id": null,
@@ -440,7 +440,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الثاني بعد."
       },
       "legs": [],
       "feedsIntoTieId": "SF-1",
@@ -457,7 +457,7 @@
         "winnerTeamId": null,
         "winnerName": null,
         "method": null,
-        "explanation": "Participants are not yet confirmed for this tie."
+        "explanation": "لم يتم تأكيد طرفي هذه المواجهة بعد."
       }
     },
     {
@@ -465,7 +465,7 @@
       "stage": "QUARTER_FINALS",
       "bracketSide": "RIGHT",
       "slotIndex": 2,
-      "label": "Quarter-final 3",
+      "label": "ربع النهائي · المواجهة 3",
       "isTwoLegged": true,
       "teamA": {
         "id": null,
@@ -475,7 +475,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الأول بعد."
       },
       "teamB": {
         "id": null,
@@ -485,7 +485,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الثاني بعد."
       },
       "legs": [],
       "feedsIntoTieId": "SF-2",
@@ -502,7 +502,7 @@
         "winnerTeamId": null,
         "winnerName": null,
         "method": null,
-        "explanation": "Participants are not yet confirmed for this tie."
+        "explanation": "لم يتم تأكيد طرفي هذه المواجهة بعد."
       }
     },
     {
@@ -510,7 +510,7 @@
       "stage": "QUARTER_FINALS",
       "bracketSide": "RIGHT",
       "slotIndex": 3,
-      "label": "Quarter-final 4",
+      "label": "ربع النهائي · المواجهة 4",
       "isTwoLegged": true,
       "teamA": {
         "id": null,
@@ -520,7 +520,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الأول بعد."
       },
       "teamB": {
         "id": null,
@@ -530,7 +530,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الثاني بعد."
       },
       "legs": [],
       "feedsIntoTieId": "SF-2",
@@ -547,7 +547,7 @@
         "winnerTeamId": null,
         "winnerName": null,
         "method": null,
-        "explanation": "Participants are not yet confirmed for this tie."
+        "explanation": "لم يتم تأكيد طرفي هذه المواجهة بعد."
       }
     },
     {
@@ -555,7 +555,7 @@
       "stage": "SEMI_FINALS",
       "bracketSide": "LEFT",
       "slotIndex": 0,
-      "label": "Semi-final 1",
+      "label": "نصف النهائي 1",
       "isTwoLegged": true,
       "teamA": {
         "id": null,
@@ -565,7 +565,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الأول بعد."
       },
       "teamB": {
         "id": null,
@@ -575,7 +575,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الثاني بعد."
       },
       "legs": [],
       "feedsIntoTieId": "FINAL-1",
@@ -592,7 +592,7 @@
         "winnerTeamId": null,
         "winnerName": null,
         "method": null,
-        "explanation": "Participants are not yet confirmed for this tie."
+        "explanation": "لم يتم تأكيد طرفي هذه المواجهة بعد."
       }
     },
     {
@@ -600,7 +600,7 @@
       "stage": "SEMI_FINALS",
       "bracketSide": "RIGHT",
       "slotIndex": 1,
-      "label": "Semi-final 2",
+      "label": "نصف النهائي 2",
       "isTwoLegged": true,
       "teamA": {
         "id": null,
@@ -610,7 +610,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الأول بعد."
       },
       "teamB": {
         "id": null,
@@ -620,7 +620,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الثاني بعد."
       },
       "legs": [],
       "feedsIntoTieId": "FINAL-1",
@@ -637,7 +637,7 @@
         "winnerTeamId": null,
         "winnerName": null,
         "method": null,
-        "explanation": "Participants are not yet confirmed for this tie."
+        "explanation": "لم يتم تأكيد طرفي هذه المواجهة بعد."
       }
     },
     {
@@ -645,7 +645,7 @@
       "stage": "FINAL",
       "bracketSide": "CENTER",
       "slotIndex": 0,
-      "label": "2026/27 Final",
+      "label": "نهائي 2026/27",
       "isTwoLegged": false,
       "teamA": {
         "id": null,
@@ -655,7 +655,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الأول بعد."
       },
       "teamB": {
         "id": null,
@@ -665,7 +665,7 @@
         "monogram": "—",
         "crestUrl": null,
         "isTbd": true,
-        "tbdReason": "Participant not yet confirmed for this slot."
+        "tbdReason": "لم يتحدد الطرف الثاني بعد."
       },
       "legs": [],
       "feedsIntoTieId": null,
@@ -682,7 +682,7 @@
         "winnerTeamId": null,
         "winnerName": null,
         "method": null,
-        "explanation": "Participants are not yet confirmed for this tie."
+        "explanation": "لم يتم تأكيد طرفي هذه المواجهة بعد."
       }
     }
   ],

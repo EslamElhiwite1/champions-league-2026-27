@@ -24,20 +24,20 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const seasonLabel = snapshot?.seasonLabel ?? COMPETITION_CONFIG.seasonLabel;
   const statusText = (() => {
-    if (!snapshot) return 'Loading snapshot';
+    if (!snapshot) return 'جاري التحميل';
     if (isRetainedFallback) {
-      return `Retained (${formatRelativeAge(snapshot.ingestedAtUtc)})`;
+      return `نسخة محفوظة (${formatRelativeAge(snapshot.ingestedAtUtc)})`;
     }
     if (snapshot.ingestionStatus === 'not_configured') {
-      return 'Setup pending';
+      return 'بانتظار الإعداد';
     }
     if (snapshot.ingestionStatus === 'awaiting_draw') {
-      return 'Awaiting fixtures';
+      return 'بانتظار المباريات';
     }
     if (snapshot.ingestionStatus === 'error') {
-      return 'Snapshot unavailable';
+      return 'البيانات غير متاحة';
     }
-    return `Synced ${formatRelativeAge(snapshot.ingestedAtUtc)}`;
+    return `تحديث ${formatRelativeAge(snapshot.ingestedAtUtc)}`;
   })();
 
   return (
@@ -48,7 +48,7 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             type="button"
             onClick={() => onSelectView('matches')}
-            className="text-left font-display text-xl font-bold tracking-wide text-[#f4f7fb] whitespace-nowrap hover:text-white sm:text-2xl"
+            className="text-start font-display text-xl font-bold text-[#f4f7fb] whitespace-nowrap hover:text-white sm:text-2xl"
           >
             {COMPETITION_CONFIG.projectTitle}
           </button>
@@ -57,12 +57,12 @@ export const Header: React.FC<HeaderProps> = ({
             <span aria-hidden="true" className="mx-1.5">
               ·
             </span>
-            <span>Season {seasonLabel}</span>
+            <span>موسم {seasonLabel}</span>
           </p>
         </div>
 
-        {/* Zone 2: Clean view status / quick links on desktop */}
-        <nav aria-label="Header navigation" className="hidden items-center gap-6 sm:flex">
+        {/* Zone 2: Clean view quick links on desktop */}
+        <nav aria-label="التنقل العلوي" className="hidden items-center gap-6 sm:flex">
           <button
             type="button"
             onClick={() => onSelectView('matches')}
@@ -72,7 +72,7 @@ export const Header: React.FC<HeaderProps> = ({
                 : 'text-[#b7c5da] hover:text-[#f4f7fb] hover:underline'
             }`}
           >
-            Matches
+            المباريات
           </button>
           <button
             type="button"
@@ -83,7 +83,7 @@ export const Header: React.FC<HeaderProps> = ({
                 : 'text-[#b7c5da] hover:text-[#f4f7fb] hover:underline'
             }`}
           >
-            Knockout Bracket
+            الأدوار الإقصائية
           </button>
         </nav>
 
@@ -93,15 +93,15 @@ export const Header: React.FC<HeaderProps> = ({
             type="button"
             onClick={onRecheck}
             disabled={isRefreshing}
-            aria-label={`Recheck published snapshot (${statusText})`}
-            title="Checks the last published static JSON snapshot (hourly delayed updates; does not call provider directly)"
+            aria-label={`التحقق من آخر لقطة منشورة (${statusText})`}
+            title="يتحقق من آخر لقطة JSON منشورة (تحديثات مجدولة كل ساعة ولا يتصل بالمزود مباشرة)"
             className="inline-flex min-h-[40px] items-center gap-2 rounded-md border border-[#c4d2e8]/20 bg-[#0d172b] px-3.5 py-2 text-xs font-medium text-[#d8e1ee] transition-colors hover:border-[#2f7bff]/60 hover:bg-[#12203b] disabled:opacity-60 whitespace-nowrap shrink-0"
           >
             <RefreshCw
               className={`h-3.5 w-3.5 text-[#5ca0ff] ${isRefreshing ? 'animate-spin' : ''}`}
               aria-hidden="true"
             />
-            <span>{isRefreshing ? 'Checking…' : statusText}</span>
+            <span>{isRefreshing ? 'جاري التحقق…' : statusText}</span>
           </button>
         </div>
       </div>

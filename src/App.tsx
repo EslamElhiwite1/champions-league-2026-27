@@ -16,9 +16,10 @@ import type {KnockoutMatch, KnockoutSnapshot, KnockoutTie} from './types/knockou
 
 interface AppProps {
   initialSnapshot?: KnockoutSnapshot;
+  nowMs?: number;
 }
 
-export default function App({initialSnapshot}: AppProps) {
+export default function App({initialSnapshot, nowMs}: AppProps) {
   const {
     snapshot,
     isLoading,
@@ -39,7 +40,10 @@ export default function App({initialSnapshot}: AppProps) {
     [snapshot],
   );
 
-  const stats = useMemo(() => computeOverviewStats(activeSnapshot), [activeSnapshot]);
+  const stats = useMemo(
+    () => computeOverviewStats(activeSnapshot, nowMs),
+    [activeSnapshot, nowMs],
+  );
 
   const selectedTie: KnockoutTie | null = useMemo(() => {
     if (!selectedTieId) return null;
@@ -77,12 +81,12 @@ export default function App({initialSnapshot}: AppProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#070d19] pb-24 text-[#f4f7fb]">
+    <div className="min-h-screen bg-[#070d19] pb-24 text-[#f4f7fb]" dir="rtl">
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded focus:bg-[#2f7bff] focus:px-3 focus:py-2 focus:text-xs focus:font-medium focus:text-white"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:start-3 focus:z-50 focus:rounded focus:bg-[#2f7bff] focus:px-3 focus:py-2 focus:text-xs focus:font-medium focus:text-white"
       >
-        Skip to main content
+        تخطي إلى المحتوى الرئيسي
       </a>
 
       <Header
@@ -97,7 +101,7 @@ export default function App({initialSnapshot}: AppProps) {
       <main id="main-content">
         {isLoading && !snapshot ? (
           <div className="mx-auto max-w-[1400px] px-4 py-16 text-center text-sm text-[#b7c5da]">
-            Loading published 2026/27 Champions League snapshot…
+            جاري تحميل لقطة دوري أبطال أوروبا 2026/27…
           </div>
         ) : activeView === 'matches' ? (
           <>
@@ -110,6 +114,7 @@ export default function App({initialSnapshot}: AppProps) {
               isRetainedFallback={isRetainedFallback}
               onSelectMatch={handleSelectMatch}
               onOpenKnockoutView={() => handleSelectView('knockout')}
+              nowMs={nowMs}
             />
 
             <FixturesTable
@@ -118,6 +123,7 @@ export default function App({initialSnapshot}: AppProps) {
               onSelectTie={handleSelectTie}
               onSelectMatch={handleSelectMatch}
               onOpenKnockoutView={() => handleSelectView('knockout')}
+              nowMs={nowMs}
             />
           </>
         ) : (

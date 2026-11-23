@@ -14,6 +14,7 @@ import type {
   TeamRef,
   TieAdvancement,
 } from '../types/knockout';
+import {getArabicClubDisplayName} from './arabicClubs';
 
 export const STAGE_ORDER: KnockoutBracketStage[] = [
   'ROUND_OF_16',
@@ -35,28 +36,28 @@ export const ALL_STAGE_ORDER: CompetitionStage[] = [
 ];
 
 export const STAGE_LABELS: Record<CompetitionStage, string> = {
-  LEAGUE_STAGE: 'League Stage',
-  PLAYOFFS: 'Knockout Play-offs',
-  ROUND_OF_16: 'Round of 16',
-  QUARTER_FINALS: 'Quarter-finals',
-  SEMI_FINALS: 'Semi-finals',
-  FINAL: 'Final',
-  QUALIFICATION: 'Qualification',
-  PRELIMINARY_ROUND: 'Preliminary Round',
-  OTHER: 'Other Stage',
+  LEAGUE_STAGE: 'مرحلة الدوري',
+  PLAYOFFS: 'ملحق الأدوار الإقصائية',
+  ROUND_OF_16: 'دور الـ16',
+  QUARTER_FINALS: 'ربع النهائي',
+  SEMI_FINALS: 'نصف النهائي',
+  FINAL: 'النهائي',
+  QUALIFICATION: 'التصفيات',
+  PRELIMINARY_ROUND: 'الدور التمهيدي',
+  OTHER: 'مرحلة أخرى',
 };
 
 export const STATUS_LABELS: Record<MatchStatus, string> = {
-  SCHEDULED: 'Scheduled',
-  TIMED: 'Kickoff Set',
-  IN_PLAY: 'In Progress',
-  PAUSED: 'Half-time / Paused',
-  FINISHED: 'Finished',
-  POSTPONED: 'Postponed',
-  SUSPENDED: 'Suspended',
-  CANCELLED: 'Cancelled',
-  AWARDED: 'Awarded',
-  UNKNOWN: 'Awaiting Fixture',
+  SCHEDULED: 'مجدولة',
+  TIMED: 'تحدّد موعد الانطلاق',
+  IN_PLAY: 'جارية الآن',
+  PAUSED: 'استراحة / متوقفة مؤقتًا',
+  FINISHED: 'انتهت',
+  POSTPONED: 'مؤجلة',
+  SUSPENDED: 'معلقة',
+  CANCELLED: 'ملغاة',
+  AWARDED: 'معتمدة بقرار إداري',
+  UNKNOWN: 'بانتظار التحديد',
 };
 
 export interface BracketSlotBlueprint {
@@ -71,29 +72,29 @@ export interface BracketSlotBlueprint {
 
 export const BRACKET_BLUEPRINT: BracketSlotBlueprint[] = [
   // Left side Round of 16
-  {tieId: 'R16-1', stage: 'ROUND_OF_16', bracketSide: 'LEFT', slotIndex: 0, label: 'Round of 16 · Tie 1', isTwoLegged: true, feedsIntoTieId: 'QF-1'},
-  {tieId: 'R16-2', stage: 'ROUND_OF_16', bracketSide: 'LEFT', slotIndex: 1, label: 'Round of 16 · Tie 2', isTwoLegged: true, feedsIntoTieId: 'QF-1'},
-  {tieId: 'R16-3', stage: 'ROUND_OF_16', bracketSide: 'LEFT', slotIndex: 2, label: 'Round of 16 · Tie 3', isTwoLegged: true, feedsIntoTieId: 'QF-2'},
-  {tieId: 'R16-4', stage: 'ROUND_OF_16', bracketSide: 'LEFT', slotIndex: 3, label: 'Round of 16 · Tie 4', isTwoLegged: true, feedsIntoTieId: 'QF-2'},
+  {tieId: 'R16-1', stage: 'ROUND_OF_16', bracketSide: 'LEFT', slotIndex: 0, label: 'دور الـ16 · المواجهة 1', isTwoLegged: true, feedsIntoTieId: 'QF-1'},
+  {tieId: 'R16-2', stage: 'ROUND_OF_16', bracketSide: 'LEFT', slotIndex: 1, label: 'دور الـ16 · المواجهة 2', isTwoLegged: true, feedsIntoTieId: 'QF-1'},
+  {tieId: 'R16-3', stage: 'ROUND_OF_16', bracketSide: 'LEFT', slotIndex: 2, label: 'دور الـ16 · المواجهة 3', isTwoLegged: true, feedsIntoTieId: 'QF-2'},
+  {tieId: 'R16-4', stage: 'ROUND_OF_16', bracketSide: 'LEFT', slotIndex: 3, label: 'دور الـ16 · المواجهة 4', isTwoLegged: true, feedsIntoTieId: 'QF-2'},
   // Right side Round of 16
-  {tieId: 'R16-5', stage: 'ROUND_OF_16', bracketSide: 'RIGHT', slotIndex: 4, label: 'Round of 16 · Tie 5', isTwoLegged: true, feedsIntoTieId: 'QF-3'},
-  {tieId: 'R16-6', stage: 'ROUND_OF_16', bracketSide: 'RIGHT', slotIndex: 5, label: 'Round of 16 · Tie 6', isTwoLegged: true, feedsIntoTieId: 'QF-3'},
-  {tieId: 'R16-7', stage: 'ROUND_OF_16', bracketSide: 'RIGHT', slotIndex: 6, label: 'Round of 16 · Tie 7', isTwoLegged: true, feedsIntoTieId: 'QF-4'},
-  {tieId: 'R16-8', stage: 'ROUND_OF_16', bracketSide: 'RIGHT', slotIndex: 7, label: 'Round of 16 · Tie 8', isTwoLegged: true, feedsIntoTieId: 'QF-4'},
+  {tieId: 'R16-5', stage: 'ROUND_OF_16', bracketSide: 'RIGHT', slotIndex: 4, label: 'دور الـ16 · المواجهة 5', isTwoLegged: true, feedsIntoTieId: 'QF-3'},
+  {tieId: 'R16-6', stage: 'ROUND_OF_16', bracketSide: 'RIGHT', slotIndex: 5, label: 'دور الـ16 · المواجهة 6', isTwoLegged: true, feedsIntoTieId: 'QF-3'},
+  {tieId: 'R16-7', stage: 'ROUND_OF_16', bracketSide: 'RIGHT', slotIndex: 6, label: 'دور الـ16 · المواجهة 7', isTwoLegged: true, feedsIntoTieId: 'QF-4'},
+  {tieId: 'R16-8', stage: 'ROUND_OF_16', bracketSide: 'RIGHT', slotIndex: 7, label: 'دور الـ16 · المواجهة 8', isTwoLegged: true, feedsIntoTieId: 'QF-4'},
   // Left side Quarter-finals
-  {tieId: 'QF-1', stage: 'QUARTER_FINALS', bracketSide: 'LEFT', slotIndex: 0, label: 'Quarter-final 1', isTwoLegged: true, feedsIntoTieId: 'SF-1'},
-  {tieId: 'QF-2', stage: 'QUARTER_FINALS', bracketSide: 'LEFT', slotIndex: 1, label: 'Quarter-final 2', isTwoLegged: true, feedsIntoTieId: 'SF-1'},
+  {tieId: 'QF-1', stage: 'QUARTER_FINALS', bracketSide: 'LEFT', slotIndex: 0, label: 'ربع النهائي · المواجهة 1', isTwoLegged: true, feedsIntoTieId: 'SF-1'},
+  {tieId: 'QF-2', stage: 'QUARTER_FINALS', bracketSide: 'LEFT', slotIndex: 1, label: 'ربع النهائي · المواجهة 2', isTwoLegged: true, feedsIntoTieId: 'SF-1'},
   // Right side Quarter-finals
-  {tieId: 'QF-3', stage: 'QUARTER_FINALS', bracketSide: 'RIGHT', slotIndex: 2, label: 'Quarter-final 3', isTwoLegged: true, feedsIntoTieId: 'SF-2'},
-  {tieId: 'QF-4', stage: 'QUARTER_FINALS', bracketSide: 'RIGHT', slotIndex: 3, label: 'Quarter-final 4', isTwoLegged: true, feedsIntoTieId: 'SF-2'},
+  {tieId: 'QF-3', stage: 'QUARTER_FINALS', bracketSide: 'RIGHT', slotIndex: 2, label: 'ربع النهائي · المواجهة 3', isTwoLegged: true, feedsIntoTieId: 'SF-2'},
+  {tieId: 'QF-4', stage: 'QUARTER_FINALS', bracketSide: 'RIGHT', slotIndex: 3, label: 'ربع النهائي · المواجهة 4', isTwoLegged: true, feedsIntoTieId: 'SF-2'},
   // Semi-finals
-  {tieId: 'SF-1', stage: 'SEMI_FINALS', bracketSide: 'LEFT', slotIndex: 0, label: 'Semi-final 1', isTwoLegged: true, feedsIntoTieId: 'FINAL-1'},
-  {tieId: 'SF-2', stage: 'SEMI_FINALS', bracketSide: 'RIGHT', slotIndex: 1, label: 'Semi-final 2', isTwoLegged: true, feedsIntoTieId: 'FINAL-1'},
+  {tieId: 'SF-1', stage: 'SEMI_FINALS', bracketSide: 'LEFT', slotIndex: 0, label: 'نصف النهائي 1', isTwoLegged: true, feedsIntoTieId: 'FINAL-1'},
+  {tieId: 'SF-2', stage: 'SEMI_FINALS', bracketSide: 'RIGHT', slotIndex: 1, label: 'نصف النهائي 2', isTwoLegged: true, feedsIntoTieId: 'FINAL-1'},
   // Final
-  {tieId: 'FINAL-1', stage: 'FINAL', bracketSide: 'CENTER', slotIndex: 0, label: '2026/27 Final', isTwoLegged: false, feedsIntoTieId: null},
+  {tieId: 'FINAL-1', stage: 'FINAL', bracketSide: 'CENTER', slotIndex: 0, label: 'نهائي 2026/27', isTwoLegged: false, feedsIntoTieId: null},
 ];
 
-export function createTbdTeam(reason = 'Awaiting verified draw and qualification'): TeamRef {
+export function createTbdTeam(reason = 'بانتظار إجراء القرعة وتأكيد المتأهلين'): TeamRef {
   return {
     id: null,
     name: 'TBD',
@@ -195,7 +196,6 @@ export function resolveNormalizedScore(rawScore: RawFootballDataScore | null | u
       ? rawScore.winner
       : null;
 
-  // Penalty shootout: open-play must strictly exclude shootout goals
   if (duration === 'PENALTY_SHOOTOUT' || penalties != null) {
     if (regularTime && extraTime) {
       const regPlusEt = addPairs(regularTime, extraTime);
@@ -291,7 +291,7 @@ export function resolveNormalizedScore(rawScore: RawFootballDataScore | null | u
         winnerSide,
         isScoreAmbiguous: true,
         ambiguityNote:
-          'Open-play score omitted regularTime breakdown alongside penalty shootout; refusing to guess whether fullTime includes shootout kicks.',
+          'بيانات النتيجة تفتقر لتفصيل الوقت الأصلي بجانب ركلات الترجيح؛ تم تعليق المجموع تفاديًا للازدواجية.',
       };
     }
 
@@ -307,7 +307,6 @@ export function resolveNormalizedScore(rawScore: RawFootballDataScore | null | u
     };
   }
 
-  // Extra time without penalties
   if (duration === 'EXTRA_TIME' || extraTime != null) {
     if (regularTime && extraTime) {
       const regPlusEt = addPairs(regularTime, extraTime);
@@ -356,8 +355,7 @@ export function resolveNormalizedScore(rawScore: RawFootballDataScore | null | u
         penalties: null,
         winnerSide,
         isScoreAmbiguous: true,
-        ambiguityNote:
-          'Provider fullTime, regularTime, and extraTime values could not be reconciled cleanly.',
+        ambiguityNote: 'تعذّر التوفيق بين أهداف الوقت الأصلي والوقت الإضافي في بيانات المصدر.',
       };
     }
 
@@ -373,7 +371,6 @@ export function resolveNormalizedScore(rawScore: RawFootballDataScore | null | u
     };
   }
 
-  // Regular time (or partial in-progress score)
   const resolvedOpenPlay = fullTime ?? regularTime;
   return {
     duration: duration ?? (resolvedOpenPlay ? 'REGULAR' : null),
@@ -449,10 +446,13 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
         winnerTeamId: null,
         winnerName: null,
         method: null,
-        explanation: 'Participants are not yet confirmed for this tie.',
+        explanation: 'لم يتم تأكيد طرفي هذه المواجهة بعد.',
       },
     };
   }
+
+  const teamADisplay = getArabicClubDisplayName(tie.teamA);
+  const teamBDisplay = getArabicClubDisplayName(tie.teamB);
 
   // Single-leg Final
   if (!tie.isTwoLegged) {
@@ -465,7 +465,7 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
           winnerTeamId: null,
           winnerName: null,
           method: null,
-          explanation: 'Final fixture is awaiting verified schedule data.',
+          explanation: 'مباراة النهائي بانتظار بيانات الجدول المؤكدة.',
         },
       };
     }
@@ -478,7 +478,7 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
           winnerTeamId: null,
           winnerName: null,
           method: null,
-          explanation: `Final status is ${STATUS_LABELS[match.status]}. Champion is confirmed only after completion.`,
+          explanation: `حالة النهائي: ${STATUS_LABELS[match.status]}. يتأكد البطل بعد انتهاء المباراة فقط.`,
         },
       };
     }
@@ -493,10 +493,11 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
             winnerTeamId: null,
             winnerName: null,
             method: null,
-            explanation: 'Final was marked Awarded without an identifiable winning club.',
+            explanation: 'سُجل النهائي بقرار إداري دون تحديد النادي الفائز.',
           },
         };
       }
+      const winnerAr = getArabicClubDisplayName(awardedWinner);
       return {
         aggregate: {
           ...emptyAgg,
@@ -507,9 +508,9 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
         advancement: {
           status: 'CONFIRMED',
           winnerTeamId: awardedWinner.id,
-          winnerName: awardedWinner.name,
+          winnerName: winnerAr,
           method: 'AWARDED',
-          explanation: `${awardedWinner.name} awarded victory in the Final.`,
+          explanation: `حُسم النهائي بقرار إداري لصالح ${winnerAr}.`,
         },
       };
     }
@@ -522,7 +523,7 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
           winnerTeamId: null,
           winnerName: null,
           method: null,
-          explanation: match.score.ambiguityNote ?? 'Final score breakdown could not be validated safely.',
+          explanation: match.score.ambiguityNote ?? 'تعذر التحقق من نتيجة النهائي بشكل آمن.',
         },
       };
     }
@@ -538,7 +539,7 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
           winnerTeamId: null,
           winnerName: null,
           method: null,
-          explanation: 'Final is marked Finished, but validated numeric scores are missing.',
+          explanation: 'النهائي مُسجل كمنتهٍ لكن الأهداف الرقمية المؤكدة مفقودة.',
         },
       };
     }
@@ -548,6 +549,7 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
 
     if (aGoals !== bGoals) {
       const winner = aGoals > bGoals ? tie.teamA : tie.teamB;
+      const winnerAr = winner.id === tie.teamA.id ? teamADisplay : teamBDisplay;
       const providerWinner = getWinnerTeamFromSide(match);
       if (providerWinner && providerWinner.id !== winner.id) {
         return {
@@ -564,7 +566,7 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
             winnerTeamId: null,
             winnerName: null,
             method: null,
-            explanation: 'Provider winner field conflicts with Final scoreline; holding result as unresolved.',
+            explanation: 'تضارب بين الفائز المسجل ونتيجة النهائي؛ النتيجة معلّقة.',
           },
         };
       }
@@ -581,9 +583,9 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
         advancement: {
           status: 'CONFIRMED',
           winnerTeamId: winner.id,
-          winnerName: winner.name,
+          winnerName: winnerAr,
           method: includesExtraTime ? 'EXTRA_TIME' : 'SINGLE_MATCH',
-          explanation: `${winner.name} won the Final ${Math.max(aGoals, bGoals)}–${Math.min(aGoals, bGoals)}${includesExtraTime ? ' after extra time' : ''}.`,
+          explanation: `فاز ${winnerAr} بالنهائي بنتيجة ${Math.max(aGoals, bGoals)}–${Math.min(aGoals, bGoals)}${includesExtraTime ? ' بعد الوقت الإضافي' : ''}.`,
         },
       };
     }
@@ -591,6 +593,7 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
     const penA = getPenaltyScoreForTeam(match, tie.teamA.id);
     if (match.score.duration === 'PENALTY_SHOOTOUT' && penA && penA.scored !== penA.conceded) {
       const winner = penA.scored > penA.conceded ? tie.teamA : tie.teamB;
+      const winnerAr = winner.id === tie.teamA.id ? teamADisplay : teamBDisplay;
       const providerWinner = getWinnerTeamFromSide(match);
       if (providerWinner && providerWinner.id !== winner.id) {
         return {
@@ -607,7 +610,7 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
             winnerTeamId: null,
             winnerName: null,
             method: null,
-            explanation: 'Provider winner disagrees with penalty shootout scores.',
+            explanation: 'تضارب بين حقل الفائز ونتيجة ركلات الترجيح.',
           },
         };
       }
@@ -623,9 +626,9 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
         advancement: {
           status: 'CONFIRMED',
           winnerTeamId: winner.id,
-          winnerName: winner.name,
+          winnerName: winnerAr,
           method: 'PENALTIES',
-          explanation: `${winner.name} won the Final on penalties (${Math.max(penA.scored, penA.conceded)}–${Math.min(penA.scored, penA.conceded)}).`,
+          explanation: `حسم ${winnerAr} النهائي بركلات الترجيح (${Math.max(penA.scored, penA.conceded)}–${Math.min(penA.scored, penA.conceded)}).`,
         },
       };
     }
@@ -644,7 +647,7 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
         winnerTeamId: null,
         winnerName: null,
         method: null,
-        explanation: 'Final score is level without a verified penalty shootout outcome.',
+        explanation: 'تعادل في النهائي دون توثيق ركلات ترجيح حاسمة.',
       },
     };
   }
@@ -672,8 +675,8 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
         method: null,
         explanation:
           leg1 && isMatchConcluded(leg1.status)
-            ? 'First leg complete; second leg pending. Advancement requires both legs.'
-            : 'Awaiting completion of both legs.',
+            ? 'اكتملت مباراة الذهاب وبانتظار الإياب. لا يتأهل أي فريق قبل حسم المباراتين.'
+            : 'بانتظار استكمال مباراتي الذهاب والإياب.',
       },
     };
   }
@@ -682,7 +685,7 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
     const partialA = isMatchConcluded(leg1.status) ? getGoalsForTeam(leg1, tie.teamA.id).scored : null;
     const partialB = isMatchConcluded(leg1.status) ? getGoalsForTeam(leg1, tie.teamB.id).scored : null;
     const blockingStatus = !isMatchConcluded(leg1.status) ? leg1.status : leg2.status;
-    const blockingLeg = !isMatchConcluded(leg1.status) ? 'First leg' : 'Second leg';
+    const blockingLeg = !isMatchConcluded(leg1.status) ? 'مباراة الذهاب' : 'مباراة الإياب';
     return {
       aggregate: {
         teamAScore: partialA,
@@ -697,7 +700,7 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
         winnerTeamId: null,
         winnerName: null,
         method: null,
-        explanation: `${blockingLeg} is ${STATUS_LABELS[blockingStatus]}. Advancement cannot be confirmed from incomplete legs.`,
+        explanation: `${blockingLeg} بحالة (${STATUS_LABELS[blockingStatus]}). لا يمكن تأكيد المتأهل قبل اكتمال المواجهتين.`,
       },
     };
   }
@@ -709,14 +712,15 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
       const w1 = getWinnerTeamFromSide(leg1);
       const w2 = getWinnerTeamFromSide(leg2);
       if (w1 && w2 && w1.id === w2.id) {
+        const winnerAr = getArabicClubDisplayName(w1);
         return {
           aggregate: {...emptyAgg, isComplete: true},
           advancement: {
             status: 'CONFIRMED',
             winnerTeamId: w1.id,
-            winnerName: w1.name,
+            winnerName: winnerAr,
             method: 'AWARDED',
-            explanation: `${w1.name} advanced via awarded match decision.`,
+            explanation: `تأهل ${winnerAr} بقرار إداري معتمد.`,
           },
         };
       }
@@ -727,7 +731,7 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
           winnerTeamId: null,
           winnerName: null,
           method: null,
-          explanation: 'Both legs marked Awarded without a consistent single tie winner.',
+          explanation: 'سُجلت المباراتان بقرار إداري دون اتساق في تحديد الفائز.',
         },
       };
     }
@@ -741,6 +745,7 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
         const totB = l1B + l2B;
         if (totA !== totB) {
           const winner = totA > totB ? tie.teamA : tie.teamB;
+          const winnerAr = winner.id === tie.teamA.id ? teamADisplay : teamBDisplay;
           return {
             aggregate: {
               teamAScore: totA,
@@ -753,9 +758,9 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
             advancement: {
               status: 'CONFIRMED',
               winnerTeamId: winner.id,
-              winnerName: winner.name,
+              winnerName: winnerAr,
               method: 'AWARDED',
-              explanation: `${winner.name} advances ${Math.max(totA, totB)}–${Math.min(totA, totB)} on aggregate (includes awarded fixture).`,
+              explanation: `تأهل ${winnerAr} بمجموع ${Math.max(totA, totB)}–${Math.min(totA, totB)} (يتضمن قرارًا إداريًا).`,
             },
           };
         }
@@ -767,7 +772,7 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
           winnerTeamId: null,
           winnerName: null,
           method: null,
-          explanation: 'One leg was marked Awarded and aggregate could not be verified across both legs.',
+          explanation: 'تتضمن المواجهة قرارًا إداريًا وتعذّر التحقق من المجموع الكلي.',
         },
       };
     }
@@ -784,7 +789,7 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
         explanation:
           leg2.score.ambiguityNote ??
           leg1.score.ambiguityNote ??
-          'Score breakdown on a concluded leg was ambiguous.',
+          'تفصيل النتيجة في إحدى المباراتين غير واضح.',
       },
     };
   }
@@ -802,7 +807,7 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
         winnerTeamId: null,
         winnerName: null,
         method: null,
-        explanation: 'Both legs are marked Finished, but valid numeric scores are missing.',
+        explanation: 'المباراتان مُسجلتان كمنتهيتين لكن الأهداف الرقمية غير مكتملة.',
       },
     };
   }
@@ -814,6 +819,7 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
 
   if (totalA !== totalB) {
     const winner = totalA > totalB ? tie.teamA : tie.teamB;
+    const winnerAr = winner.id === tie.teamA.id ? teamADisplay : teamBDisplay;
     return {
       aggregate: {
         teamAScore: totalA,
@@ -826,9 +832,9 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
       advancement: {
         status: 'CONFIRMED',
         winnerTeamId: winner.id,
-        winnerName: winner.name,
+        winnerName: winnerAr,
         method: includesExtraTime ? 'EXTRA_TIME' : 'AGGREGATE',
-        explanation: `${winner.name} advances ${Math.max(totalA, totalB)}–${Math.min(totalA, totalB)} on aggregate${includesExtraTime ? ' after extra time' : ''}.`,
+        explanation: `تأهل ${winnerAr} بمجموع المباراتين ${Math.max(totalA, totalB)}–${Math.min(totalA, totalB)}${includesExtraTime ? ' بعد الوقت الإضافي' : ''}.`,
       },
     };
   }
@@ -836,6 +842,7 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
   const penA = getPenaltyScoreForTeam(leg2, tie.teamA.id);
   if (leg2.score.duration === 'PENALTY_SHOOTOUT' && penA && penA.scored !== penA.conceded) {
     const winner = penA.scored > penA.conceded ? tie.teamA : tie.teamB;
+    const winnerAr = winner.id === tie.teamA.id ? teamADisplay : teamBDisplay;
     const providerWinner = getWinnerTeamFromSide(leg2);
     if (providerWinner && providerWinner.id !== winner.id) {
       return {
@@ -852,7 +859,7 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
           winnerTeamId: null,
           winnerName: null,
           method: null,
-          explanation: 'Penalty shootout score conflicts with provider winner field.',
+          explanation: 'تضارب بين نتيجة ركلات الترجيح وحقل الفائز في المصدر.',
         },
       };
     }
@@ -869,9 +876,9 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
       advancement: {
         status: 'CONFIRMED',
         winnerTeamId: winner.id,
-        winnerName: winner.name,
+        winnerName: winnerAr,
         method: 'PENALTIES',
-        explanation: `${winner.name} advances on penalties (${Math.max(penA.scored, penA.conceded)}–${Math.min(penA.scored, penA.conceded)}) after ${totalA}–${totalB} aggregate.`,
+        explanation: `تأهل ${winnerAr} بركلات الترجيح (${Math.max(penA.scored, penA.conceded)}–${Math.min(penA.scored, penA.conceded)}) بعد التعادل ${totalA}–${totalB} في المجموع.`,
       },
     };
   }
@@ -890,7 +897,7 @@ export function evaluateTieProgression(tie: Omit<KnockoutTie, 'aggregate' | 'adv
       winnerTeamId: null,
       winnerName: null,
       method: null,
-      explanation: `Aggregate is level at ${totalA}–${totalB}; away-goals rule does not apply and no verified penalty shootout winner is present.`,
+      explanation: `المجموع متعادل (${totalA}–${totalB})؛ لا يُعمل بقاعدة الهدف خارج الأرض ولم يُسجل حسم بالوقت الإضافي أو ركلات الترجيح.`,
     },
   };
 }
@@ -934,7 +941,7 @@ export function propagateVerifiedAdvancement(ties: KnockoutTie[]): KnockoutTie[]
 }
 
 export function createEmptyBracketSkeleton(
-  tbdReason = '2026/27 knockout draw has not yet confirmed participants.',
+  tbdReason = 'لم تُحسم قرعة الأدوار الإقصائية لموسم 2026/27 بعد.',
 ): KnockoutTie[] {
   return BRACKET_BLUEPRINT.map((slot) => {
     const base: Omit<KnockoutTie, 'aggregate' | 'advancement'> = {
@@ -966,7 +973,7 @@ export function createInitialTruthfulSnapshot(): KnockoutSnapshot {
     seasonLabel: COMPETITION_CONFIG.seasonLabel,
     ingestionStatus: 'not_configured',
     statusMessage:
-      'Awaiting first authenticated snapshot sync. Once published, all 2026/27 League Stage and Knockout fixtures appear here.',
+      'بانتظار أول مزامنة موثقة للبيانات. عند نشر اللقطة المحدّثة ستظهر هنا جميع مباريات مرحلة الدوري والأدوار الإقصائية لموسم 2026/27.',
     sourceName: COMPETITION_CONFIG.providerName,
     sourceLastUpdatedUtc: null,
     ingestedAtUtc: null,
@@ -1030,37 +1037,81 @@ export function computeOverviewStats(snapshot: KnockoutSnapshot, nowMs = Date.no
   };
 }
 
+export function getCalendarDateKey(utcDate: string | null, timezoneMode: TimezoneMode): string {
+  if (!utcDate) return 'TBD';
+  const parsed = new Date(utcDate);
+  if (Number.isNaN(parsed.getTime())) return 'TBD';
+  const targetZone = timezoneMode === 'cairo' ? COMPETITION_CONFIG.defaultTimezone : undefined;
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: targetZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(parsed);
+}
+
+export function getTodayDateKey(timezoneMode: TimezoneMode, nowMs = Date.now()): string {
+  const targetZone = timezoneMode === 'cairo' ? COMPETITION_CONFIG.defaultTimezone : undefined;
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: targetZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date(nowMs));
+}
+
+/**
+ * Formats kickoff date and 12-hour time with explicit صباحًا / مساءً in Arabic.
+ * Uses Africa/Cairo IANA rules (automatically honoring Egypt DST) when timezoneMode === 'cairo'.
+ */
 export function formatKickoffTime(
   utcDate: string | null,
   timezoneMode: TimezoneMode,
-): {dateLabel: string; timeLabel: string; tzLabel: string; fullLabel: string} {
+): {
+  dateLabel: string;
+  shortDateLabel: string;
+  timeLabel: string;
+  tzLabel: string;
+  fullLabel: string;
+} {
+  const tzBase = timezoneMode === 'cairo' ? 'توقيت مصر' : 'التوقيت المحلي';
+
   if (!utcDate) {
     return {
-      dateLabel: 'Date TBD',
-      timeLabel: 'Kickoff TBD',
-      tzLabel: timezoneMode === 'cairo' ? 'Egypt time' : 'Local time',
-      fullLabel: 'Kickoff time TBD',
+      dateLabel: 'التاريخ يُحدد لاحقًا',
+      shortDateLabel: 'يُحدد لاحقًا',
+      timeLabel: 'الوقت يُحدد لاحقًا',
+      tzLabel: tzBase,
+      fullLabel: 'موعد الانطلاق يُحدد لاحقًا',
     };
   }
 
   const parsed = new Date(utcDate);
   if (Number.isNaN(parsed.getTime())) {
     return {
-      dateLabel: 'Date unavailable',
-      timeLabel: 'Kickoff unavailable',
-      tzLabel: timezoneMode === 'cairo' ? 'Egypt time' : 'Local time',
-      fullLabel: 'Kickoff time unavailable',
+      dateLabel: 'التاريخ غير متاح',
+      shortDateLabel: 'غير متاح',
+      timeLabel: 'الوقت غير متاح',
+      tzLabel: tzBase,
+      fullLabel: 'موعد الانطلاق غير متاح',
     };
   }
 
   const targetZone = timezoneMode === 'cairo' ? COMPETITION_CONFIG.defaultTimezone : undefined;
 
-  const dateLabel = new Intl.DateTimeFormat('en-GB', {
+  const dateLabel = new Intl.DateTimeFormat('ar-EG-u-nu-latn', {
+    timeZone: targetZone,
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(parsed);
+
+  const shortDateLabel = new Intl.DateTimeFormat('ar-EG-u-nu-latn', {
     timeZone: targetZone,
     weekday: 'short',
-    day: '2-digit',
+    day: 'numeric',
     month: 'short',
-    year: 'numeric',
   }).format(parsed);
 
   const timeParts = new Intl.DateTimeFormat('en-GB', {
@@ -1071,52 +1122,54 @@ export function formatKickoffTime(
     timeZoneName: 'short',
   }).formatToParts(parsed);
 
-  const hour = timeParts.find((p) => p.type === 'hour')?.value ?? '00';
+  const rawHour24 = Number.parseInt(timeParts.find((p) => p.type === 'hour')?.value ?? '0', 10);
   const minute = timeParts.find((p) => p.type === 'minute')?.value ?? '00';
   const tzName =
     timeParts.find((p) => p.type === 'timeZoneName')?.value ??
     (timezoneMode === 'cairo' ? 'Africa/Cairo' : 'Local');
 
-  const timeLabel = `${hour}:${minute}`;
-  const tzLabel =
-    timezoneMode === 'cairo'
-      ? `Egypt time (${tzName})`
-      : `Local time (${tzName})`;
+  const isEvening = rawHour24 >= 12;
+  const hour12 = rawHour24 % 12 === 0 ? 12 : rawHour24 % 12;
+  const periodLabel = isEvening ? 'مساءً' : 'صباحًا';
+
+  const timeLabel = `${hour12}:${minute} ${periodLabel}`;
+  const tzLabel = `${tzBase} (${tzName})`;
 
   return {
     dateLabel,
+    shortDateLabel,
     timeLabel,
     tzLabel,
-    fullLabel: `${dateLabel} · ${timeLabel} ${tzLabel}`,
+    fullLabel: `${dateLabel} · ${timeLabel} · ${tzLabel}`,
   };
 }
 
 export function formatRelativeAge(isoTimestamp: string | null, nowMs = Date.now()): string {
-  if (!isoTimestamp) return 'Never synced';
+  if (!isoTimestamp) return 'لم تُحدّث بعد';
   const ts = Date.parse(isoTimestamp);
-  if (Number.isNaN(ts)) return 'Unknown age';
+  if (Number.isNaN(ts)) return 'توقيت غير معروف';
   const diffMinutes = Math.max(0, Math.round((nowMs - ts) / 60000));
-  if (diffMinutes < 1) return 'Just now';
-  if (diffMinutes < 60) return `${diffMinutes}m ago`;
+  if (diffMinutes < 1) return 'الآن';
+  if (diffMinutes < 60) return `منذ ${diffMinutes} د`;
   const diffHours = Math.floor(diffMinutes / 60);
-  if (diffHours < 24) return `${diffHours}h ${diffMinutes % 60}m ago`;
+  if (diffHours < 24) return `منذ ${diffHours} س ${diffMinutes % 60} د`;
   const diffDays = Math.floor(diffHours / 24);
-  return `${diffDays}d ago`;
+  return `منذ ${diffDays} يوم`;
 }
 
 export function formatUtcTimestamp(isoTimestamp: string | null): string {
-  if (!isoTimestamp) return 'Not available yet';
+  if (!isoTimestamp) return 'غير متوفر بعد';
   const d = new Date(isoTimestamp);
-  if (Number.isNaN(d.getTime())) return 'Not available yet';
+  if (Number.isNaN(d.getTime())) return 'غير متوفر بعد';
   return (
-    new Intl.DateTimeFormat('en-GB', {
+    new Intl.DateTimeFormat('ar-EG-u-nu-latn', {
       timeZone: 'UTC',
-      day: '2-digit',
+      day: 'numeric',
       month: 'short',
       year: 'numeric',
-      hour: '2-digit',
+      hour: 'numeric',
       minute: '2-digit',
-      hour12: false,
+      hour12: true,
     }).format(d) + ' UTC'
   );
 }

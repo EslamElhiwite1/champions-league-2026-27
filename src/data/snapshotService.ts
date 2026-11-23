@@ -33,13 +33,13 @@ export async function fetchPublishedSnapshot(signal?: AbortSignal): Promise<Knoc
   });
 
   if (!response.ok) {
-    throw new Error(`Published snapshot unavailable (HTTP ${response.status}).`);
+    throw new Error(`تعذر الوصول إلى ملف اللقطة المنشورة (HTTP ${response.status}).`);
   }
 
   const json: unknown = await response.json();
   if (!validateSnapshotSchema(json)) {
     throw new Error(
-      `Published snapshot failed schema or ${COMPETITION_CONFIG.seasonLabel} season validation.`,
+      `فشل التحقق من بنية اللقطة أو موسم ${COMPETITION_CONFIG.seasonLabel}.`,
     );
   }
 
@@ -78,7 +78,7 @@ export function useKnockoutSnapshot(initialSnapshot?: KnockoutSnapshot) {
       });
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : 'Unable to retrieve the published data snapshot.';
+        err instanceof Error ? err.message : 'تعذر استرداد لقطة البيانات المنشورة.';
 
       setState((prev) => {
         if (prev.snapshot) {
@@ -95,7 +95,7 @@ export function useKnockoutSnapshot(initialSnapshot?: KnockoutSnapshot) {
         // No validated snapshot has been fetched yet; show honest unavailable/setup state
         const fallback = createInitialTruthfulSnapshot();
         fallback.ingestionStatus = 'error';
-        fallback.statusMessage = `No validated published snapshot could be loaded (${message}).`;
+        fallback.statusMessage = `تعذر تحميل لقطة موثقة صالحة (${message}).`;
         return {
           snapshot: fallback,
           isLoading: false,

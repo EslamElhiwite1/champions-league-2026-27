@@ -1,11 +1,12 @@
 import React, {useState} from 'react';
+import type {TimezoneMode} from '../config/competition';
+import {getArabicClubDisplayName} from '../domain/arabicClubs';
 import {
   computeOverviewStats,
   formatKickoffTime,
   STAGE_LABELS,
   STAGE_ORDER,
 } from '../domain/knockoutEngine';
-import type {TimezoneMode} from '../config/competition';
 import type {KnockoutBracketStage, KnockoutSnapshot, KnockoutTie} from '../types/knockout';
 import {TeamMonogram} from './TeamMonogram';
 import {TrophyIllustration} from './TrophyIllustration';
@@ -39,6 +40,9 @@ const TieCard: React.FC<TieCardProps> = ({
   const isTeamAWinner = winnerId !== null && winnerId === tie.teamA.id;
   const isTeamBWinner = winnerId !== null && winnerId === tie.teamB.id;
 
+  const teamADisplay = getArabicClubDisplayName(tie.teamA);
+  const teamBDisplay = getArabicClubDisplayName(tie.teamB);
+
   const firstScheduledLeg = tie.legs.find((m) => m.utcDate != null);
   const kickoffInfo = firstScheduledLeg
     ? formatKickoffTime(firstScheduledLeg.utcDate, timezoneMode)
@@ -47,35 +51,35 @@ const TieCard: React.FC<TieCardProps> = ({
   const statusFooter = (() => {
     if (tie.advancement.status === 'CONFIRMED') {
       if (tie.advancement.method === 'PENALTIES' && tie.aggregate.penaltyScore) {
-        return `Penalties (${tie.aggregate.penaltyScore.teamA}–${tie.aggregate.penaltyScore.teamB})`;
+        return `ركلات الترجيح (${tie.aggregate.penaltyScore.teamA}–${tie.aggregate.penaltyScore.teamB})`;
       }
       if (tie.advancement.method === 'EXTRA_TIME') {
-        return 'After extra time';
+        return 'بعد الوقت الإضافي';
       }
       if (tie.advancement.method === 'AWARDED') {
-        return 'Awarded';
+        return 'قرار إداري';
       }
-      return isFinal ? 'Champion confirmed' : 'Aggregate confirmed';
+      return isFinal ? 'تأكّد البطل' : 'تأهل مؤكد بالمجموع';
     }
     if (tie.advancement.status === 'UNRESOLVED') {
-      return 'Result unresolved';
+      return 'النتيجة غير محسومة';
     }
     if (tie.teamA.isTbd && tie.teamB.isTbd) {
-      return isFinal ? 'Single match · TBD' : '2 legs · Awaiting draw';
+      return isFinal ? 'مباراة واحدة · بانتظار القرعة' : 'ذهاب وإياب · بانتظار القرعة';
     }
     if (tie.legs.some((l) => l.status === 'POSTPONED')) {
-      return 'Postponed fixture';
+      return 'مباراة مؤجلة';
     }
     if (tie.legs.some((l) => l.status === 'IN_PLAY' || l.status === 'PAUSED')) {
-      return 'In progress (delayed feed)';
+      return 'جارية الآن (تحديث متأخر)';
     }
     if (tie.legs.length === 1 && tie.isTwoLegged) {
-      return '1st leg recorded · 2nd leg pending';
+      return 'أُقيم الذهاب · بانتظار الإياب';
     }
     if (kickoffInfo) {
-      return `${kickoffInfo.dateLabel} · ${kickoffInfo.timeLabel}`;
+      return `${kickoffInfo.shortDateLabel} · ${kickoffInfo.timeLabel}`;
     }
-    return isFinal ? 'Single match' : 'Two-legged tie';
+    return isFinal ? 'مباراة واحدة' : 'مواجهة ذهاب وإياب';
   })();
 
   const scoreA =
@@ -86,9 +90,10 @@ const TieCard: React.FC<TieCardProps> = ({
   return (
     <button
       type="button"
+      dir="rtl"
       onClick={() => onSelect(tie)}
-      aria-label={`Inspect ${tie.label}: ${tie.teamA.name} vs ${tie.teamB.name}, ${statusFooter}`}
-      className={`group w-full rounded-md border text-left transition-colors focus-visible:outline-none ${
+      aria-label={`استعراض ${tie.label}: ${teamADisplay} ضد ${teamBDisplay}، ${statusFooter}`}
+      className={`group w-full rounded-md border text-start transition-colors focus-visible:outline-none ${
         compact ? 'px-2.5 py-2' : 'px-3.5 py-3'
       } ${
         isSelected
@@ -97,12 +102,14 @@ const TieCard: React.FC<TieCardProps> = ({
       }`}
     >
       <div className="mb-1.5 flex items-center justify-between gap-2 text-[11px] text-[#7f91ad]">
-        <span className="truncate font-medium">{tie.tieId}</span>
+        <span className="truncate font-mono-tabular font-medium" dir="ltr">
+          {tie.tieId}
+        </span>
         {tie.advancement.status === 'UNRESOLVED' && (
-          <span className="font-medium text-amber-300 shrink-0">Unresolved</span>
+          <span className="font-medium text-amber-300 shrink-0">غير محسوم</span>
         )}
         {tie.advancement.status === 'CONFIRMED' && (
-          <span className="font-medium text-[#5ca0ff] shrink-0">Confirmed</span>
+          <span className="font-medium text-[#5ca0ff] shrink-0">مؤكد</span>
         )}
       </div>
 
@@ -119,7 +126,7 @@ const TieCard: React.FC<TieCardProps> = ({
                   : 'font-medium text-[#d8e1ee]'
             }`}
           >
-            {compact ? tie.teamA.shortName : tie.teamA.name}
+            {teamADisplay}
           </span>
         </div>
         <span
@@ -146,7 +153,7 @@ const TieCard: React.FC<TieCardProps> = ({
                   : 'font-medium text-[#d8e1ee]'
             }`}
           >
-            {compact ? tie.teamB.shortName : tie.teamB.name}
+            {teamBDisplay}
           </span>
         </div>
         <span
@@ -165,9 +172,6 @@ const TieCard: React.FC<TieCardProps> = ({
   );
 };
 
-/**
- * SVG bracket fork connecting 2 feeder ties on the left into 1 target tie on the right.
- */
 const LeftForkConnector: React.FC = () => (
   <div className="w-5 shrink-0 self-stretch" aria-hidden="true">
     <svg viewBox="0 0 20 100" preserveAspectRatio="none" className="h-full w-full">
@@ -182,9 +186,6 @@ const LeftForkConnector: React.FC = () => (
   </div>
 );
 
-/**
- * Mirrored SVG bracket fork connecting 2 feeder ties on the right into 1 target tie on the left.
- */
 const RightForkConnector: React.FC = () => (
   <div className="w-5 shrink-0 self-stretch" aria-hidden="true">
     <svg viewBox="0 0 20 100" preserveAspectRatio="none" className="h-full w-full">
@@ -226,6 +227,7 @@ export const BracketView: React.FC<BracketViewProps> = ({
   const finalTie = getTie('FINAL-1');
 
   const mobileStageTies = snapshot.ties.filter((t) => t.stage === activeMobileStage);
+  const championDisplay = stats.champion ? getArabicClubDisplayName(stats.champion) : null;
 
   return (
     <section
@@ -236,48 +238,41 @@ export const BracketView: React.FC<BracketViewProps> = ({
       <div className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-8">
         <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-medium tracking-[0.14em] uppercase text-[#5ca0ff]">
-              Knockout Progression
-            </p>
-            <h2
+            <p className="text-xs font-semibold text-[#5ca0ff]">مسار الأدوار الإقصائية</p>
+            <h1
               id="bracket-heading"
-              className="mt-1 font-display text-2xl font-bold tracking-wide text-[#f4f7fb] sm:text-3xl"
+              className="mt-1 font-display text-2xl font-bold text-[#f4f7fb] sm:text-3xl"
             >
-              {snapshot.seasonLabel} Tournament Bracket
-            </h2>
+              شجرة بطولة {snapshot.seasonLabel}
+            </h1>
           </div>
           <p className="text-xs text-[#7f91ad]">
-            Select any tie card to inspect first and second legs, aggregate rules, and source
-            freshness.
+            اختر أي مواجهة لاستعراض تفاصيل الذهاب والإياب والمجموع وحداثة المصدر.
           </p>
         </div>
 
-        {/* Desktop Inward-Flowing Bracket (xl >= 1280px) */}
-        <div className="hidden xl:block">
-          {/* Stage Column Headers */}
-          <div className="mb-4 grid grid-cols-[1fr_20px_1fr_20px_1fr_20px_236px_20px_1fr_20px_1fr_20px_1fr] items-center text-center text-[11px] font-medium tracking-[0.12em] uppercase text-[#7f91ad]">
-            <span>Round of 16</span>
+        {/* Desktop Inward-Flowing Bracket (xl >= 1280px) with explicit dir="ltr" spatial isolation */}
+        <div className="hidden xl:block" dir="ltr">
+          <div className="mb-4 grid grid-cols-[1fr_20px_1fr_20px_1fr_20px_236px_20px_1fr_20px_1fr_20px_1fr] items-center text-center text-xs font-medium text-[#7f91ad]">
+            <span>{STAGE_LABELS.ROUND_OF_16}</span>
             <span />
-            <span>Quarter-finals</span>
+            <span>{STAGE_LABELS.QUARTER_FINALS}</span>
             <span />
-            <span>Semi-finals</span>
+            <span>{STAGE_LABELS.SEMI_FINALS}</span>
             <span />
-            <span className="text-[#d8e1ee]">Final &amp; Trophy</span>
+            <span className="text-[#d8e1ee]">النهائي والكأس</span>
             <span />
-            <span>Semi-finals</span>
+            <span>{STAGE_LABELS.SEMI_FINALS}</span>
             <span />
-            <span>Quarter-finals</span>
+            <span>{STAGE_LABELS.QUARTER_FINALS}</span>
             <span />
-            <span>Round of 16</span>
+            <span>{STAGE_LABELS.ROUND_OF_16}</span>
           </div>
 
-          {/* Symmetric Bracket Tree */}
           <div className="flex min-h-[560px] items-stretch">
-            {/* LEFT HALF (R16-1..4 -> QF-1..2 -> SF-1) */}
+            {/* LEFT HALF */}
             <div className="flex flex-1 items-stretch">
-              {/* R16 + QF Feeder Pairs */}
               <div className="flex flex-[2.15] flex-col justify-between gap-4">
-                {/* Upper Left Quadrant (R16-1, R16-2 -> QF-1) */}
                 <div className="flex flex-1 items-stretch">
                   <div className="flex flex-1 flex-col justify-between">
                     {r16LeftTop.map((tie) => (
@@ -304,7 +299,6 @@ export const BracketView: React.FC<BracketViewProps> = ({
                   </div>
                 </div>
 
-                {/* Lower Left Quadrant (R16-3, R16-4 -> QF-2) */}
                 <div className="flex flex-1 items-stretch">
                   <div className="flex flex-1 flex-col justify-between">
                     {r16LeftBottom.map((tie) => (
@@ -332,10 +326,8 @@ export const BracketView: React.FC<BracketViewProps> = ({
                 </div>
               </div>
 
-              {/* QF-1 & QF-2 -> SF-1 Connector */}
               <LeftForkConnector />
 
-              {/* SF-1 */}
               <div className="flex flex-1 items-center">
                 <TieCard
                   tie={sf1}
@@ -347,15 +339,14 @@ export const BracketView: React.FC<BracketViewProps> = ({
               </div>
             </div>
 
-            {/* SF-1 -> Final Horizontal Axis */}
             <div className="flex w-5 shrink-0 items-center" aria-hidden="true">
               <div className="h-px w-full bg-[#c4d2e8]/30" />
             </div>
 
-            {/* CENTER AXIS: Trophy visually central above the Final card without obscuring connectors */}
+            {/* CENTER AXIS */}
             <div className="relative flex w-[236px] shrink-0 flex-col items-center justify-center">
               <div className="pointer-events-none absolute inset-x-0 bottom-1/2 mb-[74px] flex justify-center">
-                <TrophyIllustration championName={stats.champion?.name ?? null} />
+                <TrophyIllustration champion={stats.champion} />
               </div>
 
               <div className="w-full">
@@ -367,32 +358,29 @@ export const BracketView: React.FC<BracketViewProps> = ({
                 />
               </div>
 
-              <div className="pointer-events-none absolute inset-x-0 top-1/2 mt-[86px] text-center">
-                {stats.champion ? (
+              <div
+                className="pointer-events-none absolute inset-x-0 top-1/2 mt-[86px] text-center"
+                dir="rtl"
+              >
+                {championDisplay ? (
                   <div className="rounded-md border border-[#2f7bff]/40 bg-[#10203d] px-3 py-2">
-                    <p className="text-[11px] font-medium tracking-wider uppercase text-[#5ca0ff]">
-                      Champions
-                    </p>
+                    <p className="text-[11px] font-medium text-[#5ca0ff]">البطل</p>
                     <p className="font-display text-lg font-bold text-[#f4f7fb]">
-                      {stats.champion.name}
+                      {championDisplay}
                     </p>
                   </div>
                 ) : (
-                  <p className="text-xs text-[#7f91ad]">
-                    Winner confirmed only upon Final completion
-                  </p>
+                  <p className="text-xs text-[#7f91ad]">يتحدد البطل بعد نهاية المباراة النهائية</p>
                 )}
               </div>
             </div>
 
-            {/* Final <- SF-2 Horizontal Axis */}
             <div className="flex w-5 shrink-0 items-center" aria-hidden="true">
               <div className="h-px w-full bg-[#c4d2e8]/30" />
             </div>
 
-            {/* RIGHT HALF (SF-2 <- QF-3..4 <- R16-5..8) */}
+            {/* RIGHT HALF */}
             <div className="flex flex-1 items-stretch">
-              {/* SF-2 */}
               <div className="flex flex-1 items-center">
                 <TieCard
                   tie={sf2}
@@ -403,12 +391,9 @@ export const BracketView: React.FC<BracketViewProps> = ({
                 />
               </div>
 
-              {/* SF-2 <- QF-3 & QF-4 Connector */}
               <RightForkConnector />
 
-              {/* QF + R16 Feeder Pairs */}
               <div className="flex flex-[2.15] flex-col justify-between gap-4">
-                {/* Upper Right Quadrant (QF-3 <- R16-5, R16-6) */}
                 <div className="flex flex-1 items-stretch">
                   <div className="flex flex-1 items-center">
                     <TieCard
@@ -435,7 +420,6 @@ export const BracketView: React.FC<BracketViewProps> = ({
                   </div>
                 </div>
 
-                {/* Lower Right Quadrant (QF-4 <- R16-7, R16-8) */}
                 <div className="flex flex-1 items-stretch">
                   <div className="flex flex-1 items-center">
                     <TieCard
@@ -468,21 +452,18 @@ export const BracketView: React.FC<BracketViewProps> = ({
 
         {/* Mobile & Tablet Stage-by-Stage Composition (< 1280px) */}
         <div className="space-y-6 xl:hidden">
-          {/* Featured Trophy & Final Spotlight */}
           <div className="grid grid-cols-1 items-center gap-6 rounded-md border border-[#c4d2e8]/15 bg-[#0d172b] p-5 md:grid-cols-[auto_1fr]">
             <div className="flex justify-center">
-              <TrophyIllustration championName={stats.champion?.name ?? null} />
+              <TrophyIllustration champion={stats.champion} />
             </div>
             <div className="space-y-3">
               <div>
-                <p className="text-xs font-medium tracking-[0.12em] uppercase text-[#5ca0ff]">
-                  Championship Showpiece
-                </p>
-                <h3 className="mt-1 font-display text-2xl font-bold text-[#f4f7fb]">
+                <p className="text-xs font-semibold text-[#5ca0ff]">واجهة اللقب</p>
+                <h2 className="mt-1 font-display text-2xl font-bold text-[#f4f7fb]">
                   {finalTie.label}
-                </h3>
+                </h2>
                 <p className="mt-1 text-xs text-[#b7c5da]">
-                  Single-match decider. Winner status remains unconfirmed until the Final concludes.
+                  مباراة واحدة حاسمة. لا يُعتمد البطل إلا بعد صافرة النهاية وتوثيق النتيجة.
                 </p>
               </div>
               <TieCard
@@ -494,10 +475,9 @@ export const BracketView: React.FC<BracketViewProps> = ({
             </div>
           </div>
 
-          {/* Stage Tabs */}
           <div
             role="tablist"
-            aria-label="Knockout bracket stages"
+            aria-label="مراحل الأدوار الإقصائية"
             className="grid grid-cols-2 gap-1.5 rounded-md border border-[#c4d2e8]/15 bg-[#0d172b] p-1 sm:grid-cols-4"
           >
             {STAGE_ORDER.map((stage) => {
@@ -521,7 +501,6 @@ export const BracketView: React.FC<BracketViewProps> = ({
             })}
           </div>
 
-          {/* Selected Stage Cards */}
           <div role="tabpanel" aria-label={STAGE_LABELS[activeMobileStage]}>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {mobileStageTies.map((tie) => (

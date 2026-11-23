@@ -1,5 +1,6 @@
 import React from 'react';
 import {COMPETITION_CONFIG, type TimezoneMode} from '../config/competition';
+import {getArabicClubDisplayName} from '../domain/arabicClubs';
 import {
   computeOverviewStats,
   formatKickoffTime,
@@ -18,6 +19,7 @@ interface TournamentOverviewProps {
   isRetainedFallback: boolean;
   onSelectMatch: (match: KnockoutMatch) => void;
   onOpenKnockoutView: () => void;
+  nowMs?: number;
 }
 
 export const TournamentOverview: React.FC<TournamentOverviewProps> = ({
@@ -29,8 +31,9 @@ export const TournamentOverview: React.FC<TournamentOverviewProps> = ({
   isRetainedFallback,
   onSelectMatch,
   onOpenKnockoutView,
+  nowMs,
 }) => {
-  const stats = computeOverviewStats(snapshot);
+  const stats = computeOverviewStats(snapshot, nowMs);
   const nextFixture = stats.nextVerifiedFixture;
   const nextKickoff = nextFixture
     ? formatKickoffTime(nextFixture.utcDate, timezoneMode)
@@ -38,25 +41,25 @@ export const TournamentOverview: React.FC<TournamentOverviewProps> = ({
 
   const localZoneName = (() => {
     try {
-      return Intl.DateTimeFormat().resolvedOptions().timeZone || 'Local';
+      return Intl.DateTimeFormat().resolvedOptions().timeZone || 'المحلي';
     } catch {
-      return 'Local';
+      return 'المحلي';
     }
   })();
 
   const statusHeadline = (() => {
     if (isRetainedFallback) {
-      return 'Snapshot recheck failed — retaining last validated snapshot';
+      return 'تعذر التحقق من التحديث — يتم عرض آخر لقطة صالحة محفوظة';
     }
     switch (snapshot.ingestionStatus) {
       case 'not_configured':
-        return 'Setup required — awaiting first authenticated snapshot';
+        return 'بانتظار الإعداد — لم تُنشر أول لقطة موثقة بعد';
       case 'awaiting_draw':
-        return 'Provider connected — awaiting 2026/27 fixtures';
+        return 'المصدر متصل — بانتظار نشر مباريات موسم 2026/27';
       case 'error':
-        return 'Published snapshot unavailable';
+        return 'اللقطة المنشورة غير متاحة حاليًا';
       case 'ok':
-        return 'Verified delayed snapshot active';
+        return 'لقطة البيانات الموثقة نشطة (تحديث تلقائي متأخر)';
     }
   })();
 
@@ -69,33 +72,32 @@ export const TournamentOverview: React.FC<TournamentOverviewProps> = ({
       <div className="mx-auto max-w-[1400px] px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl space-y-3">
-            <p className="text-xs font-medium tracking-[0.14em] uppercase text-[#5ca0ff]">
+            <p className="text-xs font-semibold tracking-wide text-[#5ca0ff]">
               {snapshot.competitionName}
               <span aria-hidden="true" className="mx-2 text-[#7f91ad]">
                 ·
               </span>
-              Season {snapshot.seasonLabel}
+              موسم {snapshot.seasonLabel}
             </p>
             <h1
               id="overview-heading"
-              className="font-display text-3xl font-bold leading-[1.06] tracking-tight text-[#f4f7fb] sm:text-5xl"
+              className="font-display text-3xl font-bold leading-[1.2] text-[#f4f7fb] sm:text-5xl"
               style={{textWrap: 'balance'}}
             >
-              {snapshot.seasonLabel} Champions League Fixtures &amp; Results
+              مباريات ونتائج دوري أبطال أوروبا {snapshot.seasonLabel}
             </h1>
             <p className="max-w-xl text-sm leading-relaxed text-[#b7c5da] sm:text-base">
-              Verified {snapshot.seasonLabel} League Stage matches and results grouped by calendar
-              date in Egypt time. Open the Knockout tab in the bottom bar at any time to inspect
-              the Round of 16 through Final bracket.
+              متابعة مباريات مرحلة الدوري والأدوار الإقصائية مرتبة حسب التاريخ بتوقيت مصر (نظام 12
+              ساعة). يمكنك فتح تبويب الأدوار الإقصائية من الشريط السفلي لاستعراض شجرة البطولة والكأس.
             </p>
           </div>
 
           {/* Explicit Egypt Time Default Switcher */}
           <div className="flex flex-col items-start gap-1.5 lg:items-end">
-            <span className="text-xs font-medium text-[#7f91ad]">Kickoff Display Timezone</span>
+            <span className="text-xs font-medium text-[#7f91ad]">منطقة توقيت العرض</span>
             <div
               role="group"
-              aria-label="Kickoff timezone selector"
+              aria-label="اختيار منطقة توقيت عرض المباريات"
               className="inline-flex rounded-md border border-[#c4d2e8]/18 bg-[#0d172b] p-1"
             >
               <button
@@ -108,7 +110,7 @@ export const TournamentOverview: React.FC<TournamentOverviewProps> = ({
                     : 'text-[#b7c5da] hover:text-[#f4f7fb]'
                 }`}
               >
-                Egypt time (Africa/Cairo)
+                توقيت مصر (Africa/Cairo)
               </button>
               <button
                 type="button"
@@ -120,98 +122,91 @@ export const TournamentOverview: React.FC<TournamentOverviewProps> = ({
                     : 'text-[#b7c5da] hover:text-[#f4f7fb]'
                 }`}
               >
-                Local ({localZoneName})
+                التوقيت المحلي ({localZoneName})
               </button>
             </div>
           </div>
         </div>
 
         {/* Truthful Data-Derived Ledger Strip */}
-        <dl className="mt-8 grid grid-cols-1 divide-y divide-[#c4d2e8]/12 border border-[#c4d2e8]/15 bg-[#0d172b] sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-4">
+        <dl className="mt-8 grid grid-cols-1 divide-y divide-[#c4d2e8]/12 border border-[#c4d2e8]/15 bg-[#0d172b] sm:grid-cols-2 sm:divide-x sm:divide-x-reverse sm:divide-y-0 lg:grid-cols-4">
           <div className="px-5 py-4">
-            <dt className="text-xs font-medium tracking-wider uppercase text-[#7f91ad]">
-              Season Fixtures
-            </dt>
+            <dt className="text-xs font-medium text-[#7f91ad]">مباريات الموسم</dt>
             <dd className="mt-1.5 font-mono-tabular text-2xl font-semibold text-[#f4f7fb]">
               {stats.totalFixtures === 0
-                ? '0 published'
+                ? '0 منشورة'
                 : `${stats.completedFixtures} / ${stats.totalFixtures}`}
             </dd>
             <p className="mt-1 text-xs text-[#7f91ad]">
               {stats.totalFixtures === 0
-                ? 'No verified 2026/27 match records ingested yet'
-                : `${stats.leagueStageFixtures} League Stage · ${stats.knockoutBracketFixtures} Knockout`}
+                ? 'لا توجد مباريات معتمدة منشورة حتى الآن'
+                : `${stats.leagueStageFixtures} مرحلة الدوري · ${stats.knockoutBracketFixtures} إقصائية`}
             </p>
           </div>
 
           <div className="px-5 py-4 sm:border-t lg:border-t-0">
-            <dt className="text-xs font-medium tracking-wider uppercase text-[#7f91ad]">
-              Knockout Bracket Ties
-            </dt>
+            <dt className="text-xs font-medium text-[#7f91ad]">مواجهات الأدوار الإقصائية</dt>
             <dd className="mt-1.5">
               <button
                 type="button"
                 onClick={onOpenKnockoutView}
-                className="text-left group focus-visible:outline-none"
+                className="text-start group focus-visible:outline-none"
               >
                 <span className="block font-mono-tabular text-2xl font-semibold text-[#f4f7fb] group-hover:text-[#5ca0ff]">
                   {stats.tiesWithConfirmedParticipants} / {stats.totalTies}
                 </span>
                 <span className="mt-1 block text-xs text-[#7f91ad] group-hover:text-[#b7c5da]">
                   {stats.tiesWithConfirmedParticipants === 0
-                    ? 'Round of 16–Final remain TBD · Open bracket'
-                    : `${stats.tiesDecided} of ${stats.totalTies} ties decided · View bracket`}
+                    ? 'مواجهات دور الـ16 حتى النهائي لم تُحسم بعد · فتح الشجرة'
+                    : `${stats.tiesDecided} من أصل ${stats.totalTies} مواجهة محسومة · عرض الشجرة`}
                 </span>
               </button>
             </dd>
           </div>
 
           <div className="px-5 py-4 sm:border-t lg:border-t-0">
-            <dt className="text-xs font-medium tracking-wider uppercase text-[#7f91ad]">
-              Next Verified Fixture
-            </dt>
+            <dt className="text-xs font-medium text-[#7f91ad]">المباراة القادمة المؤكدة</dt>
             {nextFixture && nextKickoff ? (
               <dd className="mt-1.5">
                 <button
                   type="button"
                   onClick={() => onSelectMatch(nextFixture)}
-                  className="text-left group focus-visible:outline-none"
+                  className="text-start group focus-visible:outline-none"
                 >
                   <span className="block text-sm font-semibold text-[#f4f7fb] group-hover:text-[#5ca0ff]">
-                    {nextFixture.homeTeam.shortName} vs {nextFixture.awayTeam.shortName}
+                    {getArabicClubDisplayName(nextFixture.homeTeam)} ضد{' '}
+                    {getArabicClubDisplayName(nextFixture.awayTeam)}
                   </span>
-                  <span className="mt-0.5 block font-mono-tabular text-xs text-[#b7c5da]">
+                  <span className="mt-0.5 block text-xs text-[#b7c5da]">
                     {STAGE_LABELS[nextFixture.stage]}
-                    {nextFixture.matchday ? ` · MD ${nextFixture.matchday}` : ''} ·{' '}
-                    {nextKickoff.dateLabel} {nextKickoff.timeLabel}
+                    {nextFixture.matchday ? ` · الجولة ${nextFixture.matchday}` : ''} ·{' '}
+                    {nextKickoff.dateLabel} · {nextKickoff.timeLabel}
                   </span>
                 </button>
               </dd>
             ) : (
               <>
                 <dd className="mt-1.5 font-display text-xl font-semibold text-[#d8e1ee]">
-                  {stats.totalFixtures > 0 ? 'All listed finished' : 'Awaiting snapshot'}
+                  {stats.totalFixtures > 0 ? 'انتهت جميع المباريات المدرجة' : 'بانتظار البيانات'}
                 </dd>
                 <p className="mt-1 text-xs text-[#7f91ad]">
                   {stats.totalFixtures > 0
-                    ? 'No upcoming scheduled fixtures in current snapshot'
-                    : `No scheduled ${snapshot.seasonLabel} kickoff verified yet`}
+                    ? 'لا توجد مباريات قادمة مجدولة في اللقطة الحالية'
+                    : `لم يُوثق موعد قادم لموسم ${snapshot.seasonLabel} بعد`}
                 </p>
               </>
             )}
           </div>
 
           <div className="px-5 py-4 sm:border-t lg:border-t-0">
-            <dt className="text-xs font-medium tracking-wider uppercase text-[#7f91ad]">
-              Data Freshness
-            </dt>
-            <dd className="mt-1.5 font-mono-tabular text-sm font-semibold text-[#f4f7fb]">
-              {snapshot.ingestedAtUtc ? formatRelativeAge(snapshot.ingestedAtUtc) : 'Not ingested yet'}
+            <dt className="text-xs font-medium text-[#7f91ad]">حداثة البيانات</dt>
+            <dd className="mt-1.5 text-sm font-semibold text-[#f4f7fb]">
+              {snapshot.ingestedAtUtc ? formatRelativeAge(snapshot.ingestedAtUtc, nowMs) : 'لم تُحدّث بعد'}
             </dd>
             <p className="mt-1 text-xs text-[#7f91ad]">
               {snapshot.ingestedAtUtc
-                ? `Ingested ${formatUtcTimestamp(snapshot.ingestedAtUtc)}`
-                : 'Hourly delayed static snapshot model'}
+                ? `آخر مزامنة: ${formatUtcTimestamp(snapshot.ingestedAtUtc)}`
+                : 'نموذج لقطات ثابتة مجدولة كل ساعة'}
             </p>
           </div>
         </dl>
@@ -223,18 +218,18 @@ export const TournamentOverview: React.FC<TournamentOverviewProps> = ({
           className="mt-4 flex flex-col gap-2 rounded-md border border-[#c4d2e8]/15 bg-[#0d172b]/80 px-4 py-3 text-xs text-[#b7c5da] sm:flex-row sm:items-center sm:justify-between"
         >
           <div className="space-y-0.5">
-            <p className="font-medium text-[#f4f7fb]">{statusHeadline}</p>
+            <p className="font-semibold text-[#f4f7fb]">{statusHeadline}</p>
             <p className="text-[#b7c5da]">
               {isRetainedFallback && recheckError
-                ? `${recheckError} Displaying previous validated snapshot from ${formatUtcTimestamp(snapshot.ingestedAtUtc)}.`
+                ? `${recheckError} يتم عرض اللقطة الصالحة السابقة بتاريخ ${formatUtcTimestamp(snapshot.ingestedAtUtc)}.`
                 : snapshot.statusMessage}
             </p>
           </div>
-          <div className="shrink-0 text-[#7f91ad] sm:text-right">
-            <p>Checks published static JSON while tab is visible</p>
+          <div className="shrink-0 text-[#7f91ad] sm:text-end">
+            <p>يتم فحص ملف اللقطة الثابتة أثناء فتح التبويب فقط</p>
             <p className="font-mono-tabular">
-              Source: {COMPETITION_CONFIG.providerName} (free delayed)
-              {lastCheckedAtUtc ? ` · Checked ${formatRelativeAge(lastCheckedAtUtc)}` : ''}
+              المصدر: {COMPETITION_CONFIG.providerName} (تحديث مجدول متأخر)
+              {lastCheckedAtUtc ? ` · آخر فحص ${formatRelativeAge(lastCheckedAtUtc, nowMs)}` : ''}
             </p>
           </div>
         </div>

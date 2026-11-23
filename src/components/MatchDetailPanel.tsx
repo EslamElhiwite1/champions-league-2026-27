@@ -1,6 +1,7 @@
 import React, {useEffect, useRef} from 'react';
 import {X} from 'lucide-react';
 import type {TimezoneMode} from '../config/competition';
+import {getArabicClubDisplayName} from '../domain/arabicClubs';
 import {
   formatKickoffTime,
   formatUtcTimestamp,
@@ -29,7 +30,7 @@ const LegCard: React.FC<{
       <div className="rounded-md border border-[#c4d2e8]/15 bg-[#070d19] p-4">
         <div className="flex items-center justify-between text-xs">
           <span className="font-medium text-[#5ca0ff]">{legNumberLabel}</span>
-          <span className="text-[#7f91ad]">Awaiting Fixture</span>
+          <span className="text-[#7f91ad]">بانتظار التحديد</span>
         </div>
         <p className="mt-2 text-sm text-[#b7c5da]">{fallbackDescription}</p>
       </div>
@@ -67,9 +68,9 @@ const LegCard: React.FC<{
             <TeamMonogram team={match.homeTeam} size="sm" />
             <div className="min-w-0">
               <span className="block truncate text-sm font-medium text-[#f4f7fb]">
-                {match.homeTeam.name}
+                {getArabicClubDisplayName(match.homeTeam)}
               </span>
-              <span className="block text-[11px] text-[#7f91ad]">Home</span>
+              <span className="block text-[11px] text-[#7f91ad]">صاحب الأرض</span>
             </div>
           </div>
           <span className="font-mono-tabular text-lg font-semibold text-[#f4f7fb]">
@@ -82,9 +83,9 @@ const LegCard: React.FC<{
             <TeamMonogram team={match.awayTeam} size="sm" />
             <div className="min-w-0">
               <span className="block truncate text-sm font-medium text-[#d8e1ee]">
-                {match.awayTeam.name}
+                {getArabicClubDisplayName(match.awayTeam)}
               </span>
-              <span className="block text-[11px] text-[#7f91ad]">Away</span>
+              <span className="block text-[11px] text-[#7f91ad]">الضيف</span>
             </div>
           </div>
           <span className="font-mono-tabular text-lg font-semibold text-[#f4f7fb]">
@@ -98,53 +99,59 @@ const LegCard: React.FC<{
         <dl className="mt-3 space-y-1 border-t border-[#c4d2e8]/10 pt-2.5 text-xs">
           {ht && ht.home != null && ht.away != null && (
             <div className="flex justify-between gap-2">
-              <dt className="text-[#7f91ad]">Half-time</dt>
-              <dd className="font-mono-tabular text-[#d8e1ee]">
+              <dt className="text-[#7f91ad]">الشوط الأول</dt>
+              <dd className="font-mono-tabular text-[#d8e1ee]" dir="ltr">
                 {ht.home} – {ht.away}
               </dd>
             </div>
           )}
           {reg && reg.home != null && reg.away != null && (
             <div className="flex justify-between gap-2">
-              <dt className="text-[#7f91ad]">90 Minutes</dt>
-              <dd className="font-mono-tabular text-[#d8e1ee]">
+              <dt className="text-[#7f91ad]">الوقت الأصلي (90 دقيقة)</dt>
+              <dd className="font-mono-tabular text-[#d8e1ee]" dir="ltr">
                 {reg.home} – {reg.away}
               </dd>
             </div>
           )}
           {et && et.home != null && et.away != null && (
             <div className="flex justify-between gap-2">
-              <dt className="text-[#7f91ad]">Extra Time Goals</dt>
-              <dd className="font-mono-tabular text-[#d8e1ee]">
+              <dt className="text-[#7f91ad]">أهداف الوقت الإضافي</dt>
+              <dd className="font-mono-tabular text-[#d8e1ee]" dir="ltr">
                 {et.home} – {et.away}
               </dd>
             </div>
           )}
           {pens && pens.home != null && pens.away != null && (
             <div className="flex justify-between gap-2">
-              <dt className="font-medium text-[#5ca0ff]">Penalty Shootout</dt>
-              <dd className="font-mono-tabular font-semibold text-[#5ca0ff]">
+              <dt className="font-medium text-[#5ca0ff]">ركلات الترجيح</dt>
+              <dd className="font-mono-tabular font-semibold text-[#5ca0ff]" dir="ltr">
                 {pens.home} – {pens.away}
               </dd>
             </div>
           )}
           {match.score.isScoreAmbiguous && (
             <div className="pt-1 text-amber-300">
-              {match.score.ambiguityNote ?? 'Score breakdown requires verification.'}
+              {match.score.ambiguityNote ?? 'تفصيل النتيجة يتطلب مراجعة يدوية.'}
             </div>
           )}
         </dl>
       )}
 
-      {/* Kickoff & Venue */}
+      {/* Full Arabic Date, 12-hour Kickoff & Venue */}
       <dl className="mt-3 space-y-1 border-t border-[#c4d2e8]/10 pt-2.5 text-xs">
         <div className="flex justify-between gap-2">
-          <dt className="text-[#7f91ad]">Kickoff</dt>
-          <dd className="font-mono-tabular text-right text-[#d8e1ee]">{kickoff.fullLabel}</dd>
+          <dt className="text-[#7f91ad]">التاريخ</dt>
+          <dd className="text-end text-[#d8e1ee]">{kickoff.dateLabel}</dd>
         </div>
         <div className="flex justify-between gap-2">
-          <dt className="text-[#7f91ad]">Venue</dt>
-          <dd className="text-right text-[#b7c5da]">{match.venue ?? 'Venue TBD'}</dd>
+          <dt className="text-[#7f91ad]">موعد الانطلاق</dt>
+          <dd className="text-end text-[#d8e1ee]">
+            {kickoff.timeLabel} · {kickoff.tzLabel}
+          </dd>
+        </div>
+        <div className="flex justify-between gap-2">
+          <dt className="text-[#7f91ad]">الملعب</dt>
+          <dd className="text-end text-[#b7c5da]">{match.venue ?? 'الملعب يُحدد لاحقًا'}</dd>
         </div>
       </dl>
 
@@ -190,13 +197,13 @@ export const MatchDetailPanel: React.FC<MatchDetailPanelProps> = ({
   const headerKicker = tie
     ? `${STAGE_LABELS[tie.stage]} · ${tie.tieId}`
     : match
-      ? `${STAGE_LABELS[match.stage]}${match.matchday != null ? ` · Matchday ${match.matchday}` : ''}`
+      ? `${STAGE_LABELS[match.stage]}${match.matchday != null ? ` · الجولة ${match.matchday}` : ''}`
       : '';
 
   const headerTitle = tie
     ? tie.label
     : match
-      ? `${match.homeTeam.shortName} vs ${match.awayTeam.shortName}`
+      ? `${getArabicClubDisplayName(match.homeTeam)} ضد ${getArabicClubDisplayName(match.awayTeam)}`
       : '';
 
   return (
@@ -211,13 +218,11 @@ export const MatchDetailPanel: React.FC<MatchDetailPanelProps> = ({
         role="dialog"
         aria-modal="true"
         aria-labelledby="detail-panel-title"
-        className="flex h-full w-full max-w-lg flex-col overflow-y-auto border-l border-[#c4d2e8]/20 bg-[#0d172b] p-5 sm:p-6"
+        className="flex h-full w-full max-w-lg flex-col overflow-y-auto border-s border-[#c4d2e8]/20 bg-[#0d172b] p-5 sm:p-6"
       >
         <div className="flex items-start justify-between gap-4 border-b border-[#c4d2e8]/15 pb-4">
           <div>
-            <p className="text-xs font-medium tracking-[0.12em] uppercase text-[#5ca0ff]">
-              {headerKicker}
-            </p>
+            <p className="text-xs font-medium text-[#5ca0ff]">{headerKicker}</p>
             <h2
               id="detail-panel-title"
               className="mt-1 font-display text-2xl font-bold text-[#f4f7fb]"
@@ -229,14 +234,13 @@ export const MatchDetailPanel: React.FC<MatchDetailPanelProps> = ({
             ref={closeButtonRef}
             type="button"
             onClick={onClose}
-            aria-label="Close match detail panel"
+            aria-label="إغلاق لوحة تفاصيل المباراة"
             className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-[#c4d2e8]/20 bg-[#070d19] text-[#d8e1ee] transition-colors hover:border-[#2f7bff] hover:text-white"
           >
             <X className="h-5 w-5" aria-hidden="true" />
           </button>
         </div>
 
-        {/* Tie Overview & Aggregate (when inspecting a Knockout Tie) */}
         {tie ? (
           <>
             <div className="mt-5 rounded-md border border-[#c4d2e8]/15 bg-[#070d19] p-4">
@@ -251,7 +255,7 @@ export const MatchDetailPanel: React.FC<MatchDetailPanelProps> = ({
                     }
                   />
                   <span className="truncate text-sm font-semibold text-[#f4f7fb]">
-                    {tie.teamA.name}
+                    {getArabicClubDisplayName(tie.teamA)}
                   </span>
                 </div>
                 <span className="font-mono-tabular text-lg font-bold text-[#f4f7fb]">
@@ -272,7 +276,7 @@ export const MatchDetailPanel: React.FC<MatchDetailPanelProps> = ({
                     }
                   />
                   <span className="truncate text-sm font-semibold text-[#f4f7fb]">
-                    {tie.teamB.name}
+                    {getArabicClubDisplayName(tie.teamB)}
                   </span>
                 </div>
                 <span className="font-mono-tabular text-lg font-bold text-[#f4f7fb]">
@@ -282,7 +286,7 @@ export const MatchDetailPanel: React.FC<MatchDetailPanelProps> = ({
 
               <div className="mt-3 border-t border-[#c4d2e8]/10 pt-3 text-xs">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-[#7f91ad]">Advancement Status</span>
+                  <span className="text-[#7f91ad]">حالة التأهل</span>
                   <span
                     className={`font-medium ${
                       tie.advancement.status === 'CONFIRMED'
@@ -293,19 +297,19 @@ export const MatchDetailPanel: React.FC<MatchDetailPanelProps> = ({
                     }`}
                   >
                     {tie.advancement.status === 'CONFIRMED'
-                      ? `Confirmed (${tie.advancement.winnerName})`
+                      ? `متأهل مؤكد (${tie.advancement.winnerName})`
                       : tie.advancement.status === 'UNRESOLVED'
-                        ? 'Unresolved'
-                        : 'Undecided'}
+                        ? 'نتيجة غير محسومة'
+                        : 'لم تُحسم بعد'}
                   </span>
                 </div>
 
                 {tie.aggregate.decidedByPenalties && tie.aggregate.penaltyScore && (
                   <div className="mt-1 flex items-center justify-between gap-2">
-                    <span className="text-[#7f91ad]">Shootout Result</span>
-                    <span className="font-mono-tabular font-semibold text-[#5ca0ff]">
-                      {tie.teamA.shortName} {tie.aggregate.penaltyScore.teamA} –{' '}
-                      {tie.aggregate.penaltyScore.teamB} {tie.teamB.shortName}
+                    <span className="text-[#7f91ad]">نتيجة ركلات الترجيح</span>
+                    <span className="font-semibold text-[#5ca0ff]">
+                      {getArabicClubDisplayName(tie.teamA)} {tie.aggregate.penaltyScore.teamA} –{' '}
+                      {tie.aggregate.penaltyScore.teamB} {getArabicClubDisplayName(tie.teamB)}
                     </span>
                   </div>
                 )}
@@ -315,77 +319,75 @@ export const MatchDetailPanel: React.FC<MatchDetailPanelProps> = ({
             </div>
 
             <div className="mt-5 space-y-3">
-              <h3 className="text-xs font-medium tracking-[0.12em] uppercase text-[#7f91ad]">
-                {tie.isTwoLegged ? 'Two-Legged Tie Breakdown' : 'Single-Match Final'}
+              <h3 className="text-xs font-medium text-[#7f91ad]">
+                {tie.isTwoLegged ? 'تفاصيل مباراتي الذهاب والإياب' : 'المباراة النهائية'}
               </h3>
 
               {tie.isTwoLegged ? (
                 <>
                   <LegCard
-                    legNumberLabel="First Leg"
+                    legNumberLabel="مباراة الذهاب"
                     match={leg1}
                     timezoneMode={timezoneMode}
-                    fallbackDescription="First-leg participants, venue, and kickoff time remain TBD pending verified competition data."
+                    fallbackDescription="طرفا مباراة الذهاب والملعب والموعد بانتظار البيانات الموثقة للقرعة."
                   />
                   <LegCard
-                    legNumberLabel="Second Leg (Reversed Home / Away)"
+                    legNumberLabel="مباراة الإياب (تبديل الأرض والضيافة)"
                     match={leg2}
                     timezoneMode={timezoneMode}
-                    fallbackDescription="Second-leg fixture awaits verified draw or confirmation of the preceding knockout leg."
+                    fallbackDescription="مباراة الإياب بانتظار تأكيد القرعة أو حسم بيانات الذهاب."
                   />
                 </>
               ) : (
                 <LegCard
-                  legNumberLabel="Final Match"
+                  legNumberLabel="المباراة النهائية"
                   match={leg1}
                   timezoneMode={timezoneMode}
-                  fallbackDescription="Final participants and kickoff details remain TBD until Semi-final ties are conclusively decided."
+                  fallbackDescription="طرفا النهائي وموعده بانتظار حسم مواجهتي نصف النهائي."
                 />
               )}
             </div>
           </>
         ) : match ? (
           <div className="mt-5 space-y-3">
-            <h3 className="text-xs font-medium tracking-[0.12em] uppercase text-[#7f91ad]">
-              Match Breakdown
-            </h3>
+            <h3 className="text-xs font-medium text-[#7f91ad]">تفاصيل المباراة</h3>
             <LegCard
               legNumberLabel={
                 match.matchday != null
-                  ? `${STAGE_LABELS[match.stage]} · Matchday ${match.matchday}`
+                  ? `${STAGE_LABELS[match.stage]} · الجولة ${match.matchday}`
                   : STAGE_LABELS[match.stage]
               }
               match={match}
               timezoneMode={timezoneMode}
-              fallbackDescription="Fixture details unavailable."
+              fallbackDescription="تفاصيل المباراة غير متاحة."
             />
           </div>
         ) : null}
 
         {/* Source Freshness */}
         <div className="mt-6 rounded-md border border-[#c4d2e8]/12 bg-[#070d19] p-4 text-xs text-[#7f91ad]">
-          <p className="font-medium text-[#d8e1ee]">Source &amp; Snapshot Freshness</p>
+          <p className="font-medium text-[#d8e1ee]">مصدر البيانات وحداثة اللقطة</p>
           <dl className="mt-2 space-y-1">
             <div className="flex justify-between gap-2">
-              <dt>Data Provider</dt>
+              <dt>مزود البيانات</dt>
               <dd className="text-[#b7c5da]">{snapshot.sourceName}</dd>
             </div>
             <div className="flex justify-between gap-2">
-              <dt>Source Updated</dt>
-              <dd className="font-mono-tabular text-[#b7c5da]">
+              <dt>تحديث المصدر</dt>
+              <dd className="text-end text-[#b7c5da]">
                 {formatUtcTimestamp(snapshot.sourceLastUpdatedUtc)}
               </dd>
             </div>
             <div className="flex justify-between gap-2">
-              <dt>Snapshot Ingested</dt>
-              <dd className="font-mono-tabular text-[#b7c5da]">
+              <dt>توقيت اللقطة</dt>
+              <dd className="text-end text-[#b7c5da]">
                 {formatUtcTimestamp(snapshot.ingestedAtUtc)}
               </dd>
             </div>
           </dl>
           <p className="mt-2.5 leading-relaxed">
-            Scores and schedules derive from delayed hourly snapshots. Free-tier updates do not
-            provide instantaneous live goal-by-goal coverage.
+            تُحدث النتائج والجداول عبر لقطات مجدولة كل ساعة. الخطة المجانية لا توفر تغطية لحظية
+            فورية أثناء المباريات.
           </p>
         </div>
       </aside>
