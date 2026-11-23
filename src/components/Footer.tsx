@@ -1,5 +1,10 @@
 import React from 'react';
-import {CLEARED_CLUB_CREST_REGISTRY, COMPETITION_CONFIG} from '../config/competition';
+import {
+  BROADCASTER_SCHEDULE_META,
+  CLEARED_CLUB_CREST_REGISTRY,
+  CLUB_LOGOS_COLLECTION_META,
+  COMPETITION_CONFIG,
+} from '../config/competition';
 import {formatUtcTimestamp} from '../domain/knockoutEngine';
 import type {KnockoutSnapshot} from '../types/knockout';
 
@@ -26,18 +31,20 @@ export const Footer: React.FC<FooterProps> = ({snapshot}) => {
               >
                 {COMPETITION_CONFIG.providerName}
               </a>{' '}
-              (نطاق دوري أبطال أوروبا فقط دون جداول الترتيب أو البطولات الأخرى). ملاحظة: يختلف توفر
-              شعارات الأندية؛ تُحجب الشعارات الخارجية افتراضيًا وتعتمد الواجهة على الأحرف المختصرة
-              (المونوغرام) لبقية الأندية. رسم الكأس عمل متجهي أصلي مخصص لهذا المشروع.
+              (نطاق دوري أبطال أوروبا فقط دون جداول الترتيب أو البطولات الأخرى). تُحجب روابط شعارات
+              مزود البيانات الخارجية افتراضيًا، وتعتمد الواجهة على سجل تعريفي محدد للأندية المشاركة مع
+              الاحتفاظ بالأحرف المختصرة (المونوغرام) عند تعذر التحميل أو لأي نادٍ غير مدرج. رسم الكأس
+              عمل متجهي أصلي مخصص لهذا المشروع.
             </p>
           </div>
 
           <div className="space-y-1.5">
             <h2 className="font-medium text-[#d8e1ee]">بيان الاستقلالية</h2>
             <p className="leading-relaxed">
-              مشروع تحريري مستقل لمتابعة موسم {snapshot?.seasonLabel ?? COMPETITION_CONFIG.seasonLabel}
-              . هذا الموقع غير تابع للاتحاد الأوروبي لكرة القدم (UEFA) أو الأندية المشاركة ولا يحظى
-              برعاية أو اعتماد رسمي منها.
+              مشروع تحريري معلوماتي مستقل وغير تجاري لمتابعة موسم{' '}
+              {snapshot?.seasonLabel ?? COMPETITION_CONFIG.seasonLabel}. هذا الموقع غير تابع للاتحاد
+              الأوروبي لكرة القدم (UEFA) أو الأندية المشاركة أو الشبكات الناقلة ولا يحظى برعاية أو
+              اعتماد رسمي منها.
             </p>
           </div>
 
@@ -51,56 +58,115 @@ export const Footer: React.FC<FooterProps> = ({snapshot}) => {
           </div>
         </div>
 
-        {/* Accessible Attribution Section for Cleared Club Icons */}
+        {/* Accessible Attribution Section for 36 Club Logos & Verified Broadcast Channels */}
         <section
           aria-labelledby="crest-attribution-heading"
-          className="border-b border-[#c4d2e8]/12 py-5"
+          className="space-y-4 border-b border-[#c4d2e8]/12 py-5"
         >
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 id="crest-attribution-heading" className="font-medium text-[#d8e1ee]">
-              مصادر وإسناد أيقونات الشعارات المتاحة
+              مصادر وإسناد شعارات الأندية والقنوات الناقلة
             </h2>
             <span className="font-mono-tabular text-[11px] text-[#5ca0ff]">
-              تغطية جزئية للشعارات: {clearedEntries.length} أندية مصرح بها فقط
+              شعارات الأندية الموثقة: {clearedEntries.length} ناديًا عبر{' '}
+              {CLUB_LOGOS_COLLECTION_META.providerName}
             </span>
           </div>
-          <p className="mt-1.5 leading-relaxed">
-            يختلف توفر شعارات الأندية ولا تشمل هذه القائمة جميع الفرق المشاركة: تقتصر الشعارات
-            المصورة حاليًا على {clearedEntries.length} أندية فقط كرموز تعريفية صغيرة دون أي تعديل،
-            استنادًا إلى صفحات ملفاتها الحالية على ويكيميديا كومنز المصنفة ضمن الملكية العامة لتصميمها
-            الهندسي/النصي البسيط، مع بقاء العلامات التجارية محمية لمالكيها ودون أي رعاية أو اعتماد
-            رسمي. وتحتفظ بقية الأندية بالاختصارات النصية حتى يتم التحقق منها بشكل مستقل.
+
+          <p className="leading-relaxed">
+            شعارات الأندية الـ {clearedEntries.length} المشاركة مصدرها{' '}
+            <a
+              href={CLUB_LOGOS_COLLECTION_META.collectionUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#b7c5da] underline underline-offset-4 hover:text-white"
+            >
+              دليل {CLUB_LOGOS_COLLECTION_META.providerName}
+            </a>{' '}
+            لأغراض التعريف المعلوماتي والتحريري فقط ضمن هذا الموقع غير التجاري، وفق{' '}
+            <a
+              href={CLUB_LOGOS_COLLECTION_META.licenseUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#b7c5da] underline underline-offset-4 hover:text-white"
+            >
+              شروط الاستخدام المعلنة للمصدر
+            </a>
+            . جميع الحقوق والعلامات التجارية الخاصة بالشعارات مملوكة بالكامل للأندية المعنية، دون أي
+            استخدام تجاري أو ترويجي ودون أي اعتماد أو رعاية رسمية. وفي حال تعذر تحميل أي شعار أو عند
+            ورود نادٍ غير مدرج في السجل، يظهر الرمز المختصر (المونوغرام) تلقائيًا.
           </p>
-          <ul className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {clearedEntries.map((entry) => (
-              <li
-                key={entry.teamId}
-                className="rounded-md border border-[#c4d2e8]/12 bg-[#0d172b]/70 px-3.5 py-2.5"
+
+          <details className="rounded-md border border-[#c4d2e8]/12 bg-[#0d172b]/60 px-3.5 py-2.5">
+            <summary className="cursor-pointer font-medium text-[#d8e1ee] hover:text-white">
+              عرض قائمة مصادر شعارات الأندية الـ {clearedEntries.length} على{' '}
+              {CLUB_LOGOS_COLLECTION_META.providerName}
+            </summary>
+            <ul className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+              {clearedEntries.map((entry) => (
+                <li
+                  key={entry.teamId}
+                  className="rounded border border-[#c4d2e8]/12 bg-[#070d19]/80 px-3 py-2"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-1.5">
+                    <span className="font-medium text-[#f4f7fb]">
+                      {entry.arabicClubName} ({entry.clubName})
+                    </span>
+                    <span className="font-mono-tabular text-[11px] text-[#5ca0ff]">
+                      ID: {entry.teamId}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-[11px]">
+                    المصدر:{' '}
+                    <a
+                      href={entry.sourcePageUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#b7c5da] underline underline-offset-4 hover:text-white"
+                    >
+                      {entry.sourceCredit}
+                    </a>
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </details>
+
+          <details className="rounded-md border border-[#c4d2e8]/12 bg-[#0d172b]/60 px-3.5 py-2.5">
+            <summary className="cursor-pointer font-medium text-[#d8e1ee] hover:text-white">
+              ملاحظة إسناد القنوات التلفزيونية في مصر (تم التحقق في{' '}
+              <span dir="ltr" className="font-mono-tabular">
+                {BROADCASTER_SCHEDULE_META.checkedAt}
+              </span>
+              )
+            </summary>
+            <p className="mt-2 leading-relaxed text-[#9fb1ca]">
+              تستند القنوات المرقمة الظاهرة على البطاقات إلى{' '}
+              <a
+                href={BROADCASTER_SCHEDULE_META.tvGuideUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#b7c5da] underline underline-offset-4 hover:text-white"
               >
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="font-medium text-[#f4f7fb]">
-                    {entry.arabicClubName} ({entry.clubName})
-                  </span>
-                  <span className="font-mono-tabular text-[11px] text-[#5ca0ff]">
-                    ID: {entry.teamId} · {entry.licenseLabel}
-                  </span>
-                </div>
-                <p className="mt-1 text-[11px] text-[#b7c5da]">{entry.arabicLicenseNote}</p>
-                <p className="mt-1 text-[11px] text-[#9fb1ca]">المنشئ / المصمم: {entry.creator}</p>
-                <p className="mt-0.5 text-[11px]">
-                  المصدر:{' '}
-                  <a
-                    href={entry.sourcePageUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[#b7c5da] underline underline-offset-4 hover:text-white"
-                  >
-                    {entry.sourceCredit}
-                  </a>
-                </p>
-              </li>
-            ))}
-          </ul>
+                دليل البث الرسمي لـ beIN SPORTS MENA
+              </a>{' '}
+              (المفحوص بتاريخ{' '}
+              <span dir="ltr" className="font-mono-tabular">
+                {BROADCASTER_SCHEDULE_META.checkedAt}
+              </span>{' '}
+              ليومي 24 و25 نوفمبر 2026، البث المباشر فقط). كما يوثّق{' '}
+              <a
+                href={BROADCASTER_SCHEDULE_META.rightsAnnouncementUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#b7c5da] underline underline-offset-4 hover:text-white"
+              >
+                إعلان تمديد حقوق البث حتى 2027
+              </a>{' '}
+              حقوق الشبكة في المنطقة دون أن يثبت رقم القناة الفردي لكل مباراة. تُعرض شعارات القنوات
+              الرسمية للتعريف التحريري بالقناة فقط دون أي اعتماد أو رعاية رسمية.
+            </p>
+          </details>
         </section>
 
         <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">

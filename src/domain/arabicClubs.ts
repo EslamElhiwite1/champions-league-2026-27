@@ -8,8 +8,11 @@ import type {TeamRef} from '../types/knockout';
 const ARABIC_CLUB_NAME_ENTRIES: Array<[string[], string]> = [
   // Spain
   [['real madrid', 'real madrid cf'], 'ريال مدريد'],
-  [['fc barcelona', 'barcelona'], 'برشلونة'],
-  [['club atlético de madrid', 'atletico madrid', 'atlético madrid', 'atletico de madrid'], 'أتلتيكو مدريد'],
+  [['fc barcelona', 'barcelona', 'barça'], 'برشلونة'],
+  [
+    ['club atlético de madrid', 'atletico madrid', 'atlético madrid', 'atletico de madrid', 'atleti'],
+    'أتلتيكو مدريد',
+  ],
   [['athletic club', 'athletic bilbao'], 'أتلتيك بيلباو'],
   [['villarreal cf', 'villarreal'], 'فياريال'],
   [['girona fc', 'girona'], 'جيرونا'],
@@ -27,7 +30,7 @@ const ARABIC_CLUB_NAME_ENTRIES: Array<[string[], string]> = [
   [['manchester united', 'manchester united fc', 'man united'], 'مانشستر يونايتد'],
 
   // Germany
-  [['fc bayern münchen', 'fc bayern munich', 'bayern munich', 'bayern münchen'], 'بايرن ميونخ'],
+  [['fc bayern münchen', 'fc bayern munich', 'bayern munich', 'bayern münchen', 'bayern'], 'بايرن ميونخ'],
   [['borussia dortmund', 'bv borussia 09 dortmund', 'dortmund'], 'بوروسيا دورتموند'],
   [['bayer 04 leverkusen', 'bayer leverkusen', 'leverkusen'], 'باير ليفركوزن'],
   [['rb leipzig', 'rasenballsport leipzig'], 'لايبزيغ'],
@@ -74,11 +77,14 @@ const ARABIC_CLUB_NAME_ENTRIES: Array<[string[], string]> = [
   [['fc basel 1893', 'basel'], 'بازل'],
   [['ac sparta praha', 'sparta prague', 'sparta praha'], 'سبارتا براغ'],
   [['sk slavia praha', 'slavia prague', 'slavia praha'], 'سلافيا براغ'],
-  [['fc shakhtar donetsk', 'fk shakhtar donetsk', 'shakhtar donetsk', 'shakhtar'], 'شاختار دونيتسك'],
+  [
+    ['fc shakhtar donetsk', 'fk shakhtar donetsk', 'shakhtar donetsk', 'shakhtar', 'shaktar'],
+    'شاختار دونيتسك',
+  ],
   [['fc dynamo kyiv', 'dynamo kyiv'], 'دينامو كييف'],
   [['gnk dinamo zagreb', 'dinamo zagreb'], 'دينامو زغرب'],
   [['fk crvena zvezda', 'red star belgrade', 'crvena zvezda'], 'النجم الأحمر بلغراد'],
-  [['šk slovan bratislava', 'sk slovan bratislava', 'slovan bratislava'], 'سلوفان براتيسلافا'],
+  [['šk slovan bratislava', 'sk slovan bratislava', 'slovan bratislava', 'sl. bratislava'], 'سلوفان براتيسلافا'],
   [['galatasaray sk', 'galatasaray'], 'غلطة سراي'],
   [['fenerbahçe sk', 'fenerbahce', 'fenerbahçe'], 'فنربخشة'],
   [['beşiktaş jk', 'besiktas', 'beşiktaş'], 'بشكتاش'],

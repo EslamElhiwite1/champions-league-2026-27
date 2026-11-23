@@ -4,9 +4,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import App from './App';
 import {adaptFootballDataMatches} from './adapters/footballDataAdapter';
+import {CLEARED_CLUB_CREST_REGISTRY} from './config/competition';
 import {createInitialTruthfulSnapshot} from './domain/knockoutEngine';
 import {
   buildLeagueStageOnlyProviderPayload,
+  buildRealNov2425ProviderPayload,
   buildSyntheticSnapshot,
 } from './testing/syntheticFixtures';
 
@@ -92,168 +94,135 @@ describe('Champions League Matches & Knockout App UI (Arabic / RTL)', () => {
     expect(screen.getByText(/عرض 11 من أصل 11 مباراة موثقة/i)).toBeInTheDocument();
   });
 
-  it('renders strictly the 4 cleared Wikimedia Commons SVG icons (Bayern, Dortmund, Inter, Napoli) with fallback on error, monograms for other clubs, and partial coverage count in attribution', () => {
-    const synthetic = buildSyntheticSnapshot();
-    render(<App initialSnapshot={synthetic} nowMs={NOV_23_2026_MS} />);
+  it('renders all 36 football-logos.cc club logos with white circular backing, falls back on error, keeps monograms for unmapped clubs, and exposes expandable 36-club & broadcaster credits', () => {
+    const realSnapshot = adaptFootballDataMatches(buildRealNov2425ProviderPayload());
+    render(<App initialSnapshot={realSnapshot} nowMs={NOV_23_2026_MS} />);
 
-    // TournamentOverview numeric fractions enforce dir="ltr" while labels remain RTL
-    const overviewSection = document.getElementById('overview')!;
-    const completedFraction = within(overviewSection).getByText('7 / 11');
-    const confirmedFraction = within(overviewSection).getByText('5 / 15');
-    expect(completedFraction).toHaveAttribute('dir', 'ltr');
-    expect(confirmedFraction).toHaveAttribute('dir', 'ltr');
-
-    // Upcoming view displays Bayern München (5), Borussia Dortmund (4), Inter (108), and Napoli (113)
-    const imgs = Array.from(document.querySelectorAll('img'));
-    expect(imgs.length).toBeGreaterThan(0);
-    for (const img of imgs) {
+    // Club monogram <img> elements across the 18 Nov 24-25 fixtures (36 unique clubs)
+    const clubImgs = Array.from(document.querySelectorAll('img')).filter((img) =>
+      img.getAttribute('src')?.startsWith('https://assets.football-logos.cc/'),
+    );
+    expect(clubImgs).toHaveLength(36);
+    for (const img of clubImgs) {
       expect(img.parentElement).toHaveClass('rounded-full', 'bg-white');
     }
-    const uniqueSrcs = Array.from(new Set(imgs.map((img) => img.getAttribute('src'))));
-    expect(uniqueSrcs.sort()).toEqual([
-      'https://upload.wikimedia.org/wikipedia/commons/0/00/SSC_Napoli_2024_%28deep_blue_navy%29.svg',
-      'https://upload.wikimedia.org/wikipedia/commons/0/05/FC_Internazionale_Milano_2021.svg',
-      'https://upload.wikimedia.org/wikipedia/commons/6/67/Borussia_Dortmund_logo.svg',
-      'https://upload.wikimedia.org/wikipedia/commons/8/8d/FC_Bayern_M%C3%BCnchen_logo_%282024%29.svg',
-    ]);
 
-    // Footer includes accessible attribution section, partial count/coverage note (9 clubs), and all 9 source links
-    expect(
-      screen.getByRole('heading', {name: /مصادر وإسناد أيقونات الشعارات المتاحة/i}),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/تغطية جزئية للشعارات: 9 أندية مصرح بها فقط/i),
-    ).toBeInTheDocument();
-    expect(screen.getAllByText(/يختلف توفر شعارات الأندية/i).length).toBeGreaterThan(0);
-    expect(
-      screen.getByText(/الشعار الأساسي للنادي دون نجوم البطولات الموسمية على القميص/i),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('link', {name: /File:FC_Bayern_München_logo_\(2024\)\.svg/i}),
-    ).toHaveAttribute(
-      'href',
-      'https://commons.wikimedia.org/wiki/File:FC_Bayern_M%C3%BCnchen_logo_(2024).svg',
+    const expectedAssetSet = new Set(
+      Object.values(CLEARED_CLUB_CREST_REGISTRY).map((entry) => entry.imageUrl),
     );
-    expect(
-      screen.getByRole('link', {name: /File:Borussia_Dortmund_logo\.svg/i}),
-    ).toHaveAttribute(
-      'href',
-      'https://commons.wikimedia.org/wiki/File:Borussia_Dortmund_logo.svg',
-    );
-    expect(
-      screen.getByRole('link', {name: /File:FC_Internazionale_Milano_2021\.svg/i}),
-    ).toHaveAttribute(
-      'href',
-      'https://commons.wikimedia.org/wiki/File:FC_Internazionale_Milano_2021.svg',
-    );
-    expect(
-      screen.getByRole('link', {name: /File:SSC_Napoli_2024_\(deep_blue_navy\)\.svg/i}),
-    ).toHaveAttribute(
-      'href',
-      'https://commons.wikimedia.org/wiki/File:SSC_Napoli_2024_(deep_blue_navy).svg',
-    );
-    expect(
-      screen.getByRole('link', {name: /File:Feyenoord_logo_since_2024\.svg/i}),
-    ).toHaveAttribute(
-      'href',
-      'https://commons.wikimedia.org/wiki/File:Feyenoord_logo_since_2024.svg',
-    );
-    expect(
-      screen.getByRole('link', {name: /File:SK_Slavia_Praha_full_logo\.svg/i}),
-    ).toHaveAttribute(
-      'href',
-      'https://commons.wikimedia.org/wiki/File:SK_Slavia_Praha_full_logo.svg',
-    );
-    expect(
-      screen.getByRole('link', {name: /File:Calcio_Como_-_logo_\(Italy,_2019-\)\.svg/i}),
-    ).toHaveAttribute(
-      'href',
-      'https://commons.wikimedia.org/wiki/File:Calcio_Como_-_logo_(Italy,_2019-).svg',
-    );
-    expect(
-      screen.getByRole('link', {name: /File:SK_Slovan_Bratislava_logo\.svg/i}),
-    ).toHaveAttribute(
-      'href',
-      'https://commons.wikimedia.org/wiki/File:SK_Slovan_Bratislava_logo.svg',
-    );
-    expect(
-      screen.getByRole('link', {name: /File:Galatasaray_Sports_Club_Logo\.svg/i}),
-    ).toHaveAttribute(
-      'href',
-      'https://commons.wikimedia.org/wiki/File:Galatasaray_Sports_Club_Logo.svg',
-    );
+    const renderedAssetSet = new Set(clubImgs.map((img) => img.getAttribute('src')));
+    expect(renderedAssetSet).toEqual(expectedAssetSet);
 
-    // Simulating image load failure falls back cleanly to monogram text without crashing
-    for (const img of imgs) {
-      fireEvent.error(img);
-    }
-    expect(document.querySelectorAll('img')).toHaveLength(0);
+    // Simulating image load failure on Bayern München falls back to its monogram without crashing
+    const bayernImg = clubImgs.find((img) =>
+      img.getAttribute('src')?.includes('bayern-munchen.90b9d770.png'),
+    )!;
+    fireEvent.error(bayernImg);
     expect(screen.getAllByText('FCB').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('BVB').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('INT').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('NAP').length).toBeGreaterThan(0);
 
-    // Non-whitelisted clubs with external crest URLs render 0 <img> elements
-    const leagueSnapshot = adaptFootballDataMatches(buildLeagueStageOnlyProviderPayload(144));
-    const {unmount} = render(<App initialSnapshot={leagueSnapshot} nowMs={NOV_23_2026_MS} />);
-    expect(document.querySelectorAll('img')).toHaveLength(0);
-    unmount();
+    // Footer attribution cites football-logos.cc for informational identification without public-domain or official-license claims
+    expect(
+      screen.getByRole('heading', {name: /مصادر وإسناد شعارات الأندية والقنوات الناقلة/i}),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/شعارات الأندية الموثقة: 36 ناديًا عبر football-logos\.cc/i),
+    ).toBeInTheDocument();
+    expect(document.body.textContent).not.toMatch(/الملكية العامة|Public domain|officially licensed/i);
+
+    expect(screen.getByRole('link', {name: /دليل football-logos\.cc/i})).toHaveAttribute(
+      'href',
+      'https://football-logos.cc/tournaments/uefa-champions-league/',
+    );
+    expect(screen.getByRole('link', {name: /شروط الاستخدام المعلنة للمصدر/i})).toHaveAttribute(
+      'href',
+      'https://football-logos.cc/license/',
+    );
+
+    // Expandable 36-club source list contains all 36 individual club source URLs
+    const clubSourcesSummary = screen.getByText(
+      /عرض قائمة مصادر شعارات الأندية الـ 36 على football-logos\.cc/i,
+    );
+    const clubDetails = clubSourcesSummary.closest('details')!;
+    for (const entry of Object.values(CLEARED_CLUB_CREST_REGISTRY)) {
+      const link = within(clubDetails).getByRole('link', {
+        name: new RegExp(entry.sourceCredit.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'),
+      });
+      expect(link).toHaveAttribute('href', entry.sourcePageUrl);
+    }
+
+    // Expandable broadcaster schedule note includes checkedAt date & both official beIN links
+    expect(screen.getAllByText(/2026-11-23/).length).toBeGreaterThan(0);
+    expect(screen.getByRole('link', {name: /beIN SPORTS MENA الرسمي/i})).toHaveAttribute(
+      'href',
+      'https://www.beinsports.com/en-mena/tv-guide',
+    );
+    expect(screen.getByRole('link', {name: /بيان حقوق البث حتى 2027/i})).toHaveAttribute(
+      'href',
+      'https://www.beinmediagroup.com/article/bein-media-group-extends-rights-deal-in-mena-and-asia-to-broadcast-uefa-club-competitions-until-2027/',
+    );
+
+    // Unmapped/unknown club IDs with arbitrary provider crest URLs render 0 <img> elements
+    const unmappedLeagueSnapshot = adaptFootballDataMatches(buildLeagueStageOnlyProviderPayload(144));
+    const unmappedRender = render(
+      <App initialSnapshot={unmappedLeagueSnapshot} nowMs={NOV_23_2026_MS} />,
+    );
+    expect(unmappedRender.container.querySelectorAll('img')).toHaveLength(0);
+    unmappedRender.unmount();
   });
 
-  it('renders the 5 newly cleared clubs (Feyenoord, Slavia Praha, Como, Slovan Bratislava, Galatasaray) via Wikimedia Commons while keeping Real Madrid on monogram fallback', () => {
-    const nineClubPayload = buildLeagueStageOnlyProviderPayload(0);
-    nineClubPayload.matches = [
-      {
-        id: 8101,
-        utcDate: '2026-11-24T20:00:00Z',
-        status: 'TIMED',
-        stage: 'LEAGUE_STAGE',
-        matchday: 5,
-        homeTeam: {id: 675, name: 'Feyenoord', shortName: 'Feyenoord', tla: 'FEY'},
-        awayTeam: {id: 930, name: 'SK Slavia Praha', shortName: 'Slavia Praha', tla: 'SLA'},
-        score: {winner: null, duration: null, fullTime: {home: null, away: null}},
-      },
-      {
-        id: 8102,
-        utcDate: '2026-11-24T20:00:00Z',
-        status: 'TIMED',
-        stage: 'LEAGUE_STAGE',
-        matchday: 5,
-        homeTeam: {id: 7397, name: 'Como 1907', shortName: 'Como', tla: 'COM'},
-        awayTeam: {id: 7509, name: 'ŠK Slovan Bratislava', shortName: 'Slovan', tla: 'SLO'},
-        score: {winner: null, duration: null, fullTime: {home: null, away: null}},
-      },
-      {
-        id: 8103,
-        utcDate: '2026-11-24T20:00:00Z',
-        status: 'TIMED',
-        stage: 'LEAGUE_STAGE',
-        matchday: 5,
-        homeTeam: {id: 610, name: 'Galatasaray SK', shortName: 'Galatasaray', tla: 'GAL'},
-        awayTeam: {
-          id: 86,
-          name: 'Real Madrid CF',
-          shortName: 'Real Madrid',
-          tla: 'RMA',
-          crest: 'https://crests.example.invalid/86.png',
-        },
-        score: {winner: null, duration: null, fullTime: {home: null, away: null}},
-      },
-    ];
-    const snap = adaptFootballDataMatches(nineClubPayload);
-    render(<App initialSnapshot={snap} nowMs={NOV_23_2026_MS} />);
+  it('replaces ONLY the repeated card date with verified beIN SPORTS channel + logo on Nov 24-25 while retaining full group date headings and falling back safely on unknown matches', () => {
+    const realSnapshot = adaptFootballDataMatches(buildRealNov2425ProviderPayload());
+    render(<App initialSnapshot={realSnapshot} nowMs={NOV_23_2026_MS} />);
 
-    const imgs = Array.from(document.querySelectorAll('img'));
-    const uniqueSrcs = Array.from(new Set(imgs.map((img) => img.getAttribute('src')))).sort();
-    expect(uniqueSrcs).toEqual([
-      'https://upload.wikimedia.org/wikipedia/commons/0/01/SK_Slovan_Bratislava_logo.svg',
-      'https://upload.wikimedia.org/wikipedia/commons/2/20/Galatasaray_Sports_Club_Logo.svg',
-      'https://upload.wikimedia.org/wikipedia/commons/2/2b/SK_Slavia_Praha_full_logo.svg',
-      'https://upload.wikimedia.org/wikipedia/commons/9/99/Calcio_Como_-_logo_%28Italy%2C_2019-%29.svg',
-      'https://upload.wikimedia.org/wikipedia/commons/f/f9/Feyenoord_logo_since_2024.svg',
-    ]);
-    // Unwhitelisted Real Madrid keeps monogram fallback
-    expect(screen.getAllByText('RMA').length).toBeGreaterThan(0);
+    const matchesSection = document.getElementById('matches')!;
+
+    // Full weekday/date headings remain above each daily group
+    expect(
+      within(matchesSection).getByRole('heading', {name: /الثلاثاء، 24 نوفمبر 2026/i}),
+    ).toBeInTheDocument();
+    expect(
+      within(matchesSection).getByRole('heading', {name: /الأربعاء، 25 نوفمبر 2026/i}),
+    ).toBeInTheDocument();
+
+    // Real Madrid vs PSV on Nov 24 -> beIN SPORTS 1 + official channel logo, NO repeated card date inside card
+    const madridPsvCard = screen.getByTestId('fixture-card-cl-2026-575397');
+    expect(within(madridPsvCard).getByText('beIN SPORTS 1')).toBeInTheDocument();
+    expect(
+      within(madridPsvCard).getByRole('img', {name: /شعار beIN SPORTS 1/i}),
+    ).toHaveAttribute(
+      'src',
+      'https://prod-media.beinsports.com/image/f50c7035e532c49a0f6993d988e2e843.3840.png?ver=03-06-2025',
+    );
+    expect(madridPsvCard.textContent).not.toContain('الثلاثاء، 24 نوفمبر 2026');
+
+    // Slovan Bratislava vs Betis on Nov 24 -> beIN SPORTS 9
+    const slovanBetisCard = screen.getByTestId('fixture-card-cl-2026-575401');
+    expect(within(slovanBetisCard).getByText('beIN SPORTS 9')).toBeInTheDocument();
+
+    // Sabah vs Barcelona on Nov 25 -> beIN SPORTS 2 + official channel logo, NO repeated card date inside card
+    const sabahBarcaCard = screen.getByTestId('fixture-card-cl-2026-575404');
+    expect(within(sabahBarcaCard).getByText('beIN SPORTS 2')).toBeInTheDocument();
+    expect(
+      within(sabahBarcaCard).getByRole('img', {name: /شعار beIN SPORTS 2/i}),
+    ).toHaveAttribute(
+      'src',
+      'https://prod-media.beinsports.com/image/4fbe073f17f161810fdf3dab1307b30f.3840.png?ver=03-06-2025',
+    );
+    expect(sabahBarcaCard.textContent).not.toContain('الأربعاء، 25 نوفمبر 2026');
+
+    // Channel logo image error falls back cleanly without losing channel name
+    fireEvent.error(within(sabahBarcaCard).getByRole('img', {name: /شعار beIN SPORTS 2/i}));
+    expect(within(sabahBarcaCard).getByText('beIN SPORTS 2')).toBeInTheDocument();
+    expect(
+      within(sabahBarcaCard).queryByRole('img', {name: /شعار beIN SPORTS 2/i}),
+    ).not.toBeInTheDocument();
+
+    // Synthetic/unverified matches must show neutral fallback text and never infer a numbered channel
+    const synthetic = buildSyntheticSnapshot();
+    render(<App initialSnapshot={synthetic} nowMs={NOV_23_2026_MS} />);
+    const bayernDortmundCard = screen.getByTestId('fixture-card-cl-2026-8003');
+    expect(within(bayernDortmundCard).getByText('القناة لم تُؤكد بعد')).toBeInTheDocument();
+    expect(bayernDortmundCard.textContent).not.toMatch(/beIN SPORTS/i);
   });
 
   it('filters fixtures in Arabic & English team search alongside stage, matchday, and status filters and resets cleanly', () => {
@@ -462,19 +431,28 @@ describe('Champions League Matches & Knockout App UI (Arabic / RTL)', () => {
     expect(within(centerSlot as HTMLElement).getByText('VS')).toBeInTheDocument();
     expect(within(centerSlot as HTMLElement).getByText('10:00 مساءً')).toBeInTheDocument();
 
+    // TournamentOverview numeric fractions enforce dir="ltr" while labels remain RTL
+    const overviewSection = document.getElementById('overview')!;
+    expect(within(overviewSection).getByText('7 / 11')).toHaveAttribute('dir', 'ltr');
+    expect(within(overviewSection).getByText('5 / 15')).toHaveAttribute('dir', 'ltr');
+
     // Details action meets minimum 44px touch target
     const detailsBtn = within(bayernDortmundCard).getByRole('button', {name: /تفاصيل المباراة/i});
     expect(detailsBtn).toHaveClass('min-h-[44px]');
 
-    // No invented TV channels anywhere inside fixture cards
-    expect(matchesSection.textContent).not.toMatch(/beIN|SSC|قناة|القناة الناقلة/i);
+    // Lower card strip replaces repeated card date with neutral unconfirmed channel fallback
+    expect(within(bayernDortmundCard).getByText('القناة لم تُؤكد بعد')).toBeInTheDocument();
+    expect(bayernDortmundCard.textContent).not.toContain('الثلاثاء، 24 نوفمبر 2026');
+    expect(bayernDortmundCard.textContent).not.toMatch(/beIN SPORTS/i);
 
-    // Finished match in Past Results renders score + kickoff time in center column
+    // Finished match in Past Results renders score + kickoff time in center column & unconfirmed channel fallback
     fireEvent.click(screen.getByRole('button', {name: /النتائج السابقة \(2\)/i}));
     const madridCard = screen.getByTestId('fixture-card-cl-2026-8001');
     const madridCenter = madridCard.querySelector('[data-slot="match-center"]') as HTMLElement;
     expect(within(madridCenter).getByLabelText('النتيجة 2 مقابل 0')).toBeInTheDocument();
     expect(within(madridCenter).getByText('10:00 مساءً')).toBeInTheDocument();
+    expect(within(madridCard).getByText('القناة لم تُؤكد بعد')).toBeInTheDocument();
+    expect(madridCard.textContent).not.toContain('الثلاثاء، 15 سبتمبر 2026');
   });
 
   it('includes prefers-reduced-motion accessibility rules and Arabic RTL root attributes', () => {

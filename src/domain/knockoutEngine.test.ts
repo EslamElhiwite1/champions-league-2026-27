@@ -8,10 +8,14 @@ import {
   CLEARED_CLUB_CREST_REGISTRY,
   CLUB_CREST_POLICY,
   getClearedClubCrest,
+  getVerifiedMatchBroadcaster,
   isCrestUrlPermitted,
+  VERIFIED_EGYPT_BROADCASTERS,
 } from '../config/competition';
 import {
   buildLeagueStageOnlyProviderPayload,
+  buildRealNov2425ProviderPayload,
+  REAL_36_CL_TEAMS,
   SYNTHETIC_TEAMS,
 } from '../testing/syntheticFixtures';
 import type {RawFootballDataCompetitionMatchesResponse} from '../types/knockout';
@@ -44,109 +48,175 @@ describe('knockoutEngine & footballDataAdapter', () => {
     expect(snapshot.ties.every((t) => t.advancement.status === 'UNDECIDED')).toBe(true);
   });
 
-  it('whitelists strictly the 9 cleared clubs (4, 5, 108, 113, 610, 675, 930, 7397, 7509) in CLEARED_CLUB_CREST_REGISTRY while blocking unpermitted external crests', () => {
-    expect(Object.keys(CLEARED_CLUB_CREST_REGISTRY).sort()).toEqual([
-      '108',
-      '113',
-      '4',
-      '5',
-      '610',
-      '675',
-      '7397',
-      '7509',
-      '930',
-    ]);
+  it('maps strictly all 36 participating UCL team IDs to verified football-logos.cc URLs while blocking arbitrary external provider crests', () => {
+    const registeredIds = Object.keys(CLEARED_CLUB_CREST_REGISTRY)
+      .map(Number)
+      .sort((a, b) => a - b);
+    const realIds = REAL_36_CL_TEAMS.map((t) => t.id!).sort((a, b) => a - b);
 
-    const bvb = getClearedClubCrest(4)!;
-    expect(bvb.clubName).toBe('Borussia Dortmund');
-    expect(bvb.imageUrl).toBe(
-      'https://upload.wikimedia.org/wikipedia/commons/6/67/Borussia_Dortmund_logo.svg',
-    );
-    expect(bvb.sourcePageUrl).toBe(
-      'https://commons.wikimedia.org/wiki/File:Borussia_Dortmund_logo.svg',
-    );
-    expect(bvb.licenseLabel).toContain('Public domain');
-    expect(bvb.creator).toContain('Borussia Dortmund');
+    expect(registeredIds).toHaveLength(36);
+    expect(registeredIds).toEqual(realIds);
 
-    const fcb = getClearedClubCrest(5)!;
-    expect(fcb.clubName).toBe('FC Bayern München');
-    expect(fcb.imageUrl).toBe(
-      'https://upload.wikimedia.org/wikipedia/commons/8/8d/FC_Bayern_M%C3%BCnchen_logo_%282024%29.svg',
-    );
-    expect(fcb.sourcePageUrl).toBe(
-      'https://commons.wikimedia.org/wiki/File:FC_Bayern_M%C3%BCnchen_logo_(2024).svg',
-    );
-    expect(fcb.licenseLabel).toContain('Public domain');
+    const expectedAssetsById: Record<number, {asset: string; url: string}> = {
+      524: {
+        asset: 'https://assets.football-logos.cc/logos/france/700x700/paris-saint-germain.a1c91d55.png',
+        url: 'https://football-logos.cc/france/paris-saint-germain/',
+      },
+      5: {
+        asset: 'https://assets.football-logos.cc/logos/germany/700x700/bayern-munchen.90b9d770.png',
+        url: 'https://football-logos.cc/germany/bayern-munchen/',
+      },
+      86: {
+        asset: 'https://assets.football-logos.cc/logos/spain/700x700/real-madrid.81d3d699.png',
+        url: 'https://football-logos.cc/spain/real-madrid/',
+      },
+      64: {
+        asset: 'https://assets.football-logos.cc/logos/england/700x700/liverpool.868c28cb.png',
+        url: 'https://football-logos.cc/england/liverpool/',
+      },
+      108: {
+        asset: 'https://assets.football-logos.cc/logos/italy/700x700/inter.305ef900.png',
+        url: 'https://football-logos.cc/italy/inter/',
+      },
+      65: {
+        asset: 'https://assets.football-logos.cc/logos/england/700x700/manchester-city.73ad38e1.png',
+        url: 'https://football-logos.cc/england/manchester-city/',
+      },
+      57: {
+        asset: 'https://assets.football-logos.cc/logos/england/700x700/arsenal.cfdaf053.png',
+        url: 'https://football-logos.cc/england/arsenal/',
+      },
+      81: {
+        asset: 'https://assets.football-logos.cc/logos/spain/700x700/barcelona.470254ee.png',
+        url: 'https://football-logos.cc/spain/barcelona/',
+      },
+      78: {
+        asset: 'https://assets.football-logos.cc/logos/spain/700x700/atletico-madrid.2bb560a3.png',
+        url: 'https://football-logos.cc/spain/atletico-madrid/',
+      },
+      4: {
+        asset: 'https://assets.football-logos.cc/logos/germany/700x700/borussia-dortmund.c2e456ab.png',
+        url: 'https://football-logos.cc/germany/borussia-dortmund/',
+      },
+      100: {
+        asset: 'https://assets.football-logos.cc/logos/italy/700x700/roma.00288a7d.png',
+        url: 'https://football-logos.cc/italy/roma/',
+      },
+      498: {
+        asset: 'https://assets.football-logos.cc/logos/portugal/700x700/sporting-cp.5a3a785e.png',
+        url: 'https://football-logos.cc/portugal/sporting-cp/',
+      },
+      58: {
+        asset: 'https://assets.football-logos.cc/logos/england/700x700/aston-villa.1c2803fb.png',
+        url: 'https://football-logos.cc/england/aston-villa/',
+      },
+      503: {
+        asset: 'https://assets.football-logos.cc/logos/portugal/700x700/fc-porto.67cd9d9f.png',
+        url: 'https://football-logos.cc/portugal/fc-porto/',
+      },
+      66: {
+        asset: 'https://assets.football-logos.cc/logos/england/700x700/manchester-united.7e7044cd.png',
+        url: 'https://football-logos.cc/england/manchester-united/',
+      },
+      851: {
+        asset: 'https://assets.football-logos.cc/logos/belgium/700x700/club-brugge.fd6c7f8b.png',
+        url: 'https://football-logos.cc/belgium/club-brugge/',
+      },
+      90: {
+        asset: 'https://assets.football-logos.cc/logos/spain/700x700/real-betis.ef36b590.png',
+        url: 'https://football-logos.cc/spain/real-betis/',
+      },
+      674: {
+        asset: 'https://assets.football-logos.cc/logos/netherlands/700x700/psv.c5b68aa1.png',
+        url: 'https://football-logos.cc/netherlands/psv/',
+      },
+      675: {
+        asset: 'https://assets.football-logos.cc/logos/netherlands/700x700/feyenoord.c90273fe.png',
+        url: 'https://football-logos.cc/netherlands/feyenoord/',
+      },
+      521: {
+        asset: 'https://assets.football-logos.cc/logos/france/700x700/lille.3695616f.png',
+        url: 'https://football-logos.cc/france/lille/',
+      },
+      5721: {
+        asset: 'https://assets.football-logos.cc/logos/norway/700x700/bodo-glimt.e3727ba0.png',
+        url: 'https://football-logos.cc/norway/bodo-glimt/',
+      },
+      113: {
+        asset: 'https://assets.football-logos.cc/logos/italy/700x700/napoli.8b5410b2.png',
+        url: 'https://football-logos.cc/italy/napoli/',
+      },
+      721: {
+        asset: 'https://assets.football-logos.cc/logos/germany/700x700/rb-leipzig.4948a7be.png',
+        url: 'https://football-logos.cc/germany/rb-leipzig/',
+      },
+      94: {
+        asset: 'https://assets.football-logos.cc/logos/spain/700x700/villarreal.f47fae64.png',
+        url: 'https://football-logos.cc/spain/villarreal/',
+      },
+      613: {
+        asset: 'https://assets.football-logos.cc/logos/turkey/700x700/fenerbahce.623eae5c.png',
+        url: 'https://football-logos.cc/turkey/fenerbahce/',
+      },
+      1887: {
+        asset: 'https://assets.football-logos.cc/logos/ukraine/700x700/shakhtar.2794b980.png',
+        url: 'https://football-logos.cc/ukraine/shakhtar/',
+      },
+      610: {
+        asset: 'https://assets.football-logos.cc/logos/turkey/700x700/galatasaray.27c56d4e.png',
+        url: 'https://football-logos.cc/turkey/galatasaray/',
+      },
+      930: {
+        asset: 'https://assets.football-logos.cc/logos/czech-republic/700x700/slavia-praha.87069829.png',
+        url: 'https://football-logos.cc/czech-republic/slavia-praha/',
+      },
+      7509: {
+        asset: 'https://assets.football-logos.cc/logos/slovakia/700x700/s-bratislava.2c8ce08e.png',
+        url: 'https://football-logos.cc/slovakia/s-bratislava/',
+      },
+      10: {
+        asset: 'https://assets.football-logos.cc/logos/germany/700x700/vfb-stuttgart.384702b0.png',
+        url: 'https://football-logos.cc/germany/vfb-stuttgart/',
+      },
+      1899: {
+        asset: 'https://assets.football-logos.cc/logos/greece/700x700/aek-athens.a8d3ff74.png',
+        url: 'https://football-logos.cc/greece/aek-athens/',
+      },
+      2016: {
+        asset: 'https://assets.football-logos.cc/logos/austria/700x700/lask.a362c52e.png',
+        url: 'https://football-logos.cc/austria/lask/',
+      },
+      7397: {
+        asset: 'https://assets.football-logos.cc/logos/italy/700x700/como-1907.9113270a.png',
+        url: 'https://football-logos.cc/italy/como-1907/',
+      },
+      546: {
+        asset: 'https://assets.football-logos.cc/logos/france/700x700/rc-lens.ae8bb17c.png',
+        url: 'https://football-logos.cc/france/rc-lens/',
+      },
+      5720: {
+        asset: 'https://assets.football-logos.cc/logos/norway/700x700/viking.b9a7b8c7.png',
+        url: 'https://football-logos.cc/norway/viking/',
+      },
+      10233: {
+        asset: 'https://assets.football-logos.cc/logos/azerbaijan/700x700/sabah.36c08f74.png',
+        url: 'https://football-logos.cc/azerbaijan/sabah/',
+      },
+    };
 
-    const inter = getClearedClubCrest(108)!;
-    expect(inter.clubName).toBe('FC Internazionale Milano');
-    expect(inter.imageUrl).toBe(
-      'https://upload.wikimedia.org/wikipedia/commons/0/05/FC_Internazionale_Milano_2021.svg',
-    );
-    expect(inter.sourcePageUrl).toBe(
-      'https://commons.wikimedia.org/wiki/File:FC_Internazionale_Milano_2021.svg',
-    );
-    expect(inter.creator).toContain('Bureau Borsche');
+    for (const [idStr, expected] of Object.entries(expectedAssetsById)) {
+      const entry = getClearedClubCrest(Number(idStr));
+      expect(entry).not.toBeNull();
+      expect(entry!.imageUrl).toBe(expected.asset);
+      expect(entry!.sourcePageUrl).toBe(expected.url);
+      expect(entry!.licenseLabel).not.toMatch(/public domain|officially licensed/i);
+      expect(entry!.arabicLicenseNote).not.toMatch(/الملكية العامة/);
+      expect(entry!.arabicLicenseNote).toContain('football-logos.cc');
+    }
 
-    const napoli = getClearedClubCrest(113)!;
-    expect(napoli.clubName).toBe('SSC Napoli');
-    expect(napoli.imageUrl).toBe(
-      'https://upload.wikimedia.org/wikipedia/commons/0/00/SSC_Napoli_2024_%28deep_blue_navy%29.svg',
-    );
-    expect(napoli.sourcePageUrl).toBe(
-      'https://commons.wikimedia.org/wiki/File:SSC_Napoli_2024_(deep_blue_navy).svg',
-    );
-    expect(napoli.creator).toContain('SSC Napoli');
-
-    const galatasaray = getClearedClubCrest(610)!;
-    expect(galatasaray.clubName).toBe('Galatasaray SK');
-    expect(galatasaray.imageUrl).toBe(
-      'https://upload.wikimedia.org/wikipedia/commons/2/20/Galatasaray_Sports_Club_Logo.svg',
-    );
-    expect(galatasaray.sourcePageUrl).toBe(
-      'https://commons.wikimedia.org/wiki/File:Galatasaray_Sports_Club_Logo.svg',
-    );
-    expect(galatasaray.creator).toContain('Ayet Emin');
-    expect(galatasaray.licenseLabel).toContain('base club badge');
-    expect(galatasaray.arabicLicenseNote).toContain('دون نجوم البطولات الموسمية');
-
-    const feyenoord = getClearedClubCrest(675)!;
-    expect(feyenoord.clubName).toBe('Feyenoord');
-    expect(feyenoord.imageUrl).toBe(
-      'https://upload.wikimedia.org/wikipedia/commons/f/f9/Feyenoord_logo_since_2024.svg',
-    );
-    expect(feyenoord.creator).toBe('Feyenoord Rotterdam N.V.');
-
-    const slavia = getClearedClubCrest(930)!;
-    expect(slavia.clubName).toBe('SK Slavia Praha');
-    expect(slavia.imageUrl).toBe(
-      'https://upload.wikimedia.org/wikipedia/commons/2/2b/SK_Slavia_Praha_full_logo.svg',
-    );
-    expect(slavia.creator).toContain('JT Design');
-
-    const como = getClearedClubCrest(7397)!;
-    expect(como.clubName).toBe('Como 1907');
-    expect(como.imageUrl).toBe(
-      'https://upload.wikimedia.org/wikipedia/commons/9/99/Calcio_Como_-_logo_%28Italy%2C_2019-%29.svg',
-    );
-    expect(como.sourcePageUrl).toBe(
-      'https://commons.wikimedia.org/wiki/File:Calcio_Como_-_logo_(Italy,_2019-).svg',
-    );
-    expect(como.creator).toBe('Como 1907 srl');
-
-    const slovan = getClearedClubCrest(7509)!;
-    expect(slovan.clubName).toBe('ŠK Slovan Bratislava');
-    expect(slovan.imageUrl).toBe(
-      'https://upload.wikimedia.org/wikipedia/commons/0/01/SK_Slovan_Bratislava_logo.svg',
-    );
-    expect(slovan.creator).toBe('ŠK Slovan Bratislava');
-
-    // Uncleared clubs (including Real Madrid 86, Barcelona 81, Arsenal 57, PSG 524) must NOT be whitelisted
-    expect(getClearedClubCrest(86)).toBeNull();
-    expect(getClearedClubCrest(81)).toBeNull();
-    expect(getClearedClubCrest(57)).toBeNull();
-    expect(getClearedClubCrest(524)).toBeNull();
+    // Unknown or unmapped club IDs keep null -> geometric monogram fallback
     expect(getClearedClubCrest(101)).toBeNull();
+    expect(getClearedClubCrest(99999)).toBeNull();
     expect(getClearedClubCrest(null)).toBeNull();
 
     const snapshot = adaptFootballDataMatches(
@@ -157,7 +227,7 @@ describe('knockoutEngine & footballDataAdapter', () => {
           status: 'TIMED',
           stage: 'LEAGUE_STAGE',
           matchday: 1,
-          homeTeam: {...SYNTHETIC_TEAMS.alpha, crest: 'https://crests.example.invalid/101.png'},
+          homeTeam: {...SYNTHETIC_TEAMS.alpha, crest: 'https://crests.football-data.org/101.png'},
           awayTeam: {...SYNTHETIC_TEAMS.beta, crest: 'javascript:alert(1)'},
           score: {winner: null, duration: null, fullTime: {home: null, away: null}},
         },
@@ -165,10 +235,82 @@ describe('knockoutEngine & footballDataAdapter', () => {
     );
 
     const m = snapshot.matches[0];
-    expect(m.homeTeam.crestUrl).toBe('https://crests.example.invalid/101.png');
+    expect(m.homeTeam.crestUrl).toBe('https://crests.football-data.org/101.png');
     expect(m.awayTeam.crestUrl).toBeNull();
     expect(CLUB_CREST_POLICY.allowExternalCrests).toBe(false);
     expect(isCrestUrlPermitted(m.homeTeam.crestUrl)).toBe(false);
+  });
+
+  it('resolves verified beIN SPORTS channels strictly by Africa/Cairo date + homeTeamId + awayTeamId and returns null for unknown/swapped/other dates', () => {
+    expect(VERIFIED_EGYPT_BROADCASTERS).toHaveLength(18);
+    const snapshot = adaptFootballDataMatches(buildRealNov2425ProviderPayload());
+
+    const expectedChannelsByMatchId: Record<string, string> = {
+      'cl-2026-575395': 'beIN SPORTS 3',
+      'cl-2026-575396': 'beIN SPORTS 4',
+      'cl-2026-575397': 'beIN SPORTS 1',
+      'cl-2026-575398': 'beIN SPORTS 3',
+      'cl-2026-575399': 'beIN SPORTS 4',
+      'cl-2026-575400': 'beIN SPORTS 6',
+      'cl-2026-575401': 'beIN SPORTS 9',
+      'cl-2026-575402': 'beIN SPORTS 8',
+      'cl-2026-575403': 'beIN SPORTS 5',
+      'cl-2026-575404': 'beIN SPORTS 2',
+      'cl-2026-575405': 'beIN SPORTS 4',
+      'cl-2026-575406': 'beIN SPORTS 4',
+      'cl-2026-575407': 'beIN SPORTS 6',
+      'cl-2026-575408': 'beIN SPORTS 1',
+      'cl-2026-575409': 'beIN SPORTS 3',
+      'cl-2026-575410': 'beIN SPORTS 5',
+      'cl-2026-575411': 'beIN SPORTS 2',
+      'cl-2026-575412': 'beIN SPORTS 8',
+    };
+
+    for (const match of snapshot.matches) {
+      const resolved = getVerifiedMatchBroadcaster(match);
+      expect(resolved).not.toBeNull();
+      expect(resolved!.channelName).toBe(expectedChannelsByMatchId[match.matchId]);
+      expect(resolved!.channelLogoUrl).toMatch(/^https:\/\/prod-media\.beinsports\.com\/image\//);
+      expect(resolved!.checkedAt).toBe('2026-11-23');
+      expect(resolved!.sourceUrl).toBe('https://www.beinsports.com/en-mena/tv-guide');
+    }
+
+    const sampleMatch = snapshot.matches.find((m) => m.matchId === 'cl-2026-575397')!;
+
+    // Different date with same clubs does NOT infer a channel
+    expect(
+      getVerifiedMatchBroadcaster({...sampleMatch, utcDate: '2026-12-09T20:00:00Z'}),
+    ).toBeNull();
+
+    // Cairo midnight rollover shifts UTC 22:30 Nov 24 -> Nov 25 in Africa/Cairo -> does NOT match Nov 24 entry
+    expect(
+      getVerifiedMatchBroadcaster({...sampleMatch, utcDate: '2026-11-24T22:30:00Z'}),
+    ).toBeNull();
+
+    // Swapped home & away on the same date does NOT match
+    expect(
+      getVerifiedMatchBroadcaster({
+        ...sampleMatch,
+        homeTeam: sampleMatch.awayTeam,
+        awayTeam: sampleMatch.homeTeam,
+      }),
+    ).toBeNull();
+
+    // Different pairing on Nov 24 does NOT match
+    expect(
+      getVerifiedMatchBroadcaster({
+        ...sampleMatch,
+        awayTeam: {...sampleMatch.awayTeam, id: 5},
+      }),
+    ).toBeNull();
+
+    // TBD participants return null
+    expect(
+      getVerifiedMatchBroadcaster({
+        ...sampleMatch,
+        homeTeam: {...sampleMatch.homeTeam, id: null, isTbd: true},
+      }),
+    ).toBeNull();
   });
 
   it('never advances a team from a first-leg-only tie', () => {

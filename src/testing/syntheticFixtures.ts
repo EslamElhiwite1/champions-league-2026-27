@@ -316,3 +316,83 @@ export function buildLeagueStageOnlyProviderPayload(
     matches,
   };
 }
+
+export const REAL_36_CL_TEAMS: readonly RawFootballDataTeam[] = [
+  {id: 851, name: 'Club Brugge KV', shortName: 'Club Brugge', tla: 'BRU'},
+  {id: 58, name: 'Aston Villa FC', shortName: 'Aston Villa', tla: 'AVL'},
+  {id: 1899, name: 'PAE AEK', shortName: 'PAE AEK', tla: 'AEK'},
+  {id: 2016, name: 'LASK Linz', shortName: 'LASK', tla: 'LIN'},
+  {id: 86, name: 'Real Madrid CF', shortName: 'Real Madrid', tla: 'RMA'},
+  {id: 108, name: 'FC Internazionale Milano', shortName: 'Inter', tla: 'INT'},
+  {id: 503, name: 'FC Porto', shortName: 'Porto', tla: 'FCP'},
+  {id: 65, name: 'Manchester City FC', shortName: 'Man City', tla: 'MCI'},
+  {id: 4, name: 'Borussia Dortmund', shortName: 'Dortmund', tla: 'BVB'},
+  {id: 94, name: 'Villarreal CF', shortName: 'Villarreal', tla: 'VIL'},
+  {id: 521, name: 'Lille OSC', shortName: 'Lille', tla: 'LIL'},
+  {id: 90, name: 'Real Betis Balompié', shortName: 'Real Betis', tla: 'BET'},
+  {id: 81, name: 'FC Barcelona', shortName: 'Barça', tla: 'FCB'},
+  {id: 675, name: 'Feyenoord Rotterdam', shortName: 'Feyenoord', tla: 'FEY'},
+  {id: 10, name: 'VfB Stuttgart', shortName: 'Stuttgart', tla: 'VFB'},
+  {id: 5720, name: 'Viking FK', shortName: 'Viking', tla: 'VIK'},
+  {id: 64, name: 'Liverpool FC', shortName: 'Liverpool', tla: 'LIV'},
+  {id: 78, name: 'Club Atlético de Madrid', shortName: 'Atleti', tla: 'ATL'},
+  {id: 524, name: 'Paris Saint-Germain FC', shortName: 'PSG', tla: 'PSG'},
+  {id: 7509, name: 'ŠK Slovan Bratislava', shortName: 'Sl. Bratislava', tla: 'SBA'},
+  {id: 113, name: 'SSC Napoli', shortName: 'Napoli', tla: 'NAP'},
+  {id: 57, name: 'Arsenal FC', shortName: 'Arsenal', tla: 'ARS'},
+  {id: 498, name: 'Sporting Clube de Portugal', shortName: 'Sporting CP', tla: 'SPO'},
+  {id: 610, name: 'Galatasaray SK', shortName: 'Galatasaray', tla: 'GAL'},
+  {id: 613, name: 'Fenerbahçe SK', shortName: 'Fenerbahçe', tla: 'FEN'},
+  {id: 100, name: 'AS Roma', shortName: 'Roma', tla: 'ROM'},
+  {id: 674, name: 'PSV', shortName: 'PSV', tla: 'PSV'},
+  {id: 1887, name: 'FK Shakhtar Donetsk', shortName: 'Shaktar', tla: 'SHD'},
+  {id: 5, name: 'FC Bayern München', shortName: 'Bayern', tla: 'FCB'},
+  {id: 5721, name: 'FK Bodø/Glimt', shortName: 'Bodø/Glimt', tla: 'FK'},
+  {id: 66, name: 'Manchester United FC', shortName: 'Man United', tla: 'MUN'},
+  {id: 10233, name: 'Sabah FK', shortName: 'Sabah FK', tla: 'SAB'},
+  {id: 7397, name: 'Como 1907', shortName: 'Como 1907', tla: 'COM'},
+  {id: 721, name: 'RB Leipzig', shortName: 'RB Leipzig', tla: 'RBL'},
+  {id: 930, name: 'SK Slavia Praha', shortName: 'Slavia Praha', tla: 'SLP'},
+  {id: 546, name: 'Racing Club de Lens', shortName: 'RC Lens', tla: 'RCL'},
+];
+
+export function buildRealNov2425ProviderPayload(): RawFootballDataCompetitionMatchesResponse {
+  const byId = new Map(REAL_36_CL_TEAMS.map((t) => [t.id, t]));
+  const pair = (id: number, homeId: number, awayId: number, utcDate: string) => ({
+    id,
+    utcDate,
+    status: 'TIMED',
+    stage: 'LEAGUE_STAGE',
+    matchday: 5,
+    homeTeam: {...byId.get(homeId)!, crest: `https://crests.football-data.org/${homeId}.png`},
+    awayTeam: {...byId.get(awayId)!, crest: `https://crests.football-data.org/${awayId}.png`},
+    score: {winner: null, duration: null, fullTime: {home: null, away: null}},
+  });
+
+  return {
+    competition: {id: 2001, name: 'UEFA Champions League', code: 'CL'},
+    filters: {season: '2026'},
+    season: {id: 2026, startDate: '2026-09-15', endDate: '2027-05-29'},
+    matches: [
+      pair(575395, 610, 58, '2026-11-24T17:45:00Z'),
+      pair(575396, 5721, 2016, '2026-11-24T17:45:00Z'),
+      pair(575397, 86, 674, '2026-11-24T20:00:00Z'),
+      pair(575398, 65, 113, '2026-11-24T20:00:00Z'),
+      pair(575399, 57, 4, '2026-11-24T20:00:00Z'),
+      pair(575400, 675, 503, '2026-11-24T20:00:00Z'),
+      pair(575401, 7509, 90, '2026-11-24T20:00:00Z'),
+      pair(575402, 721, 546, '2026-11-24T20:00:00Z'),
+      pair(575403, 7397, 1899, '2026-11-24T20:00:00Z'),
+      pair(575404, 10233, 81, '2026-11-25T17:45:00Z'),
+      pair(575405, 930, 94, '2026-11-25T17:45:00Z'),
+      pair(575406, 108, 10, '2026-11-25T20:00:00Z'),
+      pair(575407, 78, 5720, '2026-11-25T20:00:00Z'),
+      pair(575408, 524, 100, '2026-11-25T20:00:00Z'),
+      pair(575409, 851, 64, '2026-11-25T20:00:00Z'),
+      pair(575410, 521, 5, '2026-11-25T20:00:00Z'),
+      pair(575411, 498, 66, '2026-11-25T20:00:00Z'),
+      pair(575412, 1887, 613, '2026-11-25T20:00:00Z'),
+    ],
+  };
+}
+

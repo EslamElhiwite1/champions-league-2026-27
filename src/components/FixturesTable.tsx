@@ -1,6 +1,10 @@
-import React, {useMemo, useState} from 'react';
-import {Search, X} from 'lucide-react';
-import type {TimezoneMode} from '../config/competition';
+import React, {useEffect, useMemo, useState} from 'react';
+import {Search, Tv, X} from 'lucide-react';
+import {
+  BROADCASTER_SCHEDULE_META,
+  getVerifiedMatchBroadcaster,
+  type TimezoneMode,
+} from '../config/competition';
 import {getArabicClubDisplayName, getTeamSearchHaystack} from '../domain/arabicClubs';
 import {
   ALL_STAGE_ORDER,
@@ -96,6 +100,52 @@ interface CalendarDateGroup {
   isUpcomingOrCurrent: boolean;
   matches: KnockoutMatch[];
 }
+
+const BroadcasterSlot: React.FC<{match: KnockoutMatch}> = ({match}) => {
+  const broadcaster = getVerifiedMatchBroadcaster(match);
+  const [logoFailed, setLogoFailed] = useState(false);
+
+  useEffect(() => {
+    setLogoFailed(false);
+  }, [broadcaster?.channelLogoUrl]);
+
+  if (!broadcaster) {
+    return (
+      <span
+        data-slot="broadcaster"
+        className="inline-flex min-w-0 items-center gap-1.5 text-[11px] leading-tight text-[#7f91ad]"
+      >
+        <Tv className="h-3.5 w-3.5 shrink-0 text-[#7f91ad]" aria-hidden="true" />
+        <span className="truncate">القناة لم تُؤكد بعد</span>
+      </span>
+    );
+  }
+
+  return (
+    <span
+      data-slot="broadcaster"
+      className="inline-flex min-w-0 items-center gap-2 text-[11px] leading-tight text-[#d8e1ee]"
+    >
+      {!logoFailed ? (
+        <span className="inline-flex h-6 shrink-0 items-center justify-center rounded bg-white px-1.5 py-0.5 ring-1 ring-[#c4d2e8]/30">
+          <img
+            src={broadcaster.channelLogoUrl}
+            alt={`شعار ${broadcaster.channelName}`}
+            referrerPolicy="no-referrer"
+            loading="lazy"
+            onError={() => setLogoFailed(true)}
+            className="h-3.5 w-auto object-contain"
+          />
+        </span>
+      ) : (
+        <Tv className="h-3.5 w-3.5 shrink-0 text-[#8dc0ff]" aria-hidden="true" />
+      )}
+      <span dir="ltr" className="truncate font-medium text-[#d8e1ee]">
+        {broadcaster.channelName}
+      </span>
+    </span>
+  );
+};
 
 export const FixturesTable: React.FC<FixturesTableProps> = ({
   snapshot,
@@ -673,11 +723,9 @@ export const FixturesTable: React.FC<FixturesTableProps> = ({
                           </div>
                         </div>
 
-                        {/* Compact Details Action Bar (Min 44px touch target) */}
+                        {/* Compact Broadcaster & Details Action Bar (Min 44px touch target) */}
                         <div className="flex items-center justify-between gap-2 border-t border-[#c4d2e8]/10 px-3.5 py-2">
-                          <span className="min-w-0 text-[11px] leading-tight text-[#7f91ad]">
-                            {kickoff.dateLabel}
-                          </span>
+                          <BroadcasterSlot match={match} />
                           <button
                             type="button"
                             onClick={() => handleInspect(match)}
@@ -692,6 +740,49 @@ export const FixturesTable: React.FC<FixturesTableProps> = ({
                 </div>
               </section>
             ))}
+
+            {/* Expandable Source / Check-Date Note for Egypt Broadcaster Schedule */}
+            <details className="rounded-md border border-[#c4d2e8]/15 bg-[#0d172b]/80 px-4 py-3 text-xs text-[#9fb1ca]">
+              <summary className="cursor-pointer font-medium text-[#d8e1ee] hover:text-white">
+                مصدر جدول القنوات الناقلة في مصر (تاريخ التحقق:{' '}
+                <span dir="ltr" className="font-mono-tabular">
+                  {BROADCASTER_SCHEDULE_META.checkedAt}
+                </span>
+                )
+              </summary>
+              <div className="mt-2.5 space-y-1.5 leading-relaxed">
+                <p>
+                  أرقام القنوات المعروضة تخص البث المباشر فقط وتم التحقق منها من دليل{' '}
+                  <a
+                    href={BROADCASTER_SCHEDULE_META.tvGuideUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#8dc0ff] underline underline-offset-4 hover:text-white"
+                  >
+                    beIN SPORTS MENA الرسمي
+                  </a>{' '}
+                  بتاريخ{' '}
+                  <span dir="ltr" className="font-mono-tabular">
+                    {BROADCASTER_SCHEDULE_META.checkedAt}
+                  </span>{' '}
+                  ليومي 24 و25 نوفمبر 2026، وهو جدول موثق بتاريخ الفحص وليس تغذية آلية حية للقنوات.
+                </p>
+                <p>
+                  المباريات الأخرى (التاريخية أو المستقبلية غير المدرجة في الدليل المحقق) تعرض «القناة
+                  لم تُؤكد بعد» دون تخمين رقم القناة من الحقوق العامة. يؤكد{' '}
+                  <a
+                    href={BROADCASTER_SCHEDULE_META.rightsAnnouncementUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#8dc0ff] underline underline-offset-4 hover:text-white"
+                  >
+                    بيان حقوق البث حتى 2027
+                  </a>{' '}
+                  حقوق الشبكة في المنطقة دون تحديد قنوات المباريات الفردية. تُستخدم شعارات القنوات
+                  الرسمية للتعريف التحريري فقط دون أي رعاية أو اعتماد رسمي.
+                </p>
+              </div>
+            </details>
           </div>
         )}
       </div>
