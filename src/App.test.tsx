@@ -191,7 +191,7 @@ describe('Champions League Matches & Knockout App UI (Arabic / RTL)', () => {
       within(madridPsvCard).getByRole('img', {name: /شعار beIN SPORTS 1/i}),
     ).toHaveAttribute(
       'src',
-      'https://prod-media.beinsports.com/image/f50c7035e532c49a0f6993d988e2e843.3840.png?ver=03-06-2025',
+      'https://prod-media.beinsports.com/image/f50c7035e532c49a0f6993d988e2e843.png?ver=03-06-2025',
     );
     expect(madridPsvCard.textContent).not.toContain('الثلاثاء، 24 نوفمبر 2026');
 
@@ -206,7 +206,7 @@ describe('Champions League Matches & Knockout App UI (Arabic / RTL)', () => {
       within(sabahBarcaCard).getByRole('img', {name: /شعار beIN SPORTS 2/i}),
     ).toHaveAttribute(
       'src',
-      'https://prod-media.beinsports.com/image/4fbe073f17f161810fdf3dab1307b30f.3840.png?ver=03-06-2025',
+      'https://prod-media.beinsports.com/image/4fbe073f17f161810fdf3dab1307b30f.png?ver=03-06-2025',
     );
     expect(sabahBarcaCard.textContent).not.toContain('الأربعاء، 25 نوفمبر 2026');
 
