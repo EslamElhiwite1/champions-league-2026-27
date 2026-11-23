@@ -30,21 +30,21 @@ const CHECKED_AT = BROADCASTER_SCHEDULE_META.checkedAt;
 
 const BEIN_CHANNEL_LOGOS = {
   'beIN SPORTS 1':
-    'https://prod-media.beinsports.com/image/f50c7035e532c49a0f6993d988e2e843.3840.png?ver=03-06-2025',
+    'https://prod-media.beinsports.com/image/f50c7035e532c49a0f6993d988e2e843.png?ver=03-06-2025',
   'beIN SPORTS 2':
-    'https://prod-media.beinsports.com/image/4fbe073f17f161810fdf3dab1307b30f.3840.png?ver=03-06-2025',
+    'https://prod-media.beinsports.com/image/4fbe073f17f161810fdf3dab1307b30f.png?ver=03-06-2025',
   'beIN SPORTS 3':
-    'https://prod-media.beinsports.com/image/94130ea17023c4837f0dcdda95034b65.3840.png?ver=03-06-2025',
+    'https://prod-media.beinsports.com/image/94130ea17023c4837f0dcdda95034b65.png?ver=03-06-2025',
   'beIN SPORTS 4':
-    'https://prod-media.beinsports.com/image/e92b755eb0d8800175a02a35c2bf44fe.3840.png?ver=03-06-2025',
+    'https://prod-media.beinsports.com/image/e92b755eb0d8800175a02a35c2bf44fe.png?ver=03-06-2025',
   'beIN SPORTS 5':
-    'https://prod-media.beinsports.com/image/0a5052334511e344f15ae0bfafd47a67.3840.png?ver=03-06-2025',
+    'https://prod-media.beinsports.com/image/0a5052334511e344f15ae0bfafd47a67.png?ver=03-06-2025',
   'beIN SPORTS 6':
-    'https://prod-media.beinsports.com/image/1aa4de654d4e502b4ef4136466b13fcc.3840.png?ver=03-06-2025',
+    'https://prod-media.beinsports.com/image/1aa4de654d4e502b4ef4136466b13fcc.png?ver=03-06-2025',
   'beIN SPORTS 8':
-    'https://prod-media.beinsports.com/image/a9dd7e3c6ee87a48cb35b729caf61eb5.3840.png?ver=03-06-2025',
+    'https://prod-media.beinsports.com/image/a9dd7e3c6ee87a48cb35b729caf61eb5.png?ver=03-06-2025',
   'beIN SPORTS 9':
-    'https://prod-media.beinsports.com/image/de9d96171258bf940fc7b77c09b1cde4.3840.png?ver=03-06-2025',
+    'https://prod-media.beinsports.com/image/de9d96171258bf940fc7b77c09b1cde4.png?ver=03-06-2025',
 } as const;
 
 /**
