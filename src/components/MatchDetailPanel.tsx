@@ -1,4 +1,4 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {X} from 'lucide-react';
 import type {TimezoneMode} from '../config/competition';
 import {getArabicClubDisplayName} from '../domain/arabicClubs';
@@ -18,6 +18,20 @@ interface MatchDetailPanelProps {
   timezoneMode: TimezoneMode;
   onClose: () => void;
 }
+
+const DetailFrame: React.FC<{matchId: string}> = ({matchId}) => {
+  const [height, setHeight] = useState(1500);
+  const ref = useRef<HTMLIFrameElement>(null);
+  const measure = () => {
+    const body = ref.current?.contentDocument?.body;
+    if (body) setHeight(body.scrollHeight + 24);
+  };
+  useEffect(() => {
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, []);
+  return <iframe ref={ref} title="التشكيل والتقييمات والإحصائيات" src={`${import.meta.env.BASE_URL}match-details/${matchId}.html`} className="mt-4 w-full border-0 rounded-lg" style={{height}} onLoad={measure} loading="lazy" sandbox="allow-same-origin" scrolling="no" />;
+};
 
 const LegCard: React.FC<{
   legNumberLabel: string;
@@ -161,7 +175,7 @@ const LegCard: React.FC<{
         </p>
       )}
 
-      <iframe title="التشكيل والتقييمات والإحصائيات" src={`${import.meta.env.BASE_URL}match-details/${match.matchId}.html`} className="mt-4 w-full border-0 rounded-lg" style={{height:1500}} loading="lazy" sandbox="" />
+      <DetailFrame matchId={match.matchId} />
 
     </div>
   );
