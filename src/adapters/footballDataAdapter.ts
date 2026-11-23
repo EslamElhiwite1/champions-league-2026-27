@@ -369,6 +369,7 @@ export function adaptFootballDataMatches(
           venue: raw.venue ?? null,
           score,
           resolutionNote: buildResolutionNote(status, score.isScoreAmbiguous, score.ambiguityNote),
+          lineups: null,
         };
       });
 
@@ -417,6 +418,7 @@ export function adaptFootballDataMatches(
       venue: raw.venue ?? null,
       score,
       resolutionNote: buildResolutionNote(status, score.isScoreAmbiguous, score.ambiguityNote),
+      lineups: null,
     };
   });
 
