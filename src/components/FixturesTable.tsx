@@ -42,33 +42,51 @@ const FILTERABLE_STATUSES: MatchStatus[] = [
   'AWARDED',
 ];
 
-function formatMatchScoreCell(match: KnockoutMatch): {primary: string; detail: string | null} {
+function getMatchScoreDisplay(match: KnockoutMatch): {
+  hasScore: boolean;
+  homeGoals: string;
+  awayGoals: string;
+  note: string | null;
+} {
   if (match.score.isScoreAmbiguous) {
-    return {primary: 'غير محسوم', detail: 'تفصيل النتيجة يتطلب مراجعة'};
-  }
-  const open = match.score.openPlay;
-  if (!open || open.home == null || open.away == null) {
-    if (match.status === 'POSTPONED') return {primary: '—', detail: 'مؤجلة'};
-    if (match.status === 'CANCELLED') return {primary: '—', detail: 'ملغاة'};
-    if (match.status === 'SUSPENDED') return {primary: '—', detail: 'معلقة'};
-    return {primary: '—', detail: 'لم تبدأ بعد'};
-  }
-
-  const primary = `${open.home} – ${open.away}`;
-  if (match.score.duration === 'PENALTY_SHOOTOUT' && match.score.penalties) {
-    const p = match.score.penalties;
     return {
-      primary,
-      detail: `ركلات الترجيح ${p.home ?? '—'}–${p.away ?? '—'}`,
+      hasScore: false,
+      homeGoals: '—',
+      awayGoals: '—',
+      note: 'تفصيل النتيجة يتطلب مراجعة',
     };
   }
-  if (match.score.duration === 'EXTRA_TIME') {
-    return {primary, detail: 'بعد الوقت الإضافي'};
+
+  const open = match.score.openPlay;
+  if (!open || open.home == null || open.away == null) {
+    if (match.status === 'POSTPONED') {
+      return {hasScore: false, homeGoals: '—', awayGoals: '—', note: 'مؤجلة'};
+    }
+    if (match.status === 'CANCELLED') {
+      return {hasScore: false, homeGoals: '—', awayGoals: '—', note: 'ملغاة'};
+    }
+    if (match.status === 'SUSPENDED') {
+      return {hasScore: false, homeGoals: '—', awayGoals: '—', note: 'معلقة'};
+    }
+    return {hasScore: false, homeGoals: '—', awayGoals: '—', note: null};
   }
-  if (match.status === 'IN_PLAY' || match.status === 'PAUSED') {
-    return {primary, detail: 'نتيجة جارية (تحديث متأخر)'};
+
+  let note: string | null = null;
+  if (match.score.duration === 'PENALTY_SHOOTOUT' && match.score.penalties) {
+    const p = match.score.penalties;
+    note = `ركلات الترجيح ${p.home ?? '—'}–${p.away ?? '—'}`;
+  } else if (match.score.duration === 'EXTRA_TIME') {
+    note = 'بعد الوقت الإضافي';
+  } else if (match.status === 'IN_PLAY' || match.status === 'PAUSED') {
+    note = 'جارية (تحديث متأخر)';
   }
-  return {primary, detail: null};
+
+  return {
+    hasScore: true,
+    homeGoals: String(open.home),
+    awayGoals: String(open.away),
+    note,
+  };
 }
 
 interface CalendarDateGroup {
@@ -181,7 +199,6 @@ export const FixturesTable: React.FC<FixturesTableProps> = ({
 
     const tbd = groupsMap.get('TBD');
 
-    // Upcoming/current dates first (ascending from next upcoming date), then most recent past results
     return [...upcoming, ...past, ...(tbd ? [tbd] : [])];
   }, [filteredMatches, timezoneMode, todayKey]);
 
@@ -194,7 +211,6 @@ export const FixturesTable: React.FC<FixturesTableProps> = ({
     [allDateGroups],
   );
 
-  // Default landing shows upcoming/current dates first when available; falls back to 'all' if only historic exist
   const effectiveDateScope: DateScope = useMemo(() => {
     if (userDateScope) return userDateScope;
     if (hasSearchOrAttributeFilter || selectedDateKey) return 'all';
@@ -241,9 +257,9 @@ export const FixturesTable: React.FC<FixturesTableProps> = ({
     <section
       id="matches"
       aria-labelledby="matches-heading"
-      className="border-b border-[#c4d2e8]/12 bg-[#070d19]"
+      className="overflow-x-hidden border-b border-[#c4d2e8]/12 bg-[#070d19]"
     >
-      <div className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[1400px] px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
         <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-semibold text-[#5ca0ff]">جدول الموسم والنتائج</p>
@@ -440,7 +456,6 @@ export const FixturesTable: React.FC<FixturesTableProps> = ({
               )}
             </div>
 
-            {/* Quick Calendar Date Jump Buttons */}
             {allDateGroups.length > 0 && (
               <div className="flex items-center gap-2 overflow-x-auto pb-1">
                 <span className="shrink-0 text-xs font-medium text-[#7f91ad]">انتقال لتاريخ:</span>
@@ -511,177 +526,46 @@ export const FixturesTable: React.FC<FixturesTableProps> = ({
             </div>
           </div>
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-9">
             {visibleDateGroups.map((group) => (
               <section
                 key={group.dateKey}
                 aria-label={`مباريات ${group.dateLabel}`}
-                className="space-y-3"
+                className="space-y-4"
               >
-                {/* Full Arabic Weekday + Day/Month/Year Heading */}
-                <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[#c4d2e8]/18 pb-2">
+                {/* Unmissable Full Arabic Weekday + Date Heading with Blue Date Separator */}
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-[#2f7bff] pb-2.5">
                   <div className="flex flex-wrap items-center gap-2.5">
-                    <h3 className="font-display text-xl font-bold text-[#f4f7fb]">
+                    <span
+                      aria-hidden="true"
+                      className="inline-block h-2.5 w-2.5 shrink-0 rounded-full bg-[#2f7bff]"
+                    />
+                    <h3 className="font-display text-xl font-bold text-[#f4f7fb] sm:text-2xl">
                       {group.dateLabel}
                     </h3>
-                    <span className="text-xs text-[#5ca0ff]">
+                    <span className="rounded border border-[#2f7bff]/40 bg-[#10203d] px-2 py-0.5 text-[11px] font-medium text-[#8dc0ff]">
                       {group.isUpcomingOrCurrent ? 'قادمة / جارية' : 'نتائج سابقة'}
                     </span>
                   </div>
-                  <span className="font-mono-tabular text-xs text-[#7f91ad]">
+                  <span className="font-mono-tabular text-xs font-medium text-[#b7c5da]">
                     {group.matches.length}{' '}
-                    {group.matches.length === 1 ? 'مباراة' : group.matches.length === 2 ? 'مباراتان' : group.matches.length <= 10 ? 'مباريات' : 'مباراة'}
+                    {group.matches.length === 1
+                      ? 'مباراة'
+                      : group.matches.length === 2
+                        ? 'مباراتان'
+                        : group.matches.length <= 10
+                          ? 'مباريات'
+                          : 'مباراة'}
                   </span>
                 </div>
 
-                {/* Desktop Semantic Table */}
-                <div className="hidden overflow-hidden rounded-md border border-[#c4d2e8]/15 bg-[#0d172b] md:block">
-                  <table className="w-full table-fixed border-collapse text-start text-sm">
-                    <colgroup>
-                      <col className="w-[15%]" />
-                      <col className="w-[29%]" />
-                      <col className="w-[22%]" />
-                      <col className="w-[12%]" />
-                      <col className="w-[11%]" />
-                      <col className="w-[11%]" />
-                    </colgroup>
-                    <thead>
-                      <tr className="border-b border-[#c4d2e8]/15 bg-[#101c34] text-xs font-medium text-[#7f91ad]">
-                        <th scope="col" className="px-4 py-3 text-start">
-                          المرحلة / الجولة
-                        </th>
-                        <th scope="col" className="px-4 py-3 text-start">
-                          المباراة
-                        </th>
-                        <th scope="col" className="px-4 py-3 text-start">
-                          الموعد ({timezoneMode === 'cairo' ? 'توقيت مصر' : 'المحلي'})
-                        </th>
-                        <th scope="col" className="px-4 py-3 text-start">
-                          الحالة
-                        </th>
-                        <th scope="col" className="px-4 py-3 text-start">
-                          النتيجة
-                        </th>
-                        <th scope="col" className="px-4 py-3 text-end">
-                          التفاصيل
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-[#c4d2e8]/10">
-                      {group.matches.map((match) => {
-                        const kickoff = formatKickoffTime(match.utcDate, timezoneMode);
-                        const scoreCell = formatMatchScoreCell(match);
-                        const contextLabel = match.tieId
-                          ? match.isSingleMatch
-                            ? 'مباراة نهائية'
-                            : `${match.leg === 1 ? 'الذهاب' : 'الإياب'} · ${match.tieId}`
-                          : match.matchday != null
-                            ? `الجولة ${match.matchday}`
-                            : 'مباراة موسمية';
-
-                        return (
-                          <tr
-                            key={match.matchId}
-                            className="transition-colors hover:bg-[#12203b]/80"
-                          >
-                            <td className="px-4 py-3.5 align-top">
-                              <span className="block font-medium text-[#f4f7fb]">
-                                {STAGE_LABELS[match.stage]}
-                              </span>
-                              <span className="mt-0.5 block text-xs text-[#7f91ad]">
-                                {contextLabel}
-                              </span>
-                            </td>
-
-                            <td className="px-4 py-3.5 align-top">
-                              <div className="space-y-1.5">
-                                <div className="flex items-center gap-2">
-                                  <TeamMonogram team={match.homeTeam} size="sm" />
-                                  <span
-                                    className={`truncate ${
-                                      match.homeTeam.isTbd
-                                        ? 'text-[#7f91ad]'
-                                        : 'font-medium text-[#f4f7fb]'
-                                    }`}
-                                  >
-                                    {getArabicClubDisplayName(match.homeTeam)}
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <TeamMonogram team={match.awayTeam} size="sm" />
-                                  <span
-                                    className={`truncate ${
-                                      match.awayTeam.isTbd
-                                        ? 'text-[#7f91ad]'
-                                        : 'font-medium text-[#d8e1ee]'
-                                    }`}
-                                  >
-                                    {getArabicClubDisplayName(match.awayTeam)}
-                                  </span>
-                                </div>
-                              </div>
-                            </td>
-
-                            <td className="px-4 py-3.5 align-top">
-                              <span className="block text-xs font-semibold text-[#f4f7fb]">
-                                {kickoff.timeLabel}
-                              </span>
-                              <span className="mt-0.5 block text-xs text-[#b7c5da]">
-                                {kickoff.dateLabel}
-                              </span>
-                              <span className="mt-0.5 block text-[11px] text-[#7f91ad]">
-                                {kickoff.tzLabel}
-                              </span>
-                            </td>
-
-                            <td className="px-4 py-3.5 align-top">
-                              <span
-                                className={`text-xs font-medium ${
-                                  match.status === 'POSTPONED' ||
-                                  match.status === 'SUSPENDED' ||
-                                  match.status === 'CANCELLED'
-                                    ? 'text-amber-300'
-                                    : match.status === 'IN_PLAY' || match.status === 'PAUSED'
-                                      ? 'text-[#5ca0ff]'
-                                      : 'text-[#d8e1ee]'
-                                }`}
-                              >
-                                {STATUS_LABELS[match.status]}
-                              </span>
-                            </td>
-
-                            <td className="px-4 py-3.5 align-top">
-                              <span className="block font-mono-tabular text-sm font-semibold text-[#f4f7fb]" dir="ltr">
-                                {scoreCell.primary}
-                              </span>
-                              {scoreCell.detail && (
-                                <span className="mt-0.5 block text-xs text-[#7f91ad]">
-                                  {scoreCell.detail}
-                                </span>
-                              )}
-                            </td>
-
-                            <td className="px-4 py-3.5 text-end align-top">
-                              <button
-                                type="button"
-                                onClick={() => handleInspect(match)}
-                                className="inline-flex min-h-[40px] items-center rounded border border-[#c4d2e8]/20 bg-[#070d19] px-3 py-1.5 text-xs font-medium text-[#d8e1ee] transition-colors hover:border-[#2f7bff] hover:text-white whitespace-nowrap"
-                              >
-                                {match.tieId ? 'تفاصيل المواجهة' : 'تفاصيل المباراة'}
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Mobile Labeled Card Layout (< md) */}
-                <div className="space-y-3 md:hidden">
+                {/* Unified Facing-Off Daily Fixture Cards for Both Mobile (1 col) and Desktop (2-3 cols) */}
+                <div className="grid grid-cols-1 gap-3.5 md:grid-cols-2 xl:grid-cols-3">
                   {group.matches.map((match) => {
                     const kickoff = formatKickoffTime(match.utcDate, timezoneMode);
-                    const scoreCell = formatMatchScoreCell(match);
+                    const scoreInfo = getMatchScoreDisplay(match);
+                    const homeName = getArabicClubDisplayName(match.homeTeam);
+                    const awayName = getArabicClubDisplayName(match.awayTeam);
                     const contextLabel = match.tieId
                       ? match.isSingleMatch
                         ? 'مباراة نهائية'
@@ -693,67 +577,111 @@ export const FixturesTable: React.FC<FixturesTableProps> = ({
                     return (
                       <article
                         key={match.matchId}
-                        className="rounded-md border border-[#c4d2e8]/15 bg-[#0d172b] p-4"
+                        data-testid={`fixture-card-${match.matchId}`}
+                        className="flex min-w-0 flex-col justify-between rounded-lg border border-[#c4d2e8]/16 bg-[#0d172b] transition-colors hover:border-[#2f7bff]/50"
                       >
-                        <div className="flex items-center justify-between gap-2 border-b border-[#c4d2e8]/10 pb-2.5 text-xs">
-                          <span className="font-medium text-[#5ca0ff]">
+                        {/* Compact Competition / Matchday / Status Top Strip */}
+                        <div className="flex items-center justify-between gap-2 border-b border-[#c4d2e8]/10 bg-[#101c34]/80 px-3.5 py-2 text-[11px]">
+                          <span className="min-w-0 font-medium text-[#8dc0ff]">
                             {STAGE_LABELS[match.stage]} · {contextLabel}
                           </span>
-                          <span className="font-medium text-[#d8e1ee]">
+                          <span
+                            className={`shrink-0 font-semibold ${
+                              match.status === 'POSTPONED' ||
+                              match.status === 'SUSPENDED' ||
+                              match.status === 'CANCELLED'
+                                ? 'text-amber-300'
+                                : match.status === 'IN_PLAY' || match.status === 'PAUSED'
+                                  ? 'text-[#5ca0ff]'
+                                  : 'text-[#d8e1ee]'
+                            }`}
+                          >
                             {STATUS_LABELS[match.status]}
                           </span>
                         </div>
 
-                        <div className="mt-3 space-y-2">
-                          <div className="flex items-center justify-between gap-2">
-                            <div className="flex min-w-0 items-center gap-2">
-                              <TeamMonogram team={match.homeTeam} size="sm" />
-                              <span className="truncate text-sm font-medium text-[#f4f7fb]">
-                                {getArabicClubDisplayName(match.homeTeam)}
-                              </span>
-                            </div>
-                            <span className="font-mono-tabular text-sm font-semibold text-[#f4f7fb]">
-                              {match.score.openPlay?.home ?? '—'}
+                        {/* 3-Column Facing Matchup Grid (RTL: Col 1 Right = Home, Col 2 Center = VS/Score + Time, Col 3 Left = Away) */}
+                        <div
+                          data-slot="matchup-grid"
+                          className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2.5 px-3 py-4 sm:px-4"
+                        >
+                          {/* HOME TEAM (Right in RTL) */}
+                          <div
+                            data-slot="home-team"
+                            className="flex min-w-0 flex-col items-center gap-2 text-center"
+                          >
+                            <TeamMonogram team={match.homeTeam} size="card" />
+                            <span
+                              className={`w-full text-center text-xs font-semibold leading-snug break-words sm:text-sm ${
+                                match.homeTeam.isTbd ? 'text-[#7f91ad]' : 'text-[#f4f7fb]'
+                              }`}
+                            >
+                              {homeName}
                             </span>
                           </div>
 
-                          <div className="flex items-center justify-between gap-2">
-                            <div className="flex min-w-0 items-center gap-2">
-                              <TeamMonogram team={match.awayTeam} size="sm" />
-                              <span className="truncate text-sm font-medium text-[#d8e1ee]">
-                                {getArabicClubDisplayName(match.awayTeam)}
+                          {/* CENTER: VS / Score + 12-Hour Kickoff Time Directly Below */}
+                          <div
+                            data-slot="match-center"
+                            className="flex shrink-0 flex-col items-center justify-center gap-1 px-1.5 text-center"
+                          >
+                            {scoreInfo.hasScore ? (
+                              <div
+                                className="flex items-center gap-1.5 rounded border border-[#c4d2e8]/15 bg-[#070d19] px-2.5 py-1 font-mono-tabular text-base font-bold text-[#f4f7fb] sm:text-lg"
+                                aria-label={`النتيجة ${scoreInfo.homeGoals} مقابل ${scoreInfo.awayGoals}`}
+                              >
+                                <span>{scoreInfo.homeGoals}</span>
+                                <span className="text-[#5ca0ff]">–</span>
+                                <span>{scoreInfo.awayGoals}</span>
+                              </div>
+                            ) : (
+                              <span
+                                className="inline-flex min-w-[44px] items-center justify-center rounded border border-[#c4d2e8]/18 bg-[#070d19] px-2.5 py-1 font-mono-tabular text-xs font-bold tracking-wider text-[#8dc0ff]"
+                                dir="ltr"
+                              >
+                                VS
                               </span>
-                            </div>
-                            <span className="font-mono-tabular text-sm font-semibold text-[#f4f7fb]">
-                              {match.score.openPlay?.away ?? '—'}
+                            )}
+
+                            <span className="mt-0.5 text-xs font-semibold text-[#f4f7fb] whitespace-nowrap">
+                              {kickoff.timeLabel}
+                            </span>
+                            <span className="text-[10px] text-[#7f91ad] whitespace-nowrap">
+                              {kickoff.tzLabel}
+                            </span>
+
+                            {scoreInfo.note && (
+                              <span className="mt-0.5 max-w-[120px] text-[10px] leading-tight text-[#b7c5da]">
+                                {scoreInfo.note}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* AWAY TEAM (Left in RTL) */}
+                          <div
+                            data-slot="away-team"
+                            className="flex min-w-0 flex-col items-center gap-2 text-center"
+                          >
+                            <TeamMonogram team={match.awayTeam} size="card" />
+                            <span
+                              className={`w-full text-center text-xs font-semibold leading-snug break-words sm:text-sm ${
+                                match.awayTeam.isTbd ? 'text-[#7f91ad]' : 'text-[#f4f7fb]'
+                              }`}
+                            >
+                              {awayName}
                             </span>
                           </div>
                         </div>
 
-                        <dl className="mt-3 grid grid-cols-1 gap-1.5 border-t border-[#c4d2e8]/10 pt-2.5 text-xs">
-                          <div className="flex justify-between gap-2">
-                            <dt className="text-[#7f91ad]">التاريخ</dt>
-                            <dd className="text-end text-[#d8e1ee]">{kickoff.dateLabel}</dd>
-                          </div>
-                          <div className="flex justify-between gap-2">
-                            <dt className="text-[#7f91ad]">موعد الانطلاق</dt>
-                            <dd className="text-end text-[#d8e1ee]">
-                              {kickoff.timeLabel} · {kickoff.tzLabel}
-                            </dd>
-                          </div>
-                          {scoreCell.detail && (
-                            <div className="flex justify-between gap-2">
-                              <dt className="text-[#7f91ad]">ملاحظة النتيجة</dt>
-                              <dd className="text-end text-[#b7c5da]">{scoreCell.detail}</dd>
-                            </div>
-                          )}
-                        </dl>
-
-                        <div className="mt-3">
+                        {/* Compact Details Action Bar (Min 44px touch target) */}
+                        <div className="flex items-center justify-between gap-2 border-t border-[#c4d2e8]/10 px-3.5 py-2">
+                          <span className="min-w-0 text-[11px] leading-tight text-[#7f91ad]">
+                            {kickoff.dateLabel}
+                          </span>
                           <button
                             type="button"
                             onClick={() => handleInspect(match)}
-                            className="min-h-[44px] w-full rounded border border-[#c4d2e8]/20 bg-[#12203b] px-4 py-2 text-xs font-medium text-[#f4f7fb] transition-colors hover:border-[#2f7bff]"
+                            className="inline-flex min-h-[44px] shrink-0 items-center justify-center rounded border border-[#c4d2e8]/20 bg-[#12203b] px-3.5 py-2 text-xs font-medium text-[#f4f7fb] transition-colors hover:border-[#2f7bff] hover:bg-[#17294b] whitespace-nowrap"
                           >
                             {match.tieId ? 'تفاصيل المواجهة' : 'تفاصيل المباراة'}
                           </button>

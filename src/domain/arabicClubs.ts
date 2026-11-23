@@ -6,14 +6,6 @@ import type {TeamRef} from '../types/knockout';
  * provider IDs and original identities are never mutated.
  */
 const ARABIC_CLUB_NAME_ENTRIES: Array<[string[], string]> = [
-  [['pae aek'], 'أيك أثينا'],
-  [['lask linz'], 'لاسك لينتس'],
-  [['real betis balompié'], 'ريال بيتيس'],
-  [['viking fk'], 'فايكينغ'],
-  [['fk shakhtar donetsk'], 'شاختار دونيتسك'],
-  [['sabah fk'], 'صباح'],
-  [['como 1907'], 'كومو'],
-  [['racing club de lens'], 'لانس'],
   // Spain
   [['real madrid', 'real madrid cf'], 'ريال مدريد'],
   [['fc barcelona', 'barcelona'], 'برشلونة'],
@@ -82,22 +74,29 @@ const ARABIC_CLUB_NAME_ENTRIES: Array<[string[], string]> = [
   [['fc basel 1893', 'basel'], 'بازل'],
   [['ac sparta praha', 'sparta prague', 'sparta praha'], 'سبارتا براغ'],
   [['sk slavia praha', 'slavia prague', 'slavia praha'], 'سلافيا براغ'],
-  [['fc shakhtar donetsk', 'shakhtar donetsk', 'shakhtar'], 'شاختار دونيتسك'],
+  [['fc shakhtar donetsk', 'fk shakhtar donetsk', 'shakhtar donetsk', 'shakhtar'], 'شاختار دونيتسك'],
   [['fc dynamo kyiv', 'dynamo kyiv'], 'دينامو كييف'],
   [['gnk dinamo zagreb', 'dinamo zagreb'], 'دينامو زغرب'],
   [['fk crvena zvezda', 'red star belgrade', 'crvena zvezda'], 'النجم الأحمر بلغراد'],
-  [['šk slovan bratislava', 'slovan bratislava'], 'سلوفان براتيسلافا'],
+  [['šk slovan bratislava', 'sk slovan bratislava', 'slovan bratislava'], 'سلوفان براتيسلافا'],
   [['galatasaray sk', 'galatasaray'], 'غلطة سراي'],
   [['fenerbahçe sk', 'fenerbahce', 'fenerbahçe'], 'فنربخشة'],
   [['beşiktaş jk', 'besiktas', 'beşiktaş'], 'بشكتاش'],
   [['olympiacos fc', 'olympiacos', 'olympiakos'], 'أولمبياكوس'],
+  [['pae aek', 'aek athens', 'aek athens fc'], 'أيك أثينا'],
   [['paok fc', 'paok'], 'باوك'],
   [['fc københavn', 'fc copenhagen', 'copenhagen'], 'كوبنهاغن'],
   [['fk bodø/glimt', 'bodø/glimt', 'bodo/glimt'], 'بودو/غليمت'],
+  [['viking fk', 'viking'], 'فايكينغ'],
   [['malmö ff', 'malmo ff', 'malmö'], 'مالمو'],
   [['qarabağ fk', 'qarabag', 'qarabağ'], 'قره باغ'],
+  [['sabah fk', 'sabah'], 'صباح'],
   [['ferencvárosi tc', 'ferencvaros', 'ferencváros'], 'فيرينتسفاروش'],
   [['fc midtjylland', 'midtjylland'], 'ميتيلاند'],
+  [['lask linz', 'lask'], 'لاسك لينتس'],
+  [['real betis balompié', 'real betis balompie', 'real betis'], 'ريال بيتيس'],
+  [['como 1907', 'calcio como', 'como'], 'كومو'],
+  [['racing club de lens', 'rc lens', 'lens'], 'لانس'],
 ];
 
 const ARABIC_CLUB_LOOKUP = new Map<string, string>();

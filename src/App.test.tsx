@@ -117,14 +117,17 @@ describe('Champions League Matches & Knockout App UI (Arabic / RTL)', () => {
       'https://upload.wikimedia.org/wikipedia/commons/8/8d/FC_Bayern_M%C3%BCnchen_logo_%282024%29.svg',
     ]);
 
-    // Footer includes accessible attribution section, partial count/coverage note, and all 4 source links
+    // Footer includes accessible attribution section, partial count/coverage note (9 clubs), and all 9 source links
     expect(
       screen.getByRole('heading', {name: /مصادر وإسناد أيقونات الشعارات المتاحة/i}),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/تغطية جزئية للشعارات: 4 أندية مصرح بها فقط/i),
+      screen.getByText(/تغطية جزئية للشعارات: 9 أندية مصرح بها فقط/i),
     ).toBeInTheDocument();
     expect(screen.getAllByText(/يختلف توفر شعارات الأندية/i).length).toBeGreaterThan(0);
+    expect(
+      screen.getByText(/الشعار الأساسي للنادي دون نجوم البطولات الموسمية على القميص/i),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole('link', {name: /File:FC_Bayern_München_logo_\(2024\)\.svg/i}),
     ).toHaveAttribute(
@@ -149,6 +152,36 @@ describe('Champions League Matches & Knockout App UI (Arabic / RTL)', () => {
       'href',
       'https://commons.wikimedia.org/wiki/File:SSC_Napoli_2024_(deep_blue_navy).svg',
     );
+    expect(
+      screen.getByRole('link', {name: /File:Feyenoord_logo_since_2024\.svg/i}),
+    ).toHaveAttribute(
+      'href',
+      'https://commons.wikimedia.org/wiki/File:Feyenoord_logo_since_2024.svg',
+    );
+    expect(
+      screen.getByRole('link', {name: /File:SK_Slavia_Praha_full_logo\.svg/i}),
+    ).toHaveAttribute(
+      'href',
+      'https://commons.wikimedia.org/wiki/File:SK_Slavia_Praha_full_logo.svg',
+    );
+    expect(
+      screen.getByRole('link', {name: /File:Calcio_Como_-_logo_\(Italy,_2019-\)\.svg/i}),
+    ).toHaveAttribute(
+      'href',
+      'https://commons.wikimedia.org/wiki/File:Calcio_Como_-_logo_(Italy,_2019-).svg',
+    );
+    expect(
+      screen.getByRole('link', {name: /File:SK_Slovan_Bratislava_logo\.svg/i}),
+    ).toHaveAttribute(
+      'href',
+      'https://commons.wikimedia.org/wiki/File:SK_Slovan_Bratislava_logo.svg',
+    );
+    expect(
+      screen.getByRole('link', {name: /File:Galatasaray_Sports_Club_Logo\.svg/i}),
+    ).toHaveAttribute(
+      'href',
+      'https://commons.wikimedia.org/wiki/File:Galatasaray_Sports_Club_Logo.svg',
+    );
 
     // Simulating image load failure falls back cleanly to monogram text without crashing
     for (const img of imgs) {
@@ -165,6 +198,62 @@ describe('Champions League Matches & Knockout App UI (Arabic / RTL)', () => {
     const {unmount} = render(<App initialSnapshot={leagueSnapshot} nowMs={NOV_23_2026_MS} />);
     expect(document.querySelectorAll('img')).toHaveLength(0);
     unmount();
+  });
+
+  it('renders the 5 newly cleared clubs (Feyenoord, Slavia Praha, Como, Slovan Bratislava, Galatasaray) via Wikimedia Commons while keeping Real Madrid on monogram fallback', () => {
+    const nineClubPayload = buildLeagueStageOnlyProviderPayload(0);
+    nineClubPayload.matches = [
+      {
+        id: 8101,
+        utcDate: '2026-11-24T20:00:00Z',
+        status: 'TIMED',
+        stage: 'LEAGUE_STAGE',
+        matchday: 5,
+        homeTeam: {id: 675, name: 'Feyenoord', shortName: 'Feyenoord', tla: 'FEY'},
+        awayTeam: {id: 930, name: 'SK Slavia Praha', shortName: 'Slavia Praha', tla: 'SLA'},
+        score: {winner: null, duration: null, fullTime: {home: null, away: null}},
+      },
+      {
+        id: 8102,
+        utcDate: '2026-11-24T20:00:00Z',
+        status: 'TIMED',
+        stage: 'LEAGUE_STAGE',
+        matchday: 5,
+        homeTeam: {id: 7397, name: 'Como 1907', shortName: 'Como', tla: 'COM'},
+        awayTeam: {id: 7509, name: 'ŠK Slovan Bratislava', shortName: 'Slovan', tla: 'SLO'},
+        score: {winner: null, duration: null, fullTime: {home: null, away: null}},
+      },
+      {
+        id: 8103,
+        utcDate: '2026-11-24T20:00:00Z',
+        status: 'TIMED',
+        stage: 'LEAGUE_STAGE',
+        matchday: 5,
+        homeTeam: {id: 610, name: 'Galatasaray SK', shortName: 'Galatasaray', tla: 'GAL'},
+        awayTeam: {
+          id: 86,
+          name: 'Real Madrid CF',
+          shortName: 'Real Madrid',
+          tla: 'RMA',
+          crest: 'https://crests.example.invalid/86.png',
+        },
+        score: {winner: null, duration: null, fullTime: {home: null, away: null}},
+      },
+    ];
+    const snap = adaptFootballDataMatches(nineClubPayload);
+    render(<App initialSnapshot={snap} nowMs={NOV_23_2026_MS} />);
+
+    const imgs = Array.from(document.querySelectorAll('img'));
+    const uniqueSrcs = Array.from(new Set(imgs.map((img) => img.getAttribute('src')))).sort();
+    expect(uniqueSrcs).toEqual([
+      'https://upload.wikimedia.org/wikipedia/commons/0/01/SK_Slovan_Bratislava_logo.svg',
+      'https://upload.wikimedia.org/wikipedia/commons/2/20/Galatasaray_Sports_Club_Logo.svg',
+      'https://upload.wikimedia.org/wikipedia/commons/2/2b/SK_Slavia_Praha_full_logo.svg',
+      'https://upload.wikimedia.org/wikipedia/commons/9/99/Calcio_Como_-_logo_%28Italy%2C_2019-%29.svg',
+      'https://upload.wikimedia.org/wikipedia/commons/f/f9/Feyenoord_logo_since_2024.svg',
+    ]);
+    // Unwhitelisted Real Madrid keeps monogram fallback
+    expect(screen.getAllByText('RMA').length).toBeGreaterThan(0);
   });
 
   it('filters fixtures in Arabic & English team search alongside stage, matchday, and status filters and resets cleanly', () => {
@@ -324,6 +413,68 @@ describe('Champions League Matches & Knockout App UI (Arabic / RTL)', () => {
         expect(localIds.has(refId)).toBe(true);
       }
     }
+  });
+
+  it('renders unified 3-column facing fixture cards (Home right, VS/score+time center, Away left in RTL) with 36px crests above wrapped Arabic names and blue date separators', () => {
+    const synthetic = buildSyntheticSnapshot();
+    render(<App initialSnapshot={synthetic} nowMs={NOV_23_2026_MS} />);
+
+    const matchesSection = document.getElementById('matches')!;
+    expect(matchesSection).toHaveClass('overflow-x-hidden');
+
+    // Date group heading sits above a distinct blue separator
+    const nov24Heading = within(matchesSection).getByRole('heading', {
+      name: /الثلاثاء، 24 نوفمبر 2026/i,
+    });
+    expect(nov24Heading.closest('div.border-b-2')).toHaveClass('border-[#2f7bff]');
+
+    // Single unified card per match (not duplicated table + mobile cards, and no single-column team stack)
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    const bayernDortmundCard = screen.getByTestId('fixture-card-cl-2026-8003');
+    const matchupGrid = bayernDortmundCard.querySelector('[data-slot="matchup-grid"]')!;
+    expect(matchupGrid).toHaveClass('grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]');
+
+    // In RTL, Grid Track 1 (right) = home-team, Track 2 (center) = match-center, Track 3 (left) = away-team
+    const slotOrder = Array.from(matchupGrid.children).map((el) => el.getAttribute('data-slot'));
+    expect(slotOrder).toEqual(['home-team', 'match-center', 'away-team']);
+
+    const homeSlot = matchupGrid.querySelector('[data-slot="home-team"]')!;
+    const centerSlot = matchupGrid.querySelector('[data-slot="match-center"]')!;
+    const awaySlot = matchupGrid.querySelector('[data-slot="away-team"]')!;
+
+    // Crest sits ABOVE wrapped Arabic name inside each team column (36px = h-9 w-9)
+    expect(homeSlot).toHaveClass('flex-col');
+    expect(awaySlot).toHaveClass('flex-col');
+    const homeCrestWrap = homeSlot.firstElementChild!;
+    const homeNameEl = homeSlot.lastElementChild!;
+    expect(homeCrestWrap).toHaveClass('h-9', 'w-9');
+    expect(homeNameEl).toHaveTextContent('بايرن ميونخ');
+    expect(homeNameEl).toHaveClass('break-words');
+    expect(homeNameEl).not.toHaveClass('truncate');
+
+    const awayCrestWrap = awaySlot.firstElementChild!;
+    const awayNameEl = awaySlot.lastElementChild!;
+    expect(awayCrestWrap).toHaveClass('h-9', 'w-9');
+    expect(awayNameEl).toHaveTextContent('بوروسيا دورتموند');
+    expect(awayNameEl).toHaveClass('break-words');
+
+    // Center column shows VS + 12-hour Egypt time directly below
+    expect(within(centerSlot as HTMLElement).getByText('VS')).toBeInTheDocument();
+    expect(within(centerSlot as HTMLElement).getByText('10:00 مساءً')).toBeInTheDocument();
+
+    // Details action meets minimum 44px touch target
+    const detailsBtn = within(bayernDortmundCard).getByRole('button', {name: /تفاصيل المباراة/i});
+    expect(detailsBtn).toHaveClass('min-h-[44px]');
+
+    // No invented TV channels anywhere inside fixture cards
+    expect(matchesSection.textContent).not.toMatch(/beIN|SSC|قناة|القناة الناقلة/i);
+
+    // Finished match in Past Results renders score + kickoff time in center column
+    fireEvent.click(screen.getByRole('button', {name: /النتائج السابقة \(2\)/i}));
+    const madridCard = screen.getByTestId('fixture-card-cl-2026-8001');
+    const madridCenter = madridCard.querySelector('[data-slot="match-center"]') as HTMLElement;
+    expect(within(madridCenter).getByLabelText('النتيجة 2 مقابل 0')).toBeInTheDocument();
+    expect(within(madridCenter).getByText('10:00 مساءً')).toBeInTheDocument();
   });
 
   it('includes prefers-reduced-motion accessibility rules and Arabic RTL root attributes', () => {

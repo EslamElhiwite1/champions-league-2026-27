@@ -5,7 +5,7 @@ import type {TeamRef} from '../types/knockout';
 
 interface TeamMonogramProps {
   team: TeamRef;
-  size?: 'sm' | 'md';
+  size?: 'sm' | 'md' | 'card';
   isWinner?: boolean;
 }
 
@@ -15,7 +15,12 @@ export const TeamMonogram: React.FC<TeamMonogramProps> = ({
   isWinner = false,
 }) => {
   const [imageFailed, setImageFailed] = useState(false);
-  const dimensions = size === 'sm' ? 'h-6 w-6 text-[10px]' : 'h-8 w-8 text-xs';
+  const dimensions =
+    size === 'card'
+      ? 'h-9 w-9 text-xs'
+      : size === 'md'
+        ? 'h-8 w-8 text-xs'
+        : 'h-6 w-6 text-[10px]';
 
   const clearedCrest = !team.isTbd ? getClearedClubCrest(team.id) : null;
   const resolvedCrestSrc = clearedCrest

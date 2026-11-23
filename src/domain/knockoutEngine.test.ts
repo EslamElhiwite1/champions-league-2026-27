@@ -44,8 +44,18 @@ describe('knockoutEngine & footballDataAdapter', () => {
     expect(snapshot.ties.every((t) => t.advancement.status === 'UNDECIDED')).toBe(true);
   });
 
-  it('whitelists strictly the 4 cleared clubs (4, 5, 108, 113) in CLEARED_CLUB_CREST_REGISTRY while blocking unpermitted external crests', () => {
-    expect(Object.keys(CLEARED_CLUB_CREST_REGISTRY).sort()).toEqual(['108', '113', '4', '5']);
+  it('whitelists strictly the 9 cleared clubs (4, 5, 108, 113, 610, 675, 930, 7397, 7509) in CLEARED_CLUB_CREST_REGISTRY while blocking unpermitted external crests', () => {
+    expect(Object.keys(CLEARED_CLUB_CREST_REGISTRY).sort()).toEqual([
+      '108',
+      '113',
+      '4',
+      '5',
+      '610',
+      '675',
+      '7397',
+      '7509',
+      '930',
+    ]);
 
     const bvb = getClearedClubCrest(4)!;
     expect(bvb.clubName).toBe('Borussia Dortmund');
@@ -88,8 +98,54 @@ describe('knockoutEngine & footballDataAdapter', () => {
     );
     expect(napoli.creator).toContain('SSC Napoli');
 
-    // Other clubs must NOT be whitelisted
+    const galatasaray = getClearedClubCrest(610)!;
+    expect(galatasaray.clubName).toBe('Galatasaray SK');
+    expect(galatasaray.imageUrl).toBe(
+      'https://upload.wikimedia.org/wikipedia/commons/2/20/Galatasaray_Sports_Club_Logo.svg',
+    );
+    expect(galatasaray.sourcePageUrl).toBe(
+      'https://commons.wikimedia.org/wiki/File:Galatasaray_Sports_Club_Logo.svg',
+    );
+    expect(galatasaray.creator).toContain('Ayet Emin');
+    expect(galatasaray.licenseLabel).toContain('base club badge');
+    expect(galatasaray.arabicLicenseNote).toContain('دون نجوم البطولات الموسمية');
+
+    const feyenoord = getClearedClubCrest(675)!;
+    expect(feyenoord.clubName).toBe('Feyenoord');
+    expect(feyenoord.imageUrl).toBe(
+      'https://upload.wikimedia.org/wikipedia/commons/f/f9/Feyenoord_logo_since_2024.svg',
+    );
+    expect(feyenoord.creator).toBe('Feyenoord Rotterdam N.V.');
+
+    const slavia = getClearedClubCrest(930)!;
+    expect(slavia.clubName).toBe('SK Slavia Praha');
+    expect(slavia.imageUrl).toBe(
+      'https://upload.wikimedia.org/wikipedia/commons/2/2b/SK_Slavia_Praha_full_logo.svg',
+    );
+    expect(slavia.creator).toContain('JT Design');
+
+    const como = getClearedClubCrest(7397)!;
+    expect(como.clubName).toBe('Como 1907');
+    expect(como.imageUrl).toBe(
+      'https://upload.wikimedia.org/wikipedia/commons/9/99/Calcio_Como_-_logo_%28Italy%2C_2019-%29.svg',
+    );
+    expect(como.sourcePageUrl).toBe(
+      'https://commons.wikimedia.org/wiki/File:Calcio_Como_-_logo_(Italy,_2019-).svg',
+    );
+    expect(como.creator).toBe('Como 1907 srl');
+
+    const slovan = getClearedClubCrest(7509)!;
+    expect(slovan.clubName).toBe('ŠK Slovan Bratislava');
+    expect(slovan.imageUrl).toBe(
+      'https://upload.wikimedia.org/wikipedia/commons/0/01/SK_Slovan_Bratislava_logo.svg',
+    );
+    expect(slovan.creator).toBe('ŠK Slovan Bratislava');
+
+    // Uncleared clubs (including Real Madrid 86, Barcelona 81, Arsenal 57, PSG 524) must NOT be whitelisted
     expect(getClearedClubCrest(86)).toBeNull();
+    expect(getClearedClubCrest(81)).toBeNull();
+    expect(getClearedClubCrest(57)).toBeNull();
+    expect(getClearedClubCrest(524)).toBeNull();
     expect(getClearedClubCrest(101)).toBeNull();
     expect(getClearedClubCrest(null)).toBeNull();
 
@@ -453,6 +509,30 @@ describe('knockoutEngine & footballDataAdapter', () => {
         isTbd: false,
       }),
     ).toBe('بوروسيا دورتموند');
+    expect(getArabicClubDisplayName({name: 'PAE AEK', shortName: 'AEK', isTbd: false})).toBe(
+      'أيك أثينا',
+    );
+    expect(getArabicClubDisplayName({name: 'LASK Linz', shortName: 'LASK', isTbd: false})).toBe(
+      'لاسك لينتس',
+    );
+    expect(
+      getArabicClubDisplayName({name: 'Real Betis Balompié', shortName: 'Betis', isTbd: false}),
+    ).toBe('ريال بيتيس');
+    expect(getArabicClubDisplayName({name: 'Viking FK', shortName: 'Viking', isTbd: false})).toBe(
+      'فايكينغ',
+    );
+    expect(
+      getArabicClubDisplayName({name: 'FK Shakhtar Donetsk', shortName: 'Shakhtar', isTbd: false}),
+    ).toBe('شاختار دونيتسك');
+    expect(getArabicClubDisplayName({name: 'Sabah FK', shortName: 'Sabah', isTbd: false})).toBe(
+      'صباح',
+    );
+    expect(getArabicClubDisplayName({name: 'Como 1907', shortName: 'Como', isTbd: false})).toBe(
+      'كومو',
+    );
+    expect(
+      getArabicClubDisplayName({name: 'Racing Club de Lens', shortName: 'Lens', isTbd: false}),
+    ).toBe('لانس');
 
     // Unmapped club safely falls back to original name
     expect(

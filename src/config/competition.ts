@@ -69,8 +69,8 @@ export interface ClearedClubCrestEntry {
 }
 
 /**
- * Strict team-ID whitelist of individually cleared current club logos (4 clubs only).
- * Only Wikimedia Commons PD-textlogo SVG files verified from individual current
+ * Strict team-ID whitelist of individually cleared current club logos (9 clubs only).
+ * Only Wikimedia Commons PD-textlogo / PD-Turkey SVG files verified from individual
  * file pages are listed here; all other clubs remain text/monogram-only.
  */
 export const CLEARED_CLUB_CREST_REGISTRY: Readonly<Record<number, ClearedClubCrestEntry>> = {
@@ -124,7 +124,69 @@ export const CLEARED_CLUB_CREST_REGISTRY: Readonly<Record<number, ClearedClubCre
     creator: 'SSC Napoli S.p.A. (Upload: User:The White Lion)',
     licenseLabel: 'Public domain (PD-textlogo / simple geometric text design)',
     arabicLicenseNote:
-      'شعار 2024 الحالي في الملكية العامة لتصميمه الهندسي/النصي البسيط؛ العلامة التجارية محمية ومملوكة للنادي دون أي رعاية رسمية.',
+      'شعار 2024 الحالي باللون الأزرق الداكن في الملكية العامة لتصميمه الهندسي/النصي البسيط؛ العلامة التجارية محمية ومملوكة للنادي دون أي رعاية رسمية.',
+  },
+  610: {
+    teamId: 610,
+    clubName: 'Galatasaray SK',
+    arabicClubName: 'غلطة سراي',
+    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/2/20/Galatasaray_Sports_Club_Logo.svg',
+    sourcePageUrl: 'https://commons.wikimedia.org/wiki/File:Galatasaray_Sports_Club_Logo.svg',
+    sourceCredit: 'Wikimedia Commons · File:Galatasaray_Sports_Club_Logo.svg',
+    creator: 'Ayet Emin (Vector: User:SAİT71)',
+    licenseLabel: 'Public domain (PD-textlogo & PD-Turkey — base club badge, not kit-star variant)',
+    arabicLicenseNote:
+      'الشعار الأساسي للنادي دون نجوم البطولات الموسمية على القميص (الملكية العامة التركية والتصميم النصي البسيط)؛ العلامة التجارية محمية ومملوكة للنادي دون أي رعاية رسمية.',
+  },
+  675: {
+    teamId: 675,
+    clubName: 'Feyenoord',
+    arabicClubName: 'فينورد',
+    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/f/f9/Feyenoord_logo_since_2024.svg',
+    sourcePageUrl: 'https://commons.wikimedia.org/wiki/File:Feyenoord_logo_since_2024.svg',
+    sourceCredit: 'feyenoord.com via Wikimedia Commons · File:Feyenoord_logo_since_2024.svg',
+    creator: 'Feyenoord Rotterdam N.V.',
+    licenseLabel: 'Public domain (PD-textlogo / simple geometric text design)',
+    arabicLicenseNote:
+      'الشعار الحالي المعتمد منذ 2024 في الملكية العامة لتصميمه الهندسي/النصي البسيط؛ العلامة التجارية محمية ومملوكة للنادي دون أي رعاية رسمية.',
+  },
+  930: {
+    teamId: 930,
+    clubName: 'SK Slavia Praha',
+    arabicClubName: 'سلافيا براغ',
+    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/2/2b/SK_Slavia_Praha_full_logo.svg',
+    sourcePageUrl: 'https://commons.wikimedia.org/wiki/File:SK_Slavia_Praha_full_logo.svg',
+    sourceCredit: 'slavia.cz via Wikimedia Commons · File:SK_Slavia_Praha_full_logo.svg',
+    creator: 'SK Slavia Praha / eSports.cz, s.r.o. / JT Design',
+    licenseLabel: 'Public domain (PD-textlogo / simple geometric text design)',
+    arabicLicenseNote:
+      'الشعار الكامل المعتمد منذ 2022 في الملكية العامة لتصميمه الهندسي/النصي البسيط؛ العلامة التجارية محمية ومملوكة للنادي دون أي رعاية رسمية.',
+  },
+  7397: {
+    teamId: 7397,
+    clubName: 'Como 1907',
+    arabicClubName: 'كومو',
+    imageUrl:
+      'https://upload.wikimedia.org/wikipedia/commons/9/99/Calcio_Como_-_logo_%28Italy%2C_2019-%29.svg',
+    sourcePageUrl:
+      'https://commons.wikimedia.org/wiki/File:Calcio_Como_-_logo_(Italy,_2019-).svg',
+    sourceCredit: 'Wikimedia Commons · File:Calcio_Como_-_logo_(Italy,_2019-).svg',
+    creator: 'Como 1907 srl',
+    licenseLabel: 'Public domain (PD-textlogo / simple geometric text design)',
+    arabicLicenseNote:
+      'الشعار الحالي المعتمد منذ 2019 في الملكية العامة لتصميمه الهندسي/النصي البسيط؛ العلامة التجارية محمية ومملوكة للنادي دون أي رعاية رسمية.',
+  },
+  7509: {
+    teamId: 7509,
+    clubName: 'ŠK Slovan Bratislava',
+    arabicClubName: 'سلوفان براتيسلافا',
+    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/0/01/SK_Slovan_Bratislava_logo.svg',
+    sourcePageUrl: 'https://commons.wikimedia.org/wiki/File:SK_Slovan_Bratislava_logo.svg',
+    sourceCredit: 'skslovan.com via Wikimedia Commons · File:SK_Slovan_Bratislava_logo.svg',
+    creator: 'ŠK Slovan Bratislava',
+    licenseLabel: 'Public domain (PD-textlogo / simple geometric text design)',
+    arabicLicenseNote:
+      'الشعار الرسمي الحالي في الملكية العامة لتصميمه الهندسي/النصي البسيط؛ العلامة التجارية محمية ومملوكة للنادي دون أي رعاية رسمية.',
   },
 } as const;
 
@@ -138,4 +200,3 @@ export function getClearedClubCrest(
     ? CLEARED_CLUB_CREST_REGISTRY[teamId]
     : null;
 }
-
