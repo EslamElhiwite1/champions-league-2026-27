@@ -23,3 +23,5 @@ test('scheduled run with missing quota history makes placeholders without networ
 test('persistent provider pause preserves cached content',()=>{const cache=cached();cache.paused=true;const {html}=run(cache);assert.ok(html.includes('Player Zero'));});
 
 test('renders source-backed scorer, stoppage minute and goal score',()=>{const {html}=run(cached());assert.ok(html.includes('Scorer One'));assert.ok(html.includes('45+2'));assert.ok(html.includes('Penalty'));assert.ok(html.includes('1 - 0'));});
+test('missing IDs never join to another player rating',()=>{const cache=cached();for(const p of cache.items['test-match'].l.home.startingLineups){delete p.playerId;delete p.playerKey}const {html}=run(cache);assert.ok(!html.includes('<strong>8.2</strong>'));});
+test('does not invent a no-goal claim for upcoming or unchecked match',()=>{const {html}=run(null,true);assert.ok(!html.includes('انتهت دون أهداف'));assert.ok(html.includes('أسماء الهدافين ودقائق الأهداف غير متاحة'));});
