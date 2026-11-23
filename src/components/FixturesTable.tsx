@@ -505,6 +505,22 @@ export const FixturesTable: React.FC<FixturesTableProps> = ({
               </div>
             </div>
 
+            <label className="block text-xs text-[#b7c5da]">
+              اليوم المعروض
+              <select
+                aria-label="اليوم المعروض"
+                value={effectiveSelectedDateKey ?? ''}
+                onChange={(event) => setSelectedDateKey(event.target.value)}
+                className="mt-2 min-h-[44px] w-full rounded border border-[#2f7bff]/40 bg-[#070d19] px-3 py-2 text-sm text-white"
+              >
+                {allDateGroups.map((group) => (
+                  <option key={group.dateKey} value={group.dateKey}>
+                    {group.dateLabel} · {group.matches.length} مباريات
+                  </option>
+                ))}
+              </select>
+            </label>
+
             <div
               role="group"
               aria-label="قائمة تواريخ المباريات المتاحة"
