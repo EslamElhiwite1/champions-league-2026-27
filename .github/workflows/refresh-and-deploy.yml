@@ -74,7 +74,7 @@ jobs:
         run: |
           npm run lint
           npm test
-          node --test scripts/tests/refresh-details.test.mjs
+          node --test scripts/tests/tests/refresh-details.test.mjs
 
       - name: Refresh competition snapshot (if token secret is configured)
         if: github.event.schedule != '*/5 * * * *'
