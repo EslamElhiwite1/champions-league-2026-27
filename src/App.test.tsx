@@ -334,7 +334,7 @@ describe('Champions League Matches & Knockout App UI (Arabic / RTL)', () => {
     expect(within(dialog).getByText(/الشوط الأول/i)).toBeInTheDocument();
     expect(within(dialog).getByText(/الأربعاء، 16 سبتمبر 2026/i)).toBeInTheDocument();
     expect(within(dialog).getByText(/11:15 صباحًا/i)).toBeInTheDocument();
-    expect(within(dialog).getByTitle('التشكيل والتقييمات والإحصائيات')).toHaveAttribute('sandbox', '');
+    expect(within(dialog).getByTitle('التشكيل والتقييمات والإحصائيات')).toHaveAttribute('sandbox', 'allow-same-origin');
     expect(within(dialog).queryByTestId('lineup-pitch-view')).not.toBeInTheDocument();
 
     fireEvent.keyDown(window, {key: 'Escape'});
