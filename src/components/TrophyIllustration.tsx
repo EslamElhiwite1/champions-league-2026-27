@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useId} from 'react';
 import {getArabicClubDisplayName} from '../domain/arabicClubs';
 import type {TeamRef} from '../types/knockout';
 
@@ -15,6 +15,18 @@ export const TrophyIllustration: React.FC<TrophyIllustrationProps> = ({
   champion,
   className = '',
 }) => {
+  const rawId = useId();
+  const uid = `trophy-${rawId.replace(/[^a-zA-Z0-9_-]/g, '')}`;
+
+  const titleId = `${uid}-title`;
+  const descId = `${uid}-desc`;
+  const silverBodyId = `${uid}-silverBody`;
+  const silverRimId = `${uid}-silverRim`;
+  const bowlInteriorId = `${uid}-bowlInterior`;
+  const handleLeftId = `${uid}-handleLeft`;
+  const handleRightId = `${uid}-handleRight`;
+  const plinthBaseId = `${uid}-plinthBase`;
+
   const championDisplay = champion ? getArabicClubDisplayName(champion) : null;
 
   return (
@@ -30,15 +42,15 @@ export const TrophyIllustration: React.FC<TrophyIllustrationProps> = ({
           viewBox="0 0 240 280"
           className="h-44 w-36 sm:h-52 sm:w-44 xl:h-56 xl:w-48 drop-shadow-[0_14px_26px_rgba(0,0,0,0.55)]"
           role="img"
-          aria-labelledby="ucl-trophy-title ucl-trophy-desc"
+          aria-labelledby={`${titleId} ${descId}`}
         >
-          <title id="ucl-trophy-title">رسم متجهي لكأس أبطال أوروبا</title>
-          <desc id="ucl-trophy-desc">
+          <title id={titleId}>رسم متجهي لكأس أبطال أوروبا</title>
+          <desc id={descId}>
             رسم متجهي أصلي يوضح كأس البطولة الأوروبية ذي المقبضين المقوسين والقاعدة المتدرجة.
           </desc>
 
           <defs>
-            <linearGradient id="silverBody" x1="0%" y1="0%" x2="100%" y2="0%">
+            <linearGradient id={silverBodyId} x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="#6f7f98" />
               <stop offset="18%" stopColor="#c7d3e3" />
               <stop offset="42%" stopColor="#f5f8fd" />
@@ -47,32 +59,32 @@ export const TrophyIllustration: React.FC<TrophyIllustrationProps> = ({
               <stop offset="100%" stopColor="#5d6c83" />
             </linearGradient>
 
-            <linearGradient id="silverRim" x1="0%" y1="0%" x2="100%" y2="0%">
+            <linearGradient id={silverRimId} x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="#7a8aa3" />
               <stop offset="35%" stopColor="#f8fbff" />
               <stop offset="70%" stopColor="#b5c3d8" />
               <stop offset="100%" stopColor="#627189" />
             </linearGradient>
 
-            <linearGradient id="bowlInterior" x1="0%" y1="0%" x2="0%" y2="100%">
+            <linearGradient id={bowlInteriorId} x1="0%" y1="0%" x2="0%" y2="100%">
               <stop offset="0%" stopColor="#1b263b" />
               <stop offset="60%" stopColor="#46556e" />
               <stop offset="100%" stopColor="#8999b2" />
             </linearGradient>
 
-            <linearGradient id="handleLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient id={handleLeftId} x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#e8eff8" />
               <stop offset="45%" stopColor="#9aaac2" />
               <stop offset="100%" stopColor="#596880" />
             </linearGradient>
 
-            <linearGradient id="handleRight" x1="100%" y1="0%" x2="0%" y2="100%">
+            <linearGradient id={handleRightId} x1="100%" y1="0%" x2="0%" y2="100%">
               <stop offset="0%" stopColor="#f2f6fc" />
               <stop offset="50%" stopColor="#a7b7cf" />
               <stop offset="100%" stopColor="#55637a" />
             </linearGradient>
 
-            <linearGradient id="plinthBase" x1="0%" y1="0%" x2="100%" y2="0%">
+            <linearGradient id={plinthBaseId} x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="#3b475d" />
               <stop offset="28%" stopColor="#8a9ab2" />
               <stop offset="52%" stopColor="#cfd9e7" />
@@ -92,7 +104,7 @@ export const TrophyIllustration: React.FC<TrophyIllustrationProps> = ({
                C 76 105, 81 121, 86 138
                L 94 134
                C 89 114, 83 96, 73 72 Z"
-            fill="url(#handleLeft)"
+            fill={`url(#${handleLeftId})`}
             stroke="#d7e2f1"
             strokeOpacity="0.45"
             strokeWidth="0.9"
@@ -109,13 +121,13 @@ export const TrophyIllustration: React.FC<TrophyIllustrationProps> = ({
                C 164 105, 159 121, 154 138
                L 146 134
                C 151 114, 157 96, 167 72 Z"
-            fill="url(#handleRight)"
+            fill={`url(#${handleRightId})`}
             stroke="#d7e2f1"
             strokeOpacity="0.45"
             strokeWidth="0.9"
           />
 
-          <ellipse cx="120" cy="48" rx="52" ry="9.5" fill="url(#bowlInterior)" />
+          <ellipse cx="120" cy="48" rx="52" ry="9.5" fill={`url(#${bowlInteriorId})`} />
 
           <path
             d="M 67 48
@@ -126,7 +138,7 @@ export const TrophyIllustration: React.FC<TrophyIllustrationProps> = ({
                C 164 112, 171 78, 173 48
                C 155 54, 138 56, 120 56
                C 102 56, 85 54, 67 48 Z"
-            fill="url(#silverBody)"
+            fill={`url(#${silverBodyId})`}
           />
 
           <path
@@ -141,7 +153,7 @@ export const TrophyIllustration: React.FC<TrophyIllustrationProps> = ({
             rx="53.5"
             ry="10"
             fill="none"
-            stroke="url(#silverRim)"
+            stroke={`url(#${silverRimId})`}
             strokeWidth="3.2"
           />
           <path
@@ -167,22 +179,22 @@ export const TrophyIllustration: React.FC<TrophyIllustrationProps> = ({
             strokeWidth="1"
           />
 
-          <rect x="102" y="183" width="36" height="7" rx="3.5" fill="url(#silverRim)" />
+          <rect x="102" y="183" width="36" height="7" rx="3.5" fill={`url(#${silverRimId})`} />
           <path
             d="M 105 190 C 106 198, 103 207, 98 214 L 142 214 C 137 207, 134 198, 135 190 Z"
-            fill="url(#silverBody)"
+            fill={`url(#${silverBodyId})`}
           />
-          <rect x="95" y="213" width="50" height="6" rx="2.5" fill="url(#silverRim)" />
+          <rect x="95" y="213" width="50" height="6" rx="2.5" fill={`url(#${silverRimId})`} />
 
           <path
             d="M 92 219 L 148 219 L 154 242 C 132 246, 108 246, 86 242 Z"
-            fill="url(#plinthBase)"
+            fill={`url(#${plinthBaseId})`}
           />
           <path
             d="M 84 242 C 107 246, 133 246, 156 242 L 160 256 C 134 261, 106 261, 80 256 Z"
-            fill="url(#plinthBase)"
+            fill={`url(#${plinthBaseId})`}
           />
-          <ellipse cx="120" cy="256" rx="41" ry="6.5" fill="url(#silverRim)" fillOpacity="0.35" />
+          <ellipse cx="120" cy="256" rx="41" ry="6.5" fill={`url(#${silverRimId})`} fillOpacity="0.35" />
           <path
             d="M 80 256 C 106 261, 134 261, 160 256"
             fill="none"

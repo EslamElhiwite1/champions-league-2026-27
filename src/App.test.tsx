@@ -96,9 +96,19 @@ describe('Champions League Matches & Knockout App UI (Arabic / RTL)', () => {
     const synthetic = buildSyntheticSnapshot();
     render(<App initialSnapshot={synthetic} nowMs={NOV_23_2026_MS} />);
 
+    // TournamentOverview numeric fractions enforce dir="ltr" while labels remain RTL
+    const overviewSection = document.getElementById('overview')!;
+    const completedFraction = within(overviewSection).getByText('7 / 11');
+    const confirmedFraction = within(overviewSection).getByText('5 / 15');
+    expect(completedFraction).toHaveAttribute('dir', 'ltr');
+    expect(confirmedFraction).toHaveAttribute('dir', 'ltr');
+
     // Upcoming view displays Bayern München (5), Borussia Dortmund (4), Inter (108), and Napoli (113)
     const imgs = Array.from(document.querySelectorAll('img'));
     expect(imgs.length).toBeGreaterThan(0);
+    for (const img of imgs) {
+      expect(img.parentElement).toHaveClass('rounded-full', 'bg-white');
+    }
     const uniqueSrcs = Array.from(new Set(imgs.map((img) => img.getAttribute('src'))));
     expect(uniqueSrcs.sort()).toEqual([
       'https://upload.wikimedia.org/wikipedia/commons/0/00/SSC_Napoli_2024_%28deep_blue_navy%29.svg',
@@ -276,6 +286,44 @@ describe('Champions League Matches & Knockout App UI (Arabic / RTL)', () => {
     fireEvent.click(qfTab);
     expect(qfTab).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByRole('tabpanel', {name: 'ربع النهائي'})).toBeInTheDocument();
+  });
+
+  it('uses unique per-instance SVG gradient and ARIA IDs across desktop and mobile TrophyIllustration instances', () => {
+    const initial = createInitialTruthfulSnapshot();
+    render(<App initialSnapshot={initial} nowMs={NOV_23_2026_MS} />);
+
+    const bottomNav = screen.getByRole('navigation', {name: /التنقل الرئيسي بين الأقسام/i});
+    fireEvent.click(within(bottomNav).getByRole('button', {name: /الأدوار الإقصائية/i}));
+
+    const trophySvgs = screen.getAllByRole('img', {name: /رسم متجهي لكأس أبطال أوروبا/i});
+    expect(trophySvgs).toHaveLength(2);
+
+    const seenIds = new Set<string>();
+    for (const svg of trophySvgs) {
+      const localIds = new Set(
+        Array.from(svg.querySelectorAll('[id]')).map((el) => el.getAttribute('id')!),
+      );
+      expect(localIds.size).toBe(8); // 2 aria (title/desc) + 6 linearGradients
+
+      for (const id of localIds) {
+        expect(seenIds.has(id)).toBe(false);
+        seenIds.add(id);
+      }
+
+      // Every url(#...) reference inside this SVG must point strictly to its own local defs
+      const urlRefs = Array.from(svg.querySelectorAll('[fill^="url(#"], [stroke^="url(#"]')).map(
+        (el) => {
+          const val = el.getAttribute('fill')?.startsWith('url(#')
+            ? el.getAttribute('fill')!
+            : el.getAttribute('stroke')!;
+          return val.slice(5, -1);
+        },
+      );
+      expect(urlRefs.length).toBeGreaterThan(0);
+      for (const refId of urlRefs) {
+        expect(localIds.has(refId)).toBe(true);
+      }
+    }
   });
 
   it('includes prefers-reduced-motion accessibility rules and Arabic RTL root attributes', () => {

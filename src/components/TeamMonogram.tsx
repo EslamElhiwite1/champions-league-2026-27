@@ -30,15 +30,20 @@ export const TeamMonogram: React.FC<TeamMonogramProps> = ({
 
   if (resolvedCrestSrc && !imageFailed) {
     const arabicName = getArabicClubDisplayName(team);
+    const padding = size === 'sm' ? 'p-[3px]' : 'p-1';
     return (
-      <img
-        src={resolvedCrestSrc}
-        alt={`شعار ${arabicName}`}
-        referrerPolicy="no-referrer"
-        loading="lazy"
-        onError={() => setImageFailed(true)}
-        className={`shrink-0 object-contain ${dimensions}`}
-      />
+      <span
+        className={`inline-flex shrink-0 items-center justify-center rounded-full bg-white ring-1 ring-[#c4d2e8]/30 ${dimensions} ${padding}`}
+      >
+        <img
+          src={resolvedCrestSrc}
+          alt={`شعار ${arabicName}`}
+          referrerPolicy="no-referrer"
+          loading="lazy"
+          onError={() => setImageFailed(true)}
+          className="h-full w-full object-contain"
+        />
+      </span>
     );
   }
 

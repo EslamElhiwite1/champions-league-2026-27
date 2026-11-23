@@ -133,9 +133,13 @@ export const TournamentOverview: React.FC<TournamentOverviewProps> = ({
           <div className="px-5 py-4">
             <dt className="text-xs font-medium text-[#7f91ad]">مباريات الموسم</dt>
             <dd className="mt-1.5 font-mono-tabular text-2xl font-semibold text-[#f4f7fb]">
-              {stats.totalFixtures === 0
-                ? '0 منشورة'
-                : `${stats.completedFixtures} / ${stats.totalFixtures}`}
+              {stats.totalFixtures === 0 ? (
+                '0 منشورة'
+              ) : (
+                <span dir="ltr" className="inline-block">
+                  {stats.completedFixtures} / {stats.totalFixtures}
+                </span>
+              )}
             </dd>
             <p className="mt-1 text-xs text-[#7f91ad]">
               {stats.totalFixtures === 0
@@ -152,8 +156,13 @@ export const TournamentOverview: React.FC<TournamentOverviewProps> = ({
                 onClick={onOpenKnockoutView}
                 className="text-start group focus-visible:outline-none"
               >
-                <span className="block font-mono-tabular text-2xl font-semibold text-[#f4f7fb] group-hover:text-[#5ca0ff]">
-                  {stats.tiesWithConfirmedParticipants} / {stats.totalTies}
+                <span className="block">
+                  <span
+                    dir="ltr"
+                    className="inline-block font-mono-tabular text-2xl font-semibold text-[#f4f7fb] group-hover:text-[#5ca0ff]"
+                  >
+                    {stats.tiesWithConfirmedParticipants} / {stats.totalTies}
+                  </span>
                 </span>
                 <span className="mt-1 block text-xs text-[#7f91ad] group-hover:text-[#b7c5da]">
                   {stats.tiesWithConfirmedParticipants === 0
