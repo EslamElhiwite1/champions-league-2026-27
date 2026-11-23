@@ -23,7 +23,7 @@ test('renders 22 starters, safe names, linked ratings and only unambiguous metri
 test('scheduled run with missing quota history makes placeholders without network',()=>{const {html,result}=run(null,true);assert.ok(html.includes('لم تُفحص بعد'));assert.ok(!html.includes('class="player"'));assert.ok(result.stderr.includes('quota cache missing'));});
 test('persistent provider pause preserves cached content',()=>{const cache=cached();cache.paused=true;const {html}=run(cache);assert.ok(html.includes('Player Zero'));});
 
-test('renders source-backed scorer, stoppage minute and goal score',()=>{const {html}=run(cached());assert.ok(html.includes('Scorer One'));assert.ok(html.includes('45+2'));assert.ok(html.includes('Penalty'));assert.ok(html.includes('1 - 0'));});
+test('renders source-backed scorer, stoppage minute and goal score',()=>{const {html}=run(cached());assert.ok(html.includes('Scorer One'));assert.ok(html.includes('45+2'));assert.ok(html.includes('ركلة جزاء'));assert.ok(html.includes('1 - 0'));});
 test('missing IDs never join to another player rating',()=>{const cache=cached();for(const p of cache.items['test-match'].l.home.startingLineups){delete p.playerId;delete p.playerKey}const {html}=run(cache);assert.ok(!html.includes('<strong>8.2</strong>'));});
 test('does not invent a no-goal claim for upcoming or unchecked match',()=>{const {html}=run(null,true);assert.ok(!html.includes('انتهت دون أهداف'));assert.ok(html.includes('أسماء الهدافين ودقائق الأهداف غير متاحة'));});
 
