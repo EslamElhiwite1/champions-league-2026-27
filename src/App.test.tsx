@@ -64,57 +64,101 @@ describe('Champions League Matches & Knockout App UI (Arabic / RTL)', () => {
     ).toBeInTheDocument();
   });
 
-  it('defaults to upcoming/current match dates first and provides quick navigation to historic September results', () => {
+  it('defaults to strictly ONE day visible at a time (today -> nearest future -> most recent past) and switches smoothly across all dates including past results', () => {
     const synthetic = buildSyntheticSnapshot();
-    render(<App initialSnapshot={synthetic} nowMs={NOV_23_2026_MS} />);
+    const firstRender = render(<App initialSnapshot={synthetic} nowMs={NOV_23_2026_MS} />);
 
-    // Default landing selects upcoming/current matches (9 upcoming out of 11 total) rather than September historic results
-    expect(screen.getByText(/عرض 9 من أصل 11 مباراة موثقة/i)).toBeInTheDocument();
+    // Default landing selects ONLY 1 day: nearest future date 2026-11-24 (1 match out of 11)
+    expect(screen.getAllByTestId('active-date-group')).toHaveLength(1);
+    expect(screen.getByTestId('active-date-group')).toHaveAttribute('data-date-key', '2026-11-24');
+    expect(screen.getByText(/عرض 1 من أصل 11 مباراة موثقة/i)).toBeInTheDocument();
     expect(screen.getByRole('heading', {name: /الثلاثاء، 24 نوفمبر 2026/i})).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', {name: /الأربعاء، 25 نوفمبر 2026/i}),
+    ).not.toBeInTheDocument();
     expect(
       screen.queryByRole('heading', {name: /الثلاثاء، 15 سبتمبر 2026/i}),
     ).not.toBeInTheDocument();
 
-    // 12-hour Egypt time labels (مساءً) are used instead of 24-hour default
+    // 12-hour Egypt time labels (مساءً) are used
     expect(screen.getAllByText(/10:00 مساءً/).length).toBeGreaterThan(0);
 
-    // Quick date navigation exposes past results & all dates
-    const pastBtn = screen.getByRole('button', {name: /النتائج السابقة \(2\)/i});
-    fireEvent.click(pastBtn);
+    // Prominent day chooser keeps ALL date choices accessible including previous September dates
+    const chooser = screen.getByRole('region', {name: /اختيار يوم المباريات/i});
+    const sep15Btn = chooser.querySelector('button[data-date-key="2026-09-15"]') as HTMLButtonElement;
+    const sep16Btn = chooser.querySelector('button[data-date-key="2026-09-16"]') as HTMLButtonElement;
+    expect(sep15Btn).not.toBeNull();
+    expect(sep16Btn).not.toBeNull();
 
-    expect(screen.getByText(/عرض 2 من أصل 11 مباراة موثقة/i)).toBeInTheDocument();
-    expect(screen.getByRole('heading', {name: /الثلاثاء، 15 سبتمبر 2026/i})).toBeInTheDocument();
+    // Switching to September 16 displays ONLY September 16 (and morning 11:15 صباحًا kickoff)
+    fireEvent.click(sep16Btn);
+    expect(screen.getAllByTestId('active-date-group')).toHaveLength(1);
+    expect(screen.getByTestId('active-date-group')).toHaveAttribute('data-date-key', '2026-09-16');
     expect(screen.getByRole('heading', {name: /الأربعاء، 16 سبتمبر 2026/i})).toBeInTheDocument();
-    // Morning kickoff shows explicit صباحًا
     expect(screen.getAllByText(/11:15 صباحًا/).length).toBeGreaterThan(0);
+    expect(
+      screen.queryByRole('heading', {name: /الثلاثاء، 24 نوفمبر 2026/i}),
+    ).not.toBeInTheDocument();
 
-    // Switch to all dates
-    const allDatesBtn = screen.getByRole('button', {name: /جميع التواريخ \(11\)/i});
-    fireEvent.click(allDatesBtn);
-    expect(screen.getByText(/عرض 11 من أصل 11 مباراة موثقة/i)).toBeInTheDocument();
+    // Previous/Next stepper navigates between chronological days cleanly
+    fireEvent.click(within(chooser).getByRole('button', {name: /اليوم السابق/i}));
+    expect(screen.getAllByTestId('active-date-group')).toHaveLength(1);
+    expect(screen.getByTestId('active-date-group')).toHaveAttribute('data-date-key', '2026-09-15');
+    firstRender.unmount();
+
+    // When nowMs is on a match day (2026-11-24), defaults directly to today with 'اليوم' badge
+    const todayRender = render(
+      <App initialSnapshot={synthetic} nowMs={Date.parse('2026-11-24T12:00:00Z')} />,
+    );
+    expect(screen.getAllByTestId('active-date-group')).toHaveLength(1);
+    expect(screen.getByTestId('active-date-group')).toHaveAttribute('data-date-key', '2026-11-24');
+    todayRender.unmount();
+
+    // When all matches are in the past (2027-08-01), defaults to the most recent past match day
+    const allPastRender = render(
+      <App initialSnapshot={synthetic} nowMs={Date.parse('2027-08-01T12:00:00Z')} />,
+    );
+    expect(screen.getAllByTestId('active-date-group')).toHaveLength(1);
+    expect(screen.getByTestId('active-date-group')).toHaveAttribute('data-date-key', '2027-07-06');
+    allPastRender.unmount();
   });
 
-  it('renders all 36 football-logos.cc club logos with white circular backing, falls back on error, keeps monograms for unmapped clubs, and exposes expandable 36-club & broadcaster credits', () => {
+  it('renders all 36 football-logos.cc club logos across Nov 24 & Nov 25 single-day views with white circular backing, fallback, and expandable credits', () => {
     const realSnapshot = adaptFootballDataMatches(buildRealNov2425ProviderPayload());
     render(<App initialSnapshot={realSnapshot} nowMs={NOV_23_2026_MS} />);
 
-    // Club monogram <img> elements across the 18 Nov 24-25 fixtures (36 unique clubs)
-    const clubImgs = Array.from(document.querySelectorAll('img')).filter((img) =>
+    // Initially only Nov 24 is shown (9 matches = 18 unique club logos)
+    expect(screen.getAllByTestId('active-date-group')).toHaveLength(1);
+    expect(screen.getByTestId('active-date-group')).toHaveAttribute('data-date-key', '2026-11-24');
+    const nov24ClubImgs = Array.from(document.querySelectorAll('img')).filter((img) =>
       img.getAttribute('src')?.startsWith('https://assets.football-logos.cc/'),
     );
-    expect(clubImgs).toHaveLength(36);
-    for (const img of clubImgs) {
+    expect(nov24ClubImgs).toHaveLength(18);
+    for (const img of nov24ClubImgs) {
       expect(img.parentElement).toHaveClass('rounded-full', 'bg-white');
     }
+
+    // Switch day chooser to Nov 25 -> shows the other 9 matches = other 18 unique club logos
+    const chooser = screen.getByRole('region', {name: /اختيار يوم المباريات/i});
+    fireEvent.click(chooser.querySelector('button[data-date-key="2026-11-25"]')!);
+    expect(screen.getAllByTestId('active-date-group')).toHaveLength(1);
+    expect(screen.getByTestId('active-date-group')).toHaveAttribute('data-date-key', '2026-11-25');
+
+    const nov25ClubImgs = Array.from(document.querySelectorAll('img')).filter((img) =>
+      img.getAttribute('src')?.startsWith('https://assets.football-logos.cc/'),
+    );
+    expect(nov25ClubImgs).toHaveLength(18);
 
     const expectedAssetSet = new Set(
       Object.values(CLEARED_CLUB_CREST_REGISTRY).map((entry) => entry.imageUrl),
     );
-    const renderedAssetSet = new Set(clubImgs.map((img) => img.getAttribute('src')));
-    expect(renderedAssetSet).toEqual(expectedAssetSet);
+    const combinedAssetSet = new Set(
+      [...nov24ClubImgs, ...nov25ClubImgs].map((img) => img.getAttribute('src')),
+    );
+    expect(combinedAssetSet).toEqual(expectedAssetSet);
 
-    // Simulating image load failure on Bayern München falls back to its monogram without crashing
-    const bayernImg = clubImgs.find((img) =>
+    // Simulating image load failure on Bayern München on Nov 25 falls back to its monogram without crashing
+    const bayernImg = nov25ClubImgs.find((img) =>
       img.getAttribute('src')?.includes('bayern-munchen.90b9d770.png'),
     )!;
     fireEvent.error(bayernImg);
@@ -170,19 +214,19 @@ describe('Champions League Matches & Knockout App UI (Arabic / RTL)', () => {
     unmappedRender.unmount();
   });
 
-  it('replaces ONLY the repeated card date with verified beIN SPORTS channel + logo on Nov 24-25 while retaining full group date headings and falling back safely on unknown matches', () => {
+  it('replaces ONLY the repeated card date with verified beIN SPORTS channel + logo on Nov 24-25 while rendering one day at a time and falling back safely on unknown matches', () => {
     const realSnapshot = adaptFootballDataMatches(buildRealNov2425ProviderPayload());
     render(<App initialSnapshot={realSnapshot} nowMs={NOV_23_2026_MS} />);
 
     const matchesSection = document.getElementById('matches')!;
 
-    // Full weekday/date headings remain above each daily group
+    // Nov 24 is shown initially (never two day groups simultaneously)
     expect(
       within(matchesSection).getByRole('heading', {name: /الثلاثاء، 24 نوفمبر 2026/i}),
     ).toBeInTheDocument();
     expect(
-      within(matchesSection).getByRole('heading', {name: /الأربعاء، 25 نوفمبر 2026/i}),
-    ).toBeInTheDocument();
+      within(matchesSection).queryByRole('heading', {name: /الأربعاء، 25 نوفمبر 2026/i}),
+    ).not.toBeInTheDocument();
 
     // Real Madrid vs PSV on Nov 24 -> beIN SPORTS 1 + official channel logo, NO repeated card date inside card
     const madridPsvCard = screen.getByTestId('fixture-card-cl-2026-575397');
@@ -199,7 +243,16 @@ describe('Champions League Matches & Knockout App UI (Arabic / RTL)', () => {
     const slovanBetisCard = screen.getByTestId('fixture-card-cl-2026-575401');
     expect(within(slovanBetisCard).getByText('beIN SPORTS 9')).toBeInTheDocument();
 
-    // Sabah vs Barcelona on Nov 25 -> beIN SPORTS 2 + official channel logo, NO repeated card date inside card
+    // Switch to Nov 25 -> Sabah vs Barcelona shows beIN SPORTS 2 + official channel logo
+    const chooser = within(matchesSection).getByRole('region', {name: /اختيار يوم المباريات/i});
+    fireEvent.click(chooser.querySelector('button[data-date-key="2026-11-25"]')!);
+    expect(
+      within(matchesSection).getByRole('heading', {name: /الأربعاء، 25 نوفمبر 2026/i}),
+    ).toBeInTheDocument();
+    expect(
+      within(matchesSection).queryByRole('heading', {name: /الثلاثاء، 24 نوفمبر 2026/i}),
+    ).not.toBeInTheDocument();
+
     const sabahBarcaCard = screen.getByTestId('fixture-card-cl-2026-575404');
     expect(within(sabahBarcaCard).getByText('beIN SPORTS 2')).toBeInTheDocument();
     expect(
@@ -225,23 +278,33 @@ describe('Champions League Matches & Knockout App UI (Arabic / RTL)', () => {
     expect(bayernDortmundCard.textContent).not.toMatch(/beIN SPORTS/i);
   });
 
-  it('filters fixtures in Arabic & English team search alongside stage, matchday, and status filters and resets cleanly', () => {
+  it('narrows day choices during search/filtering without ever showing two day groups simultaneously and resets to ONE default day', () => {
     const synthetic = buildSyntheticSnapshot();
     render(<App initialSnapshot={synthetic} nowMs={NOV_23_2026_MS} />);
 
-    // Search by curated Arabic club name ("ريال مدريد") even though match is historic
+    // Search by curated Arabic club name ("ريال مدريد") narrows to historic Sept 15 match
     const searchInput = screen.getByLabelText(/البحث باسم النادي/i);
     fireEvent.change(searchInput, {target: {value: 'ريال مدريد'}});
-    expect(screen.getByText(/عرض 1 من أصل 11 مباراة موثقة/i)).toBeInTheDocument();
+    expect(screen.getAllByTestId('active-date-group')).toHaveLength(1);
+    expect(screen.getByTestId('active-date-group')).toHaveAttribute('data-date-key', '2026-09-15');
     expect(screen.getAllByText('ريال مدريد').length).toBeGreaterThan(0);
 
-    // Search by English fallback name ("Epsilon")
+    // Search by English fallback name ("Epsilon") matches 2 dates (2027-03-10 & 2027-03-18)
+    // Chooser shows both dates, but strictly ONE day group renders at a time
     fireEvent.change(searchInput, {target: {value: 'Epsilon'}});
-    expect(screen.getByText(/عرض 2 من أصل 11 مباراة موثقة/i)).toBeInTheDocument();
+    expect(screen.getAllByTestId('active-date-group')).toHaveLength(1);
+    expect(screen.getByTestId('active-date-group')).toHaveAttribute('data-date-key', '2027-03-10');
+    const chooser = screen.getByRole('region', {name: /اختيار يوم المباريات/i});
+    expect(chooser.querySelectorAll('button[data-date-key]')).toHaveLength(2);
+    expect(chooser.querySelector('button[data-date-key="2027-03-18"]')).not.toBeNull();
+
+    fireEvent.click(chooser.querySelector('button[data-date-key="2027-03-18"]')!);
+    expect(screen.getAllByTestId('active-date-group')).toHaveLength(1);
+    expect(screen.getByTestId('active-date-group')).toHaveAttribute('data-date-key', '2027-03-18');
 
     const statusSelect = screen.getByLabelText(/حالة المباراة/i);
     fireEvent.change(statusSelect, {target: {value: 'POSTPONED'}});
-    expect(screen.getByText(/عرض 1 من أصل 11 مباراة موثقة/i)).toBeInTheDocument();
+    expect(screen.getAllByTestId('active-date-group')).toHaveLength(1);
 
     const stageSelect = screen.getByLabelText(/^المرحلة$/i);
     fireEvent.change(stageSelect, {target: {value: 'FINAL'}});
@@ -251,15 +314,18 @@ describe('Champions League Matches & Knockout App UI (Arabic / RTL)', () => {
       name: /إعادة تعيين جميع الفلاتر|إعادة تعيين الفلاتر/i,
     });
     fireEvent.click(resetBtns[0]);
-    expect(screen.getByText(/عرض 9 من أصل 11 مباراة موثقة/i)).toBeInTheDocument();
+    expect(screen.getAllByTestId('active-date-group')).toHaveLength(1);
+    expect(screen.getByTestId('active-date-group')).toHaveAttribute('data-date-key', '2026-11-24');
+    expect(screen.getByText(/عرض 1 من أصل 11 مباراة موثقة/i)).toBeInTheDocument();
   });
 
-  it('opens match detail panel in Arabic for League Stage matches and Knockout ties and closes with Escape', () => {
+  it('opens match detail panel in Arabic with score breakdowns and truthful missing-lineup/stats/ratings source notice (no empty pitch)', () => {
     const synthetic = buildSyntheticSnapshot();
     render(<App initialSnapshot={synthetic} nowMs={NOV_23_2026_MS} />);
 
-    // Switch to Past results to inspect a finished LEAGUE_STAGE match with Half-Time score
-    fireEvent.click(screen.getByRole('button', {name: /النتائج السابقة \(2\)/i}));
+    // Switch to Sep 16 to inspect a finished LEAGUE_STAGE match with Half-Time score
+    const chooser = screen.getByRole('region', {name: /اختيار يوم المباريات/i});
+    fireEvent.click(chooser.querySelector('button[data-date-key="2026-09-16"]')!);
     const matchInfoBtns = screen.getAllByRole('button', {name: /تفاصيل المباراة/i});
     fireEvent.click(matchInfoBtns[0]);
 
@@ -268,6 +334,10 @@ describe('Champions League Matches & Knockout App UI (Arabic / RTL)', () => {
     expect(within(dialog).getByText(/الشوط الأول/i)).toBeInTheDocument();
     expect(within(dialog).getByText(/الأربعاء، 16 سبتمبر 2026/i)).toBeInTheDocument();
     expect(within(dialog).getByText(/11:15 صباحًا/i)).toBeInTheDocument();
+    expect(within(dialog).getByTestId('lineup-unavailable-notice')).toHaveTextContent(
+      /لا يوفر التشكيلات الرسمية أو إحصائيات أو تقييمات اللاعبين/,
+    );
+    expect(within(dialog).queryByTestId('lineup-pitch-view')).not.toBeInTheDocument();
 
     fireEvent.keyDown(window, {key: 'Escape'});
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -286,6 +356,8 @@ describe('Champions League Matches & Knockout App UI (Arabic / RTL)', () => {
     expect(within(dialog).getByText(/مباراة الإياب \(تبديل الأرض والضيافة\)/i)).toBeInTheDocument();
     expect(within(dialog).getByText('ركلات الترجيح')).toBeInTheDocument();
     expect(within(dialog).getByText(/متأهل مؤكد \(Club Delta\)/i)).toBeInTheDocument();
+    expect(within(dialog).getAllByTestId('lineup-unavailable-notice').length).toBe(2);
+    expect(within(dialog).queryByTestId('lineup-pitch-view')).not.toBeInTheDocument();
   });
 
   it('switches kickoff timezone between Egypt time (Africa/Cairo) and Viewer Local', () => {
@@ -320,7 +392,7 @@ describe('Champions League Matches & Knockout App UI (Arabic / RTL)', () => {
     render(<App nowMs={NOV_23_2026_MS} />);
 
     await waitFor(() => {
-      expect(screen.getByText(/عرض 9 من أصل 11 مباراة موثقة/i)).toBeInTheDocument();
+      expect(screen.getByText(/عرض 1 من أصل 11 مباراة موثقة/i)).toBeInTheDocument();
     });
 
     const recheckBtn = screen.getByRole('button', {name: /التحقق من آخر لقطة منشورة/i});
@@ -330,7 +402,7 @@ describe('Champions League Matches & Knockout App UI (Arabic / RTL)', () => {
       expect(screen.getByText(/تعذر التحقق من التحديث/i)).toBeInTheDocument();
     });
 
-    expect(screen.getByText(/عرض 9 من أصل 11 مباراة موثقة/i)).toBeInTheDocument();
+    expect(screen.getByText(/عرض 1 من أصل 11 مباراة موثقة/i)).toBeInTheDocument();
   });
 
   it('supports mobile bracket stage tabs in Arabic when Knockout view is opened', () => {
@@ -446,7 +518,8 @@ describe('Champions League Matches & Knockout App UI (Arabic / RTL)', () => {
     expect(bayernDortmundCard.textContent).not.toMatch(/beIN SPORTS/i);
 
     // Finished match in Past Results renders score + kickoff time in center column & unconfirmed channel fallback
-    fireEvent.click(screen.getByRole('button', {name: /النتائج السابقة \(2\)/i}));
+    const chooser = screen.getByRole('region', {name: /اختيار يوم المباريات/i});
+    fireEvent.click(chooser.querySelector('button[data-date-key="2026-09-15"]')!);
     const madridCard = screen.getByTestId('fixture-card-cl-2026-8001');
     const madridCenter = madridCard.querySelector('[data-slot="match-center"]') as HTMLElement;
     expect(within(madridCenter).getByLabelText('النتيجة 2 مقابل 0')).toBeInTheDocument();
