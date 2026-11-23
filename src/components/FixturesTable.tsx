@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {Search, Tv, X} from 'lucide-react';
+import {Calendar, ChevronLeft, ChevronRight, Search, Tv, X} from 'lucide-react';
 import {
   BROADCASTER_SCHEDULE_META,
   getVerifiedMatchBroadcaster,
@@ -31,8 +31,6 @@ interface FixturesTableProps {
   onOpenKnockoutView: () => void;
   nowMs?: number;
 }
-
-type DateScope = 'upcoming' | 'past' | 'all';
 
 const FILTERABLE_STATUSES: MatchStatus[] = [
   'SCHEDULED',
@@ -93,12 +91,48 @@ function getMatchScoreDisplay(match: KnockoutMatch): {
   };
 }
 
-interface CalendarDateGroup {
+export interface CalendarDateGroup {
   dateKey: string;
   dateLabel: string;
   shortDateLabel: string;
   isUpcomingOrCurrent: boolean;
   matches: KnockoutMatch[];
+}
+
+/**
+ * Selects the default single match calendar day:
+ * 1) Today (`todayKey`) if it has at least one match
+ * 2) Otherwise the nearest future match date (`dateKey > todayKey`)
+ * 3) Otherwise the most recent past match date (`dateKey < todayKey`)
+ * 4) Otherwise `'TBD'` if only undated matches exist
+ */
+export function resolveDefaultDateKey(
+  groups: Pick<CalendarDateGroup, 'dateKey'>[],
+  todayKey: string,
+): string | null {
+  if (groups.length === 0) return null;
+
+  if (groups.some((g) => g.dateKey === todayKey)) {
+    return todayKey;
+  }
+
+  const futureKeys = groups
+    .map((g) => g.dateKey)
+    .filter((key) => key !== 'TBD' && key > todayKey)
+    .sort((a, b) => a.localeCompare(b));
+  if (futureKeys.length > 0) {
+    return futureKeys[0];
+  }
+
+  const pastKeys = groups
+    .map((g) => g.dateKey)
+    .filter((key) => key !== 'TBD' && key < todayKey)
+    .sort((a, b) => b.localeCompare(a));
+  if (pastKeys.length > 0) {
+    return pastKeys[0];
+  }
+
+  return groups.some((g) => g.dateKey === 'TBD') ? 'TBD' : groups[0].dateKey;
 }
 
 const BroadcasterSlot: React.FC<{match: KnockoutMatch}> = ({match}) => {
@@ -160,7 +194,6 @@ export const FixturesTable: React.FC<FixturesTableProps> = ({
   const [statusFilter, setStatusFilter] = useState<'ALL' | MatchStatus>('ALL');
   const [teamSearch, setTeamSearch] = useState('');
   const [selectedDateKey, setSelectedDateKey] = useState<string | null>(null);
-  const [userDateScope, setUserDateScope] = useState<DateScope | null>(null);
 
   const tieMap = useMemo(
     () => new Map(snapshot.ties.map((tie) => [tie.tieId, tie])),
@@ -199,9 +232,6 @@ export const FixturesTable: React.FC<FixturesTableProps> = ({
     statusFilter !== 'ALL' ||
     teamSearch.trim() !== '';
 
-  const hasAnyActiveFilter =
-    hasSearchOrAttributeFilter || selectedDateKey !== null || userDateScope !== null;
-
   const filteredMatches = useMemo(() => {
     const q = teamSearch.trim().toLowerCase();
     return snapshot.matches.filter((match) => {
@@ -219,6 +249,7 @@ export const FixturesTable: React.FC<FixturesTableProps> = ({
     });
   }, [snapshot.matches, stageFilter, matchdayFilter, statusFilter, teamSearch]);
 
+  // Chronological calendar days available after filtering (dated ascending, TBD last)
   const allDateGroups = useMemo<CalendarDateGroup[]>(() => {
     const groupsMap = new Map<string, CalendarDateGroup>();
 
@@ -239,51 +270,42 @@ export const FixturesTable: React.FC<FixturesTableProps> = ({
       }
     }
 
-    const upcoming = Array.from(groupsMap.values())
-      .filter((g) => g.isUpcomingOrCurrent && g.dateKey !== 'TBD')
+    const dated = Array.from(groupsMap.values())
+      .filter((g) => g.dateKey !== 'TBD')
       .sort((a, b) => a.dateKey.localeCompare(b.dateKey));
 
-    const past = Array.from(groupsMap.values())
-      .filter((g) => !g.isUpcomingOrCurrent)
-      .sort((a, b) => b.dateKey.localeCompare(a.dateKey));
-
     const tbd = groupsMap.get('TBD');
-
-    return [...upcoming, ...past, ...(tbd ? [tbd] : [])];
+    return tbd ? [...dated, tbd] : dated;
   }, [filteredMatches, timezoneMode, todayKey]);
 
-  const upcomingGroups = useMemo(
-    () => allDateGroups.filter((g) => g.isUpcomingOrCurrent),
-    [allDateGroups],
-  );
-  const pastGroups = useMemo(
-    () => allDateGroups.filter((g) => !g.isUpcomingOrCurrent),
-    [allDateGroups],
+  const defaultDateKey = useMemo(
+    () => resolveDefaultDateKey(allDateGroups, todayKey),
+    [allDateGroups, todayKey],
   );
 
-  const effectiveDateScope: DateScope = useMemo(() => {
-    if (userDateScope) return userDateScope;
-    if (hasSearchOrAttributeFilter || selectedDateKey) return 'all';
-    return upcomingGroups.length > 0 ? 'upcoming' : 'all';
-  }, [userDateScope, hasSearchOrAttributeFilter, selectedDateKey, upcomingGroups.length]);
+  // Enforce strictly ONE selected calendar day rendered at any time
+  const effectiveSelectedDateKey = useMemo(() => {
+    if (allDateGroups.length === 0) return null;
+    if (selectedDateKey && allDateGroups.some((g) => g.dateKey === selectedDateKey)) {
+      return selectedDateKey;
+    }
+    return defaultDateKey;
+  }, [allDateGroups, selectedDateKey, defaultDateKey]);
 
-  const visibleDateGroups = useMemo(() => {
-    if (selectedDateKey) {
-      return allDateGroups.filter((g) => g.dateKey === selectedDateKey);
-    }
-    if (effectiveDateScope === 'upcoming') {
-      return upcomingGroups;
-    }
-    if (effectiveDateScope === 'past') {
-      return pastGroups;
-    }
-    return allDateGroups;
-  }, [allDateGroups, upcomingGroups, pastGroups, effectiveDateScope, selectedDateKey]);
+  const activeDateGroup = useMemo(() => {
+    if (!effectiveSelectedDateKey) return null;
+    return allDateGroups.find((g) => g.dateKey === effectiveSelectedDateKey) ?? null;
+  }, [allDateGroups, effectiveSelectedDateKey]);
 
-  const visibleMatchesCount = useMemo(
-    () => visibleDateGroups.reduce((sum, g) => sum + g.matches.length, 0),
-    [visibleDateGroups],
-  );
+  const activeDateIndex = useMemo(() => {
+    if (!activeDateGroup) return -1;
+    return allDateGroups.findIndex((g) => g.dateKey === activeDateGroup.dateKey);
+  }, [allDateGroups, activeDateGroup]);
+
+  const hasCustomDateSelection =
+    effectiveSelectedDateKey !== null && effectiveSelectedDateKey !== defaultDateKey;
+
+  const hasAnyActiveFilter = hasSearchOrAttributeFilter || hasCustomDateSelection;
 
   const resetFilters = () => {
     setStageFilter('ALL');
@@ -291,7 +313,6 @@ export const FixturesTable: React.FC<FixturesTableProps> = ({
     setStatusFilter('ALL');
     setTeamSearch('');
     setSelectedDateKey(null);
-    setUserDateScope(null);
   };
 
   const handleInspect = (match: KnockoutMatch) => {
@@ -321,7 +342,8 @@ export const FixturesTable: React.FC<FixturesTableProps> = ({
             </h2>
           </div>
           <p className="font-mono-tabular text-xs text-[#7f91ad]">
-            عرض {visibleMatchesCount} من أصل {snapshot.matches.length} مباراة موثقة ·{' '}
+            عرض {activeDateGroup ? activeDateGroup.matches.length : 0} من أصل{' '}
+            {snapshot.matches.length} مباراة موثقة ·{' '}
             {timezoneMode === 'cairo' ? 'توقيت مصر (نظام 12 ساعة)' : 'التوقيت المحلي (نظام 12 ساعة)'}
           </p>
         </div>
@@ -434,105 +456,110 @@ export const FixturesTable: React.FC<FixturesTableProps> = ({
           </button>
         </div>
 
-        {/* Immediately Visible Date Navigation Strip */}
-        {snapshot.matches.length > 0 && (
+        {/* Prominent Single-Day Chooser Above Cards */}
+        {snapshot.matches.length > 0 && allDateGroups.length > 0 && (
           <div
-            aria-label="التنقل السريع حسب تواريخ المباريات"
-            className="mb-8 space-y-3 rounded-md border border-[#c4d2e8]/15 bg-[#0d172b]/80 p-4"
+            role="region"
+            aria-label="اختيار يوم المباريات"
+            className="mb-7 space-y-3 rounded-lg border border-[#2f7bff]/30 bg-[#0d172b] p-4"
           >
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div
-                role="group"
-                aria-label="نطاق التواريخ المعروضة"
-                className="inline-flex flex-wrap gap-1.5 rounded-md border border-[#c4d2e8]/15 bg-[#070d19] p-1"
-              >
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedDateKey(null);
-                    setUserDateScope('upcoming');
-                  }}
-                  aria-pressed={effectiveDateScope === 'upcoming' && selectedDateKey === null}
-                  disabled={upcomingGroups.length === 0}
-                  className={`min-h-[40px] rounded px-3.5 py-1.5 text-xs font-medium transition-colors whitespace-nowrap disabled:opacity-45 ${
-                    effectiveDateScope === 'upcoming' && selectedDateKey === null
-                      ? 'bg-[#2f7bff] text-white'
-                      : 'text-[#b7c5da] hover:text-[#f4f7fb]'
-                  }`}
-                >
-                  القادمة والحالية ({upcomingGroups.reduce((s, g) => s + g.matches.length, 0)})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedDateKey(null);
-                    setUserDateScope('past');
-                  }}
-                  aria-pressed={effectiveDateScope === 'past' && selectedDateKey === null}
-                  disabled={pastGroups.length === 0}
-                  className={`min-h-[40px] rounded px-3.5 py-1.5 text-xs font-medium transition-colors whitespace-nowrap disabled:opacity-45 ${
-                    effectiveDateScope === 'past' && selectedDateKey === null
-                      ? 'bg-[#2f7bff] text-white'
-                      : 'text-[#b7c5da] hover:text-[#f4f7fb]'
-                  }`}
-                >
-                  النتائج السابقة ({pastGroups.reduce((s, g) => s + g.matches.length, 0)})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedDateKey(null);
-                    setUserDateScope('all');
-                  }}
-                  aria-pressed={effectiveDateScope === 'all' && selectedDateKey === null}
-                  className={`min-h-[40px] rounded px-3.5 py-1.5 text-xs font-medium transition-colors whitespace-nowrap ${
-                    effectiveDateScope === 'all' && selectedDateKey === null
-                      ? 'bg-[#2f7bff] text-white'
-                      : 'text-[#b7c5da] hover:text-[#f4f7fb]'
-                  }`}
-                >
-                  جميع التواريخ ({filteredMatches.length})
-                </button>
+            <div className="flex flex-wrap items-center justify-between gap-2.5">
+              <div className="flex items-center gap-2 text-xs font-semibold text-[#f4f7fb]">
+                <Calendar className="h-4 w-4 shrink-0 text-[#5ca0ff]" aria-hidden="true" />
+                <span>اختر يوم المباريات</span>
+                <span className="font-mono-tabular font-normal text-[#7f91ad]">
+                  ({allDateGroups.length}{' '}
+                  {allDateGroups.length === 1 ? 'يوم متاح' : allDateGroups.length <= 10 ? 'أيام متاحة' : 'يومًا متاحًا'})
+                </span>
               </div>
 
-              {selectedDateKey && (
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => setSelectedDateKey(null)}
-                  className="min-h-[40px] rounded border border-[#c4d2e8]/20 bg-[#12203b] px-3 py-1.5 text-xs font-medium text-[#f4f7fb] hover:border-[#2f7bff]"
+                  onClick={() => {
+                    if (activeDateIndex > 0) {
+                      setSelectedDateKey(allDateGroups[activeDateIndex - 1].dateKey);
+                    }
+                  }}
+                  disabled={activeDateIndex <= 0}
+                  aria-label="اليوم السابق"
+                  className="inline-flex min-h-[40px] items-center gap-1 rounded border border-[#c4d2e8]/20 bg-[#070d19] px-3 py-1.5 text-xs font-medium text-[#d8e1ee] transition-colors hover:border-[#2f7bff] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  إظهار كل تواريخ النطاق
+                  <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span>اليوم السابق</span>
                 </button>
-              )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (activeDateIndex >= 0 && activeDateIndex < allDateGroups.length - 1) {
+                      setSelectedDateKey(allDateGroups[activeDateIndex + 1].dateKey);
+                    }
+                  }}
+                  disabled={activeDateIndex < 0 || activeDateIndex >= allDateGroups.length - 1}
+                  aria-label="اليوم التالي"
+                  className="inline-flex min-h-[40px] items-center gap-1 rounded border border-[#c4d2e8]/20 bg-[#070d19] px-3 py-1.5 text-xs font-medium text-[#d8e1ee] transition-colors hover:border-[#2f7bff] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <span>اليوم التالي</span>
+                  <ChevronLeft className="h-3.5 w-3.5" aria-hidden="true" />
+                </button>
+              </div>
             </div>
 
-            {allDateGroups.length > 0 && (
-              <div className="flex items-center gap-2 overflow-x-auto pb-1">
-                <span className="shrink-0 text-xs font-medium text-[#7f91ad]">انتقال لتاريخ:</span>
-                {allDateGroups.map((group) => {
-                  const isActiveDate = selectedDateKey === group.dateKey;
-                  return (
-                    <button
-                      key={group.dateKey}
-                      type="button"
-                      onClick={() =>
-                        setSelectedDateKey(isActiveDate ? null : group.dateKey)
-                      }
-                      aria-pressed={isActiveDate}
-                      className={`min-h-[38px] shrink-0 rounded border px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap ${
-                        isActiveDate
-                          ? 'border-[#2f7bff] bg-[#2f7bff] text-white'
-                          : group.isUpcomingOrCurrent
-                            ? 'border-[#5ca0ff]/35 bg-[#12203b] text-[#f4f7fb] hover:border-[#2f7bff]'
-                            : 'border-[#c4d2e8]/15 bg-[#070d19] text-[#b7c5da] hover:border-[#5ca0ff]/50 hover:text-white'
+            <div
+              role="group"
+              aria-label="قائمة تواريخ المباريات المتاحة"
+              className="flex items-center gap-2 overflow-x-auto pb-1"
+            >
+              {allDateGroups.map((group) => {
+                const isSelected = group.dateKey === activeDateGroup?.dateKey;
+                const isToday = group.dateKey === todayKey;
+                const dayStatusTag = isToday
+                  ? 'اليوم'
+                  : !group.isUpcomingOrCurrent
+                    ? 'سابق'
+                    : null;
+
+                return (
+                  <button
+                    key={group.dateKey}
+                    type="button"
+                    data-date-key={group.dateKey}
+                    onClick={() => setSelectedDateKey(group.dateKey)}
+                    aria-pressed={isSelected}
+                    className={`flex min-h-[44px] shrink-0 items-center gap-2 rounded-md border px-3.5 py-2 text-xs font-medium transition-colors whitespace-nowrap ${
+                      isSelected
+                        ? 'border-[#2f7bff] bg-[#2f7bff] text-white'
+                        : group.isUpcomingOrCurrent
+                          ? 'border-[#5ca0ff]/35 bg-[#12203b] text-[#f4f7fb] hover:border-[#2f7bff]'
+                          : 'border-[#c4d2e8]/18 bg-[#070d19] text-[#b7c5da] hover:border-[#5ca0ff]/50 hover:text-white'
+                    }`}
+                  >
+                    <span>{group.shortDateLabel}</span>
+                    {dayStatusTag && (
+                      <span
+                        className={`rounded px-1.5 py-0.5 text-[10px] ${
+                          isSelected
+                            ? 'bg-white/20 text-white'
+                            : 'bg-[#10203d] text-[#8dc0ff]'
+                        }`}
+                      >
+                        {dayStatusTag}
+                      </span>
+                    )}
+                    <span
+                      dir="ltr"
+                      className={`rounded px-1.5 py-0.5 font-mono-tabular text-[11px] ${
+                        isSelected
+                          ? 'bg-black/20 text-white'
+                          : 'bg-[#070d19]/75 text-[#8dc0ff]'
                       }`}
                     >
-                      {group.shortDateLabel}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+                      {group.matches.length}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
 
@@ -557,13 +584,13 @@ export const FixturesTable: React.FC<FixturesTableProps> = ({
               </button>
             </div>
           </div>
-        ) : visibleDateGroups.length === 0 ? (
+        ) : !activeDateGroup ? (
           <div className="rounded-md border border-[#c4d2e8]/15 bg-[#0d172b] px-6 py-10 text-center">
             <h3 className="font-display text-xl font-semibold text-[#f4f7fb]">
               لا توجد مباريات مطابقة للبحث أو التصفية الحالية
             </h3>
             <p className="mx-auto mt-2 max-w-lg text-sm text-[#b7c5da]">
-              جرّب مسح البحث أو التبديل إلى جميع التواريخ أو إعادة تعيين الفلاتر.
+              جرّب مسح البحث أو تغيير الفلاتر أو إعادة تعيين الفلاتر للعودة إلى يوم المباريات الافتراضي.
             </p>
             <div className="mt-5 flex justify-center gap-3">
               <button
@@ -577,41 +604,46 @@ export const FixturesTable: React.FC<FixturesTableProps> = ({
           </div>
         ) : (
           <div className="space-y-9">
-            {visibleDateGroups.map((group) => (
-              <section
-                key={group.dateKey}
-                aria-label={`مباريات ${group.dateLabel}`}
-                className="space-y-4"
-              >
-                {/* Unmissable Full Arabic Weekday + Date Heading with Blue Date Separator */}
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-[#2f7bff] pb-2.5">
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    <span
-                      aria-hidden="true"
-                      className="inline-block h-2.5 w-2.5 shrink-0 rounded-full bg-[#2f7bff]"
-                    />
-                    <h3 className="font-display text-xl font-bold text-[#f4f7fb] sm:text-2xl">
-                      {group.dateLabel}
-                    </h3>
-                    <span className="rounded border border-[#2f7bff]/40 bg-[#10203d] px-2 py-0.5 text-[11px] font-medium text-[#8dc0ff]">
-                      {group.isUpcomingOrCurrent ? 'قادمة / جارية' : 'نتائج سابقة'}
-                    </span>
-                  </div>
-                  <span className="font-mono-tabular text-xs font-medium text-[#b7c5da]">
-                    {group.matches.length}{' '}
-                    {group.matches.length === 1
-                      ? 'مباراة'
-                      : group.matches.length === 2
-                        ? 'مباراتان'
-                        : group.matches.length <= 10
-                          ? 'مباريات'
-                          : 'مباراة'}
+            <section
+              key={activeDateGroup.dateKey}
+              data-testid="active-date-group"
+              data-date-key={activeDateGroup.dateKey}
+              aria-label={`مباريات ${activeDateGroup.dateLabel}`}
+              className="space-y-4"
+            >
+              {/* Unmissable Full Arabic Weekday + Date Heading with Blue Date Separator */}
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-[#2f7bff] pb-2.5">
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <span
+                    aria-hidden="true"
+                    className="inline-block h-2.5 w-2.5 shrink-0 rounded-full bg-[#2f7bff]"
+                  />
+                  <h3 className="font-display text-xl font-bold text-[#f4f7fb] sm:text-2xl">
+                    {activeDateGroup.dateLabel}
+                  </h3>
+                  <span className="rounded border border-[#2f7bff]/40 bg-[#10203d] px-2 py-0.5 text-[11px] font-medium text-[#8dc0ff]">
+                    {activeDateGroup.dateKey === todayKey
+                      ? 'اليوم'
+                      : activeDateGroup.isUpcomingOrCurrent
+                        ? 'قادمة / جارية'
+                        : 'نتائج سابقة'}
                   </span>
                 </div>
+                <span className="font-mono-tabular text-xs font-medium text-[#b7c5da]">
+                  {activeDateGroup.matches.length}{' '}
+                  {activeDateGroup.matches.length === 1
+                    ? 'مباراة'
+                    : activeDateGroup.matches.length === 2
+                      ? 'مباراتان'
+                      : activeDateGroup.matches.length <= 10
+                        ? 'مباريات'
+                        : 'مباراة'}
+                </span>
+              </div>
 
-                {/* Unified Facing-Off Daily Fixture Cards for Both Mobile (1 col) and Desktop (2-3 cols) */}
-                <div className="grid grid-cols-1 gap-3.5 md:grid-cols-2 xl:grid-cols-3">
-                  {group.matches.map((match) => {
+              {/* Unified Facing-Off Daily Fixture Cards for Both Mobile (1 col) and Desktop (2-3 cols) */}
+              <div className="grid grid-cols-1 gap-3.5 md:grid-cols-2 xl:grid-cols-3">
+                {activeDateGroup.matches.map((match) => {
                     const kickoff = formatKickoffTime(match.utcDate, timezoneMode);
                     const scoreInfo = getMatchScoreDisplay(match);
                     const homeName = getArabicClubDisplayName(match.homeTeam);
@@ -736,10 +768,9 @@ export const FixturesTable: React.FC<FixturesTableProps> = ({
                         </div>
                       </article>
                     );
-                  })}
-                </div>
-              </section>
-            ))}
+                })}
+              </div>
+            </section>
 
             {/* Expandable Source / Check-Date Note for Egypt Broadcaster Schedule */}
             <details className="rounded-md border border-[#c4d2e8]/15 bg-[#0d172b]/80 px-4 py-3 text-xs text-[#9fb1ca]">
