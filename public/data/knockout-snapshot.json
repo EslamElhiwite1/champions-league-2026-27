@@ -8,7 +8,7 @@
   "statusMessage": "Normalized 144 2026/27 Champions League fixture(s). Round of 16 through Final knockout ties remain TBD pending draw.",
   "sourceName": "football-data.org",
   "sourceLastUpdatedUtc": "2026-11-23T00:20:25.000Z",
-  "ingestedAtUtc": "2026-11-23T18:23:01.852Z",
+  "ingestedAtUtc": "2026-11-23T18:26:17.159Z",
   "ties": [
     {
       "tieId": "R16-1",
