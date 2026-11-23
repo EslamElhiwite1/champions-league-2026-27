@@ -6,3 +6,6 @@ coverage/
 *.log
 .env*
 !.env.example
+
+.goal-cache.json
+public/match-details/
