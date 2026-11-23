@@ -109,6 +109,7 @@ jobs:
       - name: Render provider match details for app display
         env:
           GOAL_API_KEY: ${{ secrets.GOAL_API_KEY }}
+          GOAL_SCHEDULED: ${{ github.event_name == 'schedule' }}
         run: npx tsx scripts/refresh-details.ts
 
       - name: Build static site for GitHub Pages base path
