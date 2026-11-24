@@ -7,8 +7,8 @@
   "ingestionStatus": "ok",
   "statusMessage": "تمت مزامنة 144 مباراة في دوري أبطال أوروبا 2026/27. مواجهات دور الـ16 حتى النهائي لا تزال بانتظار القرعة والتأهل.",
   "sourceName": "football-data.org",
-  "sourceLastUpdatedUtc": "2026-11-24T20:13:31.000Z",
-  "ingestedAtUtc": "2026-11-24T20:13:59.639Z",
+  "sourceLastUpdatedUtc": "2026-11-24T21:13:15.000Z",
+  "ingestedAtUtc": "2026-11-24T21:14:23.492Z",
   "ties": [
     {
       "tieId": "R16-1",
@@ -4644,16 +4644,19 @@
         "duration": "REGULAR",
         "openPlay": {
           "home": 0,
-          "away": 0
+          "away": 1
         },
-        "halfTime": null,
+        "halfTime": {
+          "home": 0,
+          "away": 1
+        },
         "regularTime": {
           "home": 0,
-          "away": 0
+          "away": 1
         },
         "extraTime": null,
         "penalties": null,
-        "winnerSide": "DRAW",
+        "winnerSide": "AWAY_TEAM",
         "isScoreAmbiguous": false
       },
       "resolutionNote": null,
@@ -4696,7 +4699,10 @@
           "home": 0,
           "away": 0
         },
-        "halfTime": null,
+        "halfTime": {
+          "home": 0,
+          "away": 0
+        },
         "regularTime": {
           "home": 0,
           "away": 0
@@ -4743,17 +4749,20 @@
       "score": {
         "duration": "REGULAR",
         "openPlay": {
-          "home": 0,
+          "home": 1,
           "away": 0
         },
-        "halfTime": null,
+        "halfTime": {
+          "home": 1,
+          "away": 0
+        },
         "regularTime": {
-          "home": 0,
+          "home": 1,
           "away": 0
         },
         "extraTime": null,
         "penalties": null,
-        "winnerSide": "DRAW",
+        "winnerSide": "HOME_TEAM",
         "isScoreAmbiguous": false
       },
       "resolutionNote": null,
@@ -4796,7 +4805,10 @@
           "home": 0,
           "away": 1
         },
-        "halfTime": null,
+        "halfTime": {
+          "home": 0,
+          "away": 1
+        },
         "regularTime": {
           "home": 0,
           "away": 1
@@ -4844,16 +4856,19 @@
         "duration": "REGULAR",
         "openPlay": {
           "home": 0,
-          "away": 0
+          "away": 1
         },
-        "halfTime": null,
+        "halfTime": {
+          "home": 0,
+          "away": 1
+        },
         "regularTime": {
           "home": 0,
-          "away": 0
+          "away": 1
         },
         "extraTime": null,
         "penalties": null,
-        "winnerSide": "DRAW",
+        "winnerSide": "AWAY_TEAM",
         "isScoreAmbiguous": false
       },
       "resolutionNote": null,
@@ -4893,12 +4908,15 @@
       "score": {
         "duration": "REGULAR",
         "openPlay": {
-          "home": 1,
+          "home": 2,
           "away": 0
         },
-        "halfTime": null,
+        "halfTime": {
+          "home": 2,
+          "away": 0
+        },
         "regularTime": {
-          "home": 1,
+          "home": 2,
           "away": 0
         },
         "extraTime": null,
@@ -4946,7 +4964,10 @@
           "home": 0,
           "away": 0
         },
-        "halfTime": null,
+        "halfTime": {
+          "home": 0,
+          "away": 0
+        },
         "regularTime": {
           "home": 0,
           "away": 0
