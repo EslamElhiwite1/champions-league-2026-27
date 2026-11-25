@@ -7,8 +7,8 @@
   "ingestionStatus": "ok",
   "statusMessage": "تمت مزامنة 144 مباراة في دوري أبطال أوروبا 2026/27. مواجهات دور الـ16 حتى النهائي لا تزال بانتظار القرعة والتأهل.",
   "sourceName": "football-data.org",
-  "sourceLastUpdatedUtc": "2026-11-25T21:15:55.000Z",
-  "ingestedAtUtc": "2026-11-25T21:16:58.045Z",
+  "sourceLastUpdatedUtc": "2026-11-25T22:10:07.000Z",
+  "ingestedAtUtc": "2026-11-25T22:20:11.910Z",
   "ties": [
     {
       "tieId": "R16-1",
@@ -5097,7 +5097,7 @@
       "isSingleMatch": true,
       "isKnockoutBracketStage": false,
       "utcDate": "2026-11-25T20:00:00Z",
-      "status": "IN_PLAY",
+      "status": "FINISHED",
       "homeTeam": {
         "id": 108,
         "name": "FC Internazionale Milano",
@@ -5120,7 +5120,7 @@
       "score": {
         "duration": "REGULAR",
         "openPlay": {
-          "home": 0,
+          "home": 2,
           "away": 0
         },
         "halfTime": {
@@ -5128,12 +5128,12 @@
           "away": 0
         },
         "regularTime": {
-          "home": 0,
+          "home": 2,
           "away": 0
         },
         "extraTime": null,
         "penalties": null,
-        "winnerSide": "DRAW",
+        "winnerSide": "HOME_TEAM",
         "isScoreAmbiguous": false
       },
       "resolutionNote": null,
@@ -5150,7 +5150,7 @@
       "isSingleMatch": true,
       "isKnockoutBracketStage": false,
       "utcDate": "2026-11-25T20:00:00Z",
-      "status": "IN_PLAY",
+      "status": "FINISHED",
       "homeTeam": {
         "id": 78,
         "name": "Club Atlético de Madrid",
@@ -5203,7 +5203,7 @@
       "isSingleMatch": true,
       "isKnockoutBracketStage": false,
       "utcDate": "2026-11-25T20:00:00Z",
-      "status": "IN_PLAY",
+      "status": "FINISHED",
       "homeTeam": {
         "id": 524,
         "name": "Paris Saint-Germain FC",
@@ -5226,16 +5226,16 @@
       "score": {
         "duration": "REGULAR",
         "openPlay": {
-          "home": 1,
-          "away": 1
+          "home": 2,
+          "away": 2
         },
         "halfTime": {
           "home": 1,
           "away": 1
         },
         "regularTime": {
-          "home": 1,
-          "away": 1
+          "home": 2,
+          "away": 2
         },
         "extraTime": null,
         "penalties": null,
@@ -5256,7 +5256,7 @@
       "isSingleMatch": true,
       "isKnockoutBracketStage": false,
       "utcDate": "2026-11-25T20:00:00Z",
-      "status": "IN_PLAY",
+      "status": "FINISHED",
       "homeTeam": {
         "id": 851,
         "name": "Club Brugge KV",
@@ -5280,7 +5280,7 @@
         "duration": "REGULAR",
         "openPlay": {
           "home": 0,
-          "away": 1
+          "away": 3
         },
         "halfTime": {
           "home": 0,
@@ -5288,7 +5288,7 @@
         },
         "regularTime": {
           "home": 0,
-          "away": 1
+          "away": 3
         },
         "extraTime": null,
         "penalties": null,
@@ -5309,7 +5309,7 @@
       "isSingleMatch": true,
       "isKnockoutBracketStage": false,
       "utcDate": "2026-11-25T20:00:00Z",
-      "status": "IN_PLAY",
+      "status": "FINISHED",
       "homeTeam": {
         "id": 521,
         "name": "Lille OSC",
@@ -5332,7 +5332,7 @@
       "score": {
         "duration": "REGULAR",
         "openPlay": {
-          "home": 1,
+          "home": 2,
           "away": 1
         },
         "halfTime": {
@@ -5340,12 +5340,12 @@
           "away": 1
         },
         "regularTime": {
-          "home": 1,
+          "home": 2,
           "away": 1
         },
         "extraTime": null,
         "penalties": null,
-        "winnerSide": "DRAW",
+        "winnerSide": "HOME_TEAM",
         "isScoreAmbiguous": false
       },
       "resolutionNote": null,
@@ -5362,7 +5362,7 @@
       "isSingleMatch": true,
       "isKnockoutBracketStage": false,
       "utcDate": "2026-11-25T20:00:00Z",
-      "status": "IN_PLAY",
+      "status": "FINISHED",
       "homeTeam": {
         "id": 498,
         "name": "Sporting Clube de Portugal",
@@ -5385,7 +5385,7 @@
       "score": {
         "duration": "REGULAR",
         "openPlay": {
-          "home": 1,
+          "home": 2,
           "away": 2
         },
         "halfTime": {
@@ -5393,12 +5393,12 @@
           "away": 0
         },
         "regularTime": {
-          "home": 1,
+          "home": 2,
           "away": 2
         },
         "extraTime": null,
         "penalties": null,
-        "winnerSide": "AWAY_TEAM",
+        "winnerSide": "DRAW",
         "isScoreAmbiguous": false
       },
       "resolutionNote": null,
@@ -5415,7 +5415,7 @@
       "isSingleMatch": true,
       "isKnockoutBracketStage": false,
       "utcDate": "2026-11-25T20:00:00Z",
-      "status": "IN_PLAY",
+      "status": "FINISHED",
       "homeTeam": {
         "id": 1887,
         "name": "FK Shakhtar Donetsk",
@@ -5439,7 +5439,7 @@
         "duration": "REGULAR",
         "openPlay": {
           "home": 0,
-          "away": 0
+          "away": 1
         },
         "halfTime": {
           "home": 0,
@@ -5447,11 +5447,11 @@
         },
         "regularTime": {
           "home": 0,
-          "away": 0
+          "away": 1
         },
         "extraTime": null,
         "penalties": null,
-        "winnerSide": "DRAW",
+        "winnerSide": "AWAY_TEAM",
         "isScoreAmbiguous": false
       },
       "resolutionNote": null,
