@@ -7,8 +7,8 @@
   "ingestionStatus": "ok",
   "statusMessage": "تمت مزامنة 144 مباراة في دوري أبطال أوروبا 2026/27. مواجهات دور الـ16 حتى النهائي لا تزال بانتظار القرعة والتأهل.",
   "sourceName": "football-data.org",
-  "sourceLastUpdatedUtc": "2026-11-24T00:20:26.000Z",
-  "ingestedAtUtc": "2026-11-24T22:17:58.057Z",
+  "sourceLastUpdatedUtc": "2026-11-24T23:25:01.000Z",
+  "ingestedAtUtc": "2026-11-25T00:02:27.887Z",
   "ties": [
     {
       "tieId": "R16-1",
@@ -4514,7 +4514,7 @@
       "isSingleMatch": true,
       "isKnockoutBracketStage": false,
       "utcDate": "2026-11-24T17:45:00Z",
-      "status": "TIMED",
+      "status": "FINISHED",
       "homeTeam": {
         "id": 610,
         "name": "Galatasaray SK",
@@ -4536,12 +4536,21 @@
       "venue": null,
       "score": {
         "duration": "REGULAR",
-        "openPlay": null,
-        "halfTime": null,
-        "regularTime": null,
+        "openPlay": {
+          "home": 1,
+          "away": 0
+        },
+        "halfTime": {
+          "home": 0,
+          "away": 0
+        },
+        "regularTime": {
+          "home": 1,
+          "away": 0
+        },
         "extraTime": null,
         "penalties": null,
-        "winnerSide": null,
+        "winnerSide": "HOME_TEAM",
         "isScoreAmbiguous": false
       },
       "resolutionNote": null,
@@ -4558,7 +4567,7 @@
       "isSingleMatch": true,
       "isKnockoutBracketStage": false,
       "utcDate": "2026-11-24T17:45:00Z",
-      "status": "TIMED",
+      "status": "FINISHED",
       "homeTeam": {
         "id": 5721,
         "name": "FK Bodø/Glimt",
@@ -4580,12 +4589,21 @@
       "venue": null,
       "score": {
         "duration": "REGULAR",
-        "openPlay": null,
-        "halfTime": null,
-        "regularTime": null,
+        "openPlay": {
+          "home": 1,
+          "away": 0
+        },
+        "halfTime": {
+          "home": 0,
+          "away": 0
+        },
+        "regularTime": {
+          "home": 1,
+          "away": 0
+        },
         "extraTime": null,
         "penalties": null,
-        "winnerSide": null,
+        "winnerSide": "HOME_TEAM",
         "isScoreAmbiguous": false
       },
       "resolutionNote": null,
@@ -4602,7 +4620,7 @@
       "isSingleMatch": true,
       "isKnockoutBracketStage": false,
       "utcDate": "2026-11-24T20:00:00Z",
-      "status": "TIMED",
+      "status": "FINISHED",
       "homeTeam": {
         "id": 86,
         "name": "Real Madrid CF",
@@ -4624,12 +4642,21 @@
       "venue": null,
       "score": {
         "duration": "REGULAR",
-        "openPlay": null,
-        "halfTime": null,
-        "regularTime": null,
+        "openPlay": {
+          "home": 5,
+          "away": 1
+        },
+        "halfTime": {
+          "home": 0,
+          "away": 1
+        },
+        "regularTime": {
+          "home": 5,
+          "away": 1
+        },
         "extraTime": null,
         "penalties": null,
-        "winnerSide": null,
+        "winnerSide": "HOME_TEAM",
         "isScoreAmbiguous": false
       },
       "resolutionNote": null,
@@ -4646,7 +4673,7 @@
       "isSingleMatch": true,
       "isKnockoutBracketStage": false,
       "utcDate": "2026-11-24T20:00:00Z",
-      "status": "TIMED",
+      "status": "FINISHED",
       "homeTeam": {
         "id": 65,
         "name": "Manchester City FC",
@@ -4668,12 +4695,21 @@
       "venue": null,
       "score": {
         "duration": "REGULAR",
-        "openPlay": null,
-        "halfTime": null,
-        "regularTime": null,
+        "openPlay": {
+          "home": 2,
+          "away": 2
+        },
+        "halfTime": {
+          "home": 0,
+          "away": 0
+        },
+        "regularTime": {
+          "home": 2,
+          "away": 2
+        },
         "extraTime": null,
         "penalties": null,
-        "winnerSide": null,
+        "winnerSide": "DRAW",
         "isScoreAmbiguous": false
       },
       "resolutionNote": null,
@@ -4690,7 +4726,7 @@
       "isSingleMatch": true,
       "isKnockoutBracketStage": false,
       "utcDate": "2026-11-24T20:00:00Z",
-      "status": "TIMED",
+      "status": "FINISHED",
       "homeTeam": {
         "id": 57,
         "name": "Arsenal FC",
@@ -4712,12 +4748,21 @@
       "venue": null,
       "score": {
         "duration": "REGULAR",
-        "openPlay": null,
-        "halfTime": null,
-        "regularTime": null,
+        "openPlay": {
+          "home": 1,
+          "away": 1
+        },
+        "halfTime": {
+          "home": 1,
+          "away": 0
+        },
+        "regularTime": {
+          "home": 1,
+          "away": 1
+        },
         "extraTime": null,
         "penalties": null,
-        "winnerSide": null,
+        "winnerSide": "DRAW",
         "isScoreAmbiguous": false
       },
       "resolutionNote": null,
@@ -4734,7 +4779,7 @@
       "isSingleMatch": true,
       "isKnockoutBracketStage": false,
       "utcDate": "2026-11-24T20:00:00Z",
-      "status": "TIMED",
+      "status": "FINISHED",
       "homeTeam": {
         "id": 675,
         "name": "Feyenoord Rotterdam",
@@ -4756,12 +4801,21 @@
       "venue": null,
       "score": {
         "duration": "REGULAR",
-        "openPlay": null,
-        "halfTime": null,
-        "regularTime": null,
+        "openPlay": {
+          "home": 0,
+          "away": 1
+        },
+        "halfTime": {
+          "home": 0,
+          "away": 1
+        },
+        "regularTime": {
+          "home": 0,
+          "away": 1
+        },
         "extraTime": null,
         "penalties": null,
-        "winnerSide": null,
+        "winnerSide": "AWAY_TEAM",
         "isScoreAmbiguous": false
       },
       "resolutionNote": null,
@@ -4778,7 +4832,7 @@
       "isSingleMatch": true,
       "isKnockoutBracketStage": false,
       "utcDate": "2026-11-24T20:00:00Z",
-      "status": "TIMED",
+      "status": "FINISHED",
       "homeTeam": {
         "id": 7509,
         "name": "ŠK Slovan Bratislava",
@@ -4800,12 +4854,21 @@
       "venue": null,
       "score": {
         "duration": "REGULAR",
-        "openPlay": null,
-        "halfTime": null,
-        "regularTime": null,
+        "openPlay": {
+          "home": 0,
+          "away": 2
+        },
+        "halfTime": {
+          "home": 0,
+          "away": 1
+        },
+        "regularTime": {
+          "home": 0,
+          "away": 2
+        },
         "extraTime": null,
         "penalties": null,
-        "winnerSide": null,
+        "winnerSide": "AWAY_TEAM",
         "isScoreAmbiguous": false
       },
       "resolutionNote": null,
@@ -4822,7 +4885,7 @@
       "isSingleMatch": true,
       "isKnockoutBracketStage": false,
       "utcDate": "2026-11-24T20:00:00Z",
-      "status": "TIMED",
+      "status": "FINISHED",
       "homeTeam": {
         "id": 721,
         "name": "RB Leipzig",
@@ -4844,12 +4907,21 @@
       "venue": null,
       "score": {
         "duration": "REGULAR",
-        "openPlay": null,
-        "halfTime": null,
-        "regularTime": null,
+        "openPlay": {
+          "home": 3,
+          "away": 1
+        },
+        "halfTime": {
+          "home": 2,
+          "away": 0
+        },
+        "regularTime": {
+          "home": 3,
+          "away": 1
+        },
         "extraTime": null,
         "penalties": null,
-        "winnerSide": null,
+        "winnerSide": "HOME_TEAM",
         "isScoreAmbiguous": false
       },
       "resolutionNote": null,
@@ -4866,7 +4938,7 @@
       "isSingleMatch": true,
       "isKnockoutBracketStage": false,
       "utcDate": "2026-11-24T20:00:00Z",
-      "status": "TIMED",
+      "status": "FINISHED",
       "homeTeam": {
         "id": 7397,
         "name": "Como 1907",
@@ -4888,12 +4960,21 @@
       "venue": null,
       "score": {
         "duration": "REGULAR",
-        "openPlay": null,
-        "halfTime": null,
-        "regularTime": null,
+        "openPlay": {
+          "home": 1,
+          "away": 0
+        },
+        "halfTime": {
+          "home": 0,
+          "away": 0
+        },
+        "regularTime": {
+          "home": 1,
+          "away": 0
+        },
         "extraTime": null,
         "penalties": null,
-        "winnerSide": null,
+        "winnerSide": "HOME_TEAM",
         "isScoreAmbiguous": false
       },
       "resolutionNote": null,
