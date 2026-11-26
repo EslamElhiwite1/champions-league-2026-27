@@ -7,8 +7,8 @@
   "ingestionStatus": "ok",
   "statusMessage": "تمت مزامنة 144 مباراة في دوري أبطال أوروبا 2026/27. مواجهات دور الـ16 حتى النهائي لا تزال بانتظار القرعة والتأهل.",
   "sourceName": "football-data.org",
-  "sourceLastUpdatedUtc": "2026-11-26T14:25:00.000Z",
-  "ingestedAtUtc": "2026-11-26T21:12:51.631Z",
+  "sourceLastUpdatedUtc": "2026-11-26T00:20:27.000Z",
+  "ingestedAtUtc": "2026-11-26T22:16:38.506Z",
   "ties": [
     {
       "tieId": "R16-1",
